@@ -1,119 +1,163 @@
-# SCOPE – Smart Continuous Parent Engagement System
+# SCOPE - Smart Continuous Parent Engagement System
 
-A scalable, production-ready platform to improve student academic performance through parental involvement, AI insights, and real-time school-parent communication.
+This is my final year project. The idea is to build a platform that helps schools stay connected with parents and improve student performance through regular communication and monitoring.
 
 ---
 
-## Architecture Overview
+## What this project does
+
+Most schools still rely on physical diaries or WhatsApp groups to communicate with parents. SCOPE replaces that with a proper system where:
+- Teachers can mark attendance and upload grades
+- Parents get instant notifications when their child is absent or scores low
+- There's a built-in chat between teachers and parents
+- The system predicts which students are at risk academically
+- Parents can request meetings with teachers
+
+---
+
+## Tech stack I used
+
+- **Frontend** - React.js with Tailwind CSS and Chart.js for graphs
+- **Backend** - Node.js with Express
+- **Database** - MongoDB Atlas (free tier)
+- **AI/ML** - Python Flask service using scikit-learn
+- **Notifications** - Firebase Cloud Messaging for push, Nodemailer + Brevo SMTP for emails
+- **Auth** - JWT tokens with bcrypt password hashing
+
+---
+
+## Project structure
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                        SCOPE Platform                        │
-├──────────────┬──────────────────────┬───────────────────────┤
-│  React.js    │   Node.js + Express  │   Python Flask (AI)   │
-│  Frontend    │   REST API Backend   │   Risk Prediction      │
-│  Port: 3000  │   Port: 5000         │   Port: 8000           │
-├──────────────┴──────────────────────┴───────────────────────┤
-│                    MongoDB Atlas (Cloud DB)                   │
-├─────────────────────────────────────────────────────────────┤
-│         Firebase Cloud Messaging  │  Nodemailer (Email)      │
-└─────────────────────────────────────────────────────────────┘
+smart-parent-engagement/
+  scope-frontend/      React app (port 3000)
+  scope-backend/       Node/Express API (port 5000)
+  scope-ai-service/    Python Flask AI (port 8000)
 ```
 
-## User Roles
-| Role    | Access                                              |
-|---------|-----------------------------------------------------|
-| Admin   | Full system control, analytics, user management     |
-| Teacher | Attendance, grades, homework, chat with parents     |
-| Parent  | View child's data, chat with teacher, notifications |
-| Student | View own grades, homework, submit assignments       |
+---
 
-## Modules
-1. Student Management
-2. Real-Time Attendance Monitoring
-3. Academic Performance Tracking
-4. Homework & Assignment Tracking
-5. Smart Notification System (Push/SMS/Email)
-6. Parent-Teacher Communication Hub
-7. AI-Based Student Risk Prediction
-8. AI Learning Recommendation System
-9. Parent Engagement Score
-10. Analytics Dashboard
-11. Multilingual Support (EN/HI/MR)
-12. Emotion / Feedback System
+## User roles
 
-## Tech Stack
-- **Frontend**: React.js, Chart.js, Tailwind CSS
-- **Backend**: Node.js, Express.js
-- **Database**: MongoDB Atlas
-- **AI Service**: Python, Flask, Scikit-learn
-- **Notifications**: Firebase Cloud Messaging, Nodemailer
-- **Auth**: JWT + bcrypt
+| Role | What they can do |
+|------|-----------------|
+| Admin | Manage all users, view analytics, bulk import students |
+| Teacher | Mark attendance, upload grades, post homework, chat with parents |
+| Parent | View child's grades and attendance, chat with teacher, request meetings |
+| Student | View own grades, homework, attendance |
 
-## Quick Start
+---
 
-### Prerequisites
-- Node.js >= 18
-- Python >= 3.9
-- MongoDB Atlas account
-- Firebase project
+## How to run locally
 
-### Backend
-```bash
+You need Node.js 18+, Python 3.9+, and a MongoDB Atlas connection string.
+
+**Backend**
+```
 cd scope-backend
 npm install
-cp .env.example .env   # fill in your values
+cp .env.example .env
+# fill in your MongoDB URI, JWT secret, email credentials
 npm run dev
 ```
 
-### Frontend
-```bash
+**Frontend**
+```
 cd scope-frontend
 npm install
 npm start
 ```
 
-### AI Service
-```bash
+**AI service**
+```
 cd scope-ai-service
 pip install -r requirements.txt
 python app.py
 ```
 
-## Environment Variables
-See `.env.example` in each service directory.
+---
 
-## API Documentation
-Base URL: `http://localhost:5000/api`
+## Environment variables
 
-| Method | Endpoint                        | Description                  |
-|--------|---------------------------------|------------------------------|
-| POST   | /auth/register                  | Register user                |
-| POST   | /auth/login                     | Login                        |
-| GET    | /students                       | List students                |
-| POST   | /attendance                     | Mark attendance              |
-| GET    | /attendance/:studentId          | Get attendance history       |
-| POST   | /grades                         | Upload grades                |
-| GET    | /grades/:studentId              | Get student grades           |
-| POST   | /homework                       | Create homework              |
-| GET    | /homework/:classId              | Get class homework           |
-| POST   | /notifications/send             | Send notification            |
-| GET    | /chat/:roomId                   | Get chat messages            |
-| POST   | /chat/send                      | Send message                 |
-| GET    | /analytics/dashboard            | Dashboard analytics          |
-| POST   | /feedback                       | Submit feedback              |
-| GET    | /engagement/:parentId           | Parent engagement score      |
+Each service has a `.env.example` file showing what variables are needed. Main ones are:
 
-AI Service: `http://localhost:8000`
+- `MONGO_URI` - MongoDB Atlas connection string
+- `JWT_SECRET` - any random secret string
+- `EMAIL_HOST`, `EMAIL_USER`, `EMAIL_PASS` - SMTP credentials (I used Brevo)
+- `AI_SERVICE_URL` - URL of the Flask service, default http://localhost:8000
+- `FIREBASE_SERVER_KEY` - for push notifications
 
-| Method | Endpoint              | Description                  |
-|--------|-----------------------|------------------------------|
-| POST   | /predict/risk         | Predict student risk level   |
-| POST   | /recommend/learning   | Get learning recommendations |
-| POST   | /train                | Retrain model                |
+---
+
+## API endpoints
+
+Base URL is `http://localhost:5000/api`
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | /auth/register | Register new user |
+| POST | /auth/login | Login |
+| GET | /students | Get all students |
+| POST | /attendance | Mark attendance |
+| GET | /attendance/:studentId | Get student attendance |
+| POST | /grades | Add grade |
+| GET | /grades/:studentId | Get student grades |
+| POST | /homework | Create homework |
+| GET | /homework/:classId | Get homework for a class |
+| POST | /notifications/send | Send notification |
+| GET | /chat/:roomId | Get chat messages |
+| POST | /chat/send | Send message |
+| GET | /ai/risk/:studentId | Get AI risk prediction |
+| GET | /ai/grade-trend/:studentId | Get grade trend forecast |
+| GET | /ai/attendance-anomaly/:studentId | Check attendance anomaly |
+
+---
+
+## AI features
+
+The AI service runs separately on port 8000. It has three main things:
+
+1. **Risk prediction** - uses a Random Forest model trained on attendance, grades and homework completion to predict if a student is at high/medium/low risk
+
+2. **Grade trend forecasting** - uses Linear Regression on past exam scores to predict the next score and show if a student is improving or declining per subject
+
+3. **Attendance anomaly detection** - uses Isolation Forest to detect unusual patterns like sudden drops or frequent Monday/Friday absences
+
+4. **Learning recommendations** - rule based system that suggests study resources for weak subjects
+
+---
+
+## Modules built
+
+1. Student management
+2. Attendance tracking with parent alerts
+3. Grade management with notifications
+4. Homework tracker
+5. Push and email notifications
+6. Parent-teacher chat (real-time with Socket.io)
+7. Meeting request system
+8. AI risk monitor for teachers
+9. Parent engagement scoring
+10. Admin analytics dashboard
+11. Bulk student import via CSV
+
+---
+
+## Known issues / things to improve
+
+- The AI model is trained on synthetic data right now, ideally it should be retrained on real school data
+- No mobile app yet, the React frontend is responsive but a native app would be better
+- File upload for assignments is not done yet
+- Multilingual support is partially done (i18n setup exists but translations are incomplete)
+
+---
 
 ## Deployment
-- Backend + AI: AWS EC2 / Railway / Render
-- Frontend: Vercel / Netlify
-- Database: MongoDB Atlas (M0 free tier to start)
-- File Storage: AWS S3 / Cloudinary
+
+- Backend and AI service can be deployed on Railway or Render (free tier works fine for demo)
+- Frontend goes on Vercel
+- Database is already on MongoDB Atlas cloud
+
+---
+
+*Built by Sneha Hudge as part of final year engineering project.*

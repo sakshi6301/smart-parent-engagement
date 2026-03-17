@@ -1,16 +1,17 @@
 import React from 'react';
 
 const colorMap = {
-  blue: { bg: '#eff6ff', icon: '#3b82f6', border: '#bfdbfe' },
-  green: { bg: '#f0fdf4', icon: '#10b981', border: '#bbf7d0' },
+  blue:   { bg: '#eff6ff', icon: '#3b82f6', border: '#bfdbfe' },
+  green:  { bg: '#f0fdf4', icon: '#10b981', border: '#bbf7d0' },
   yellow: { bg: '#fffbeb', icon: '#f59e0b', border: '#fde68a' },
-  red: { bg: '#fef2f2', icon: '#ef4444', border: '#fecaca' },
+  red:    { bg: '#fef2f2', icon: '#ef4444', border: '#fecaca' },
   purple: { bg: '#f5f3ff', icon: '#7c3aed', border: '#ddd6fe' },
-  cyan: { bg: '#ecfeff', icon: '#06b6d4', border: '#a5f3fc' },
+  cyan:   { bg: '#ecfeff', icon: '#06b6d4', border: '#a5f3fc' },
+  orange: { bg: '#fff7ed', icon: '#f97316', border: '#fed7aa' },
 };
 
 const StatCard = ({ title, value, icon, color = 'blue', subtitle, trend }) => {
-  const c = colorMap[color];
+  const c = colorMap[color] || colorMap.blue;
   return (
     <div style={{ ...styles.card, borderTop: `3px solid ${c.icon}` }}>
       <div style={styles.row}>

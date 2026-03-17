@@ -26,7 +26,7 @@ import Attendance from './pages/teacher/Attendance';
 import GradeManager from './pages/teacher/GradeManager';
 import HomeworkManager from './pages/teacher/HomeworkManager';
 import Chat from './pages/teacher/Chat';
-import AIRiskMonitor from './pages/teacher/AIRiskMonitor';
+import AIRiskMonitor from './pages/teacher/RiskMonitor';
 import Meetings from './pages/teacher/Meetings';
 import TeacherNotifications from './pages/teacher/Notifications';
 

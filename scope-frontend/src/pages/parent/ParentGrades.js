@@ -9,12 +9,20 @@ const color  = (p) => p >= 70 ? '#10b981' : p >= 40 ? '#f59e0b' : '#ef4444';
 
 const EXAM_LABELS = { unit_test: 'Unit Test', midterm: 'Midterm', final: 'Final', assignment: 'Assignment' };
 
+const TrendArrow = ({ trend, slope }) => {
+  if (trend === 'improving') return <span style={{ color: '#10b981', fontWeight: 700 }}>▲ Improving ({slope > 0 ? '+' : ''}{slope}/exam)</span>;
+  if (trend === 'declining') return <span style={{ color: '#ef4444', fontWeight: 700 }}>▼ Declining ({slope}/exam)</span>;
+  return <span style={{ color: '#f59e0b', fontWeight: 700 }}>→ Stable</span>;
+};
+
 const ParentGrades = () => {
   const [student, setStudent]   = useState(null);
   const [grades, setGrades]     = useState([]);
   const [loading, setLoading]   = useState(true);
-  const [filter, setFilter]     = useState('all'); // subject filter
+  const [filter, setFilter]     = useState('all');
   const [examFilter, setExamFilter] = useState('all');
+  const [trends, setTrends]     = useState({});
+  const [anomaly, setAnomaly]   = useState(null);
 
   useEffect(() => {
     api.get('/students').then(({ data }) => {
@@ -25,6 +33,10 @@ const ParentGrades = () => {
           setGrades(r.data.grades || []);
           setLoading(false);
         }).catch(() => setLoading(false));
+        // AI: grade trend
+        api.get(`/ai/grade-trend/${s._id}`).then(r => setTrends(r.data.trends || {})).catch(() => {});
+        // AI: attendance anomaly
+        api.get(`/ai/attendance-anomaly/${s._id}`).then(r => setAnomaly(r.data)).catch(() => {});
       } else {
         setLoading(false);
       }
@@ -72,6 +84,13 @@ const ParentGrades = () => {
         </div>
       </div>
 
+      {/* AI Anomaly Alert */}
+      {anomaly?.is_anomaly && (
+        <div style={S.anomalyAlert}>
+          ⚠️ <strong>Attendance Alert:</strong> {anomaly.message}
+        </div>
+      )}
+
       {grades.length === 0 ? (
         <div style={S.empty}>
           <span style={{ fontSize: '3rem' }}>📝</span>
@@ -80,6 +99,26 @@ const ParentGrades = () => {
         </div>
       ) : (
         <>
+          {/* AI Grade Trend Panel */}
+          {Object.keys(trends).length > 0 && (
+            <div style={S.trendCard}>
+              <h3 style={S.trendTitle}>🤖 AI Grade Trend Forecast</h3>
+              <div style={S.trendGrid}>
+                {Object.entries(trends).map(([sub, t]) => (
+                  <div key={sub} style={S.trendItem}>
+                    <div style={{ fontWeight: 700, fontSize: '0.85rem', color: '#374151', marginBottom: 4 }}>{sub}</div>
+                    <TrendArrow trend={t.trend} slope={t.slope} />
+                    {t.predicted_next !== null && (
+                      <div style={{ fontSize: '0.78rem', color: '#6b7280', marginTop: 4 }}>
+                        Predicted next: <strong style={{ color: color(t.predicted_next) }}>{t.predicted_next}%</strong>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Subject Summary Cards */}
           <div style={S.subjectGrid}>
             {subjectAvgs.map(({ subject, avg, count }) => (
@@ -205,6 +244,11 @@ const S = {
   subTag:      { background: '#e0e7ff', color: '#4f46e5', padding: '3px 10px', borderRadius: 10, fontSize: '0.78rem', fontWeight: 700 },
   gradePill:   { padding: '3px 10px', borderRadius: 10, fontSize: '0.78rem', fontWeight: 800 },
   noData:      { textAlign: 'center', padding: '30px', color: '#9ca3af', fontSize: '0.88rem' },
+  anomalyAlert: { background: '#fef2f2', border: '1.5px solid #fecaca', color: '#991b1b', padding: '12px 18px', borderRadius: 10, marginBottom: 16, fontSize: '0.88rem' },
+  trendCard:    { background: '#fff', borderRadius: 12, padding: '18px 24px', boxShadow: '0 1px 4px rgba(0,0,0,0.07)', marginBottom: 20 },
+  trendTitle:   { fontSize: '0.95rem', fontWeight: 700, color: '#111827', marginBottom: 14 },
+  trendGrid:    { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 12 },
+  trendItem:    { background: '#f8fafc', borderRadius: 8, padding: '12px 14px', border: '1px solid #e5e7eb' },
 };
 
 export default ParentGrades;
