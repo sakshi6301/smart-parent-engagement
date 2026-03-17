@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from models.risk_model import predict_risk, train_model
+from models.risk_model import predict_risk, train_model, train_from_csv, get_model_info
 from models.recommendation import get_recommendations
 from models.grade_trend import predict_grade_trend
 from models.attendance_anomaly import detect_attendance_anomaly
@@ -37,8 +37,23 @@ def learning_recommendations():
 
 @ai_routes.route('/train', methods=['POST'])
 def retrain():
-    train_model()
-    return jsonify({'message': 'Model retrained successfully'})
+    _, _, accuracy, source = train_model()
+    return jsonify({'message': 'Model retrained on synthetic data', 'accuracy': accuracy, 'source': source})
+
+@ai_routes.route('/train/upload', methods=['POST'])
+def retrain_from_csv():
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file uploaded'}), 400
+    f = request.files['file']
+    try:
+        _, _, accuracy, source = train_from_csv(f.read())
+        return jsonify({'message': f'Model retrained on real data — {accuracy}% accuracy', 'accuracy': accuracy, 'source': source})
+    except ValueError as e:
+        return jsonify({'error': str(e)}), 400
+
+@ai_routes.route('/model/info', methods=['GET'])
+def model_info():
+    return jsonify(get_model_info())
 
 @ai_routes.route('/predict/grade-trend', methods=['POST'])
 def grade_trend():

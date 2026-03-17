@@ -7,6 +7,8 @@ const morgan = require('morgan');
 const connectDB = require('./config/db');
 const errorHandler = require('./middleware/errorHandler');
 
+const path = require('path');
+
 connectDB();
 
 const app = express();
@@ -18,6 +20,7 @@ app.set('io', io);
 app.use(cors());
 app.use(morgan('dev'));
 app.use(express.json());
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Routes
 app.use('/api/auth', require('./routes/auth'));

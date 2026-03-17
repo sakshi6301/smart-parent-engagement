@@ -14,6 +14,7 @@ const menus = {
     { path: '/admin/analytics',    label: 'Analytics',       icon: '📊' },
     { path: '/admin/notifications',label: 'Notifications',   icon: '🔔' },
     { path: '/admin/bulk-import',  label: 'Bulk Import',     icon: '📥' },
+    { path: '/admin/ai-model',     label: 'AI Model',        icon: '🤖' },
     { path: '/feedback',           label: 'Feedback',        icon: '💬' },
   ],
   teacher: [

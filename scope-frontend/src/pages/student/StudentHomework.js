@@ -12,6 +12,7 @@ const StudentHomework = () => {
   const [tab, setTab]           = useState('pending'); // pending | overdue | submitted | all
   const [submitting, setSubmitting] = useState({});
   const [msg, setMsg]           = useState('');
+  const [fileMap, setFileMap]   = useState({}); // hwId -> File
 
   useEffect(() => {
     api.get('/students').then(({ data }) => {
@@ -42,13 +43,18 @@ const StudentHomework = () => {
     if (!student) return;
     setSubmitting(prev => ({ ...prev, [hwId]: true }));
     try {
-      await api.post('/homework/submit', { homeworkId: hwId, studentId: student._id, fileUrl: '' });
+      const formData = new FormData();
+      formData.append('homeworkId', hwId);
+      formData.append('studentId', student._id);
+      if (fileMap[hwId]) formData.append('file', fileMap[hwId]);
+      await api.post('/homework/submit', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
       setHomework(prev => prev.map(hw =>
         hw._id === hwId
           ? { ...hw, submissions: [...(hw.submissions || []), { student: student._id, submittedAt: new Date(), status: 'submitted' }] }
           : hw
       ));
-      setMsg('✅ Homework marked as submitted!');
+      setFileMap(prev => { const n = { ...prev }; delete n[hwId]; return n; });
+      setMsg('✅ Homework submitted!');
       setTimeout(() => setMsg(''), 3000);
     } catch {
       setMsg('❌ Failed to submit. Try again.');
@@ -158,12 +164,19 @@ const StudentHomework = () => {
                       type={done ? 'success' : late ? 'danger' : days <= 1 ? 'warning' : 'info'}
                     />
                     {!done && (
-                      <button
-                        onClick={() => handleSubmit(hw._id)}
-                        disabled={submitting[hw._id]}
-                        style={{ ...S.submitBtn, background: late ? '#fef2f2' : '#f0fdf4', color: late ? '#b91c1c' : '#15803d', border: `1px solid ${late ? '#fecaca' : '#bbf7d0'}` }}>
-                        {submitting[hw._id] ? 'Submitting...' : '✓ Mark Done'}
-                      </button>
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
+                        <label style={S.fileLabel}>
+                          📎 {fileMap[hw._id] ? fileMap[hw._id].name : 'Attach file (optional)'}
+                          <input type="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.zip" style={{ display: 'none' }}
+                            onChange={e => setFileMap(prev => ({ ...prev, [hw._id]: e.target.files[0] }))} />
+                        </label>
+                        <button
+                          onClick={() => handleSubmit(hw._id)}
+                          disabled={submitting[hw._id]}
+                          style={{ ...S.submitBtn, background: late ? '#fef2f2' : '#f0fdf4', color: late ? '#b91c1c' : '#15803d', border: `1px solid ${late ? '#fecaca' : '#bbf7d0'}` }}>
+                          {submitting[hw._id] ? 'Submitting...' : '✓ Submit'}
+                        </button>
+                      </div>
                     )}
                     {done && sub?.status && (
                       <span style={S.submittedLabel}>
@@ -204,6 +217,7 @@ const S = {
   meta:         { display: 'flex', gap: 14, fontSize: '0.78rem', color: '#9ca3af', flexWrap: 'wrap' },
   submitBtn:    { padding: '7px 14px', borderRadius: 8, fontSize: '0.82rem', fontWeight: 600, cursor: 'pointer' },
   submittedLabel: { fontSize: '0.78rem', fontWeight: 600, color: '#10b981' },
+  fileLabel:    { fontSize: '0.75rem', color: '#4f46e5', cursor: 'pointer', background: '#eff6ff', border: '1px dashed #93c5fd', borderRadius: 6, padding: '5px 10px', fontWeight: 600 },
 };
 
 export default StudentHomework;

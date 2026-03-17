@@ -17,29 +17,38 @@ const TeacherDashboard = () => {
   useEffect(() => {
     api.get('/students').then(({ data }) => {
       setStudents(data);
-      if (data.length > 0) {
-        const s = data[0];
-        // Today's attendance summary
-        const today = new Date().toISOString().split('T')[0];
-        api.get(`/attendance/${s._id}?month=${today.slice(0, 7)}`).then(r => {
-          // Count today's records across all students
-          const todayRecords = r.data.records?.filter(rec =>
-            new Date(rec.date).toDateString() === new Date().toDateString()
-          ) || [];
-          if (todayRecords.length > 0) {
-            const present = todayRecords.filter(r => r.status === 'present').length;
-            const absent  = todayRecords.filter(r => r.status === 'absent').length;
-            const late    = todayRecords.filter(r => r.status === 'late').length;
-            setTodayAttendance({ present, absent, late, total: todayRecords.length });
-          }
-        }).catch(() => {});
-        // Homework
-        api.get(`/homework/${s.class}-${s.section}`).then(r => {
-          const todayStr = new Date().toDateString();
-          setHomeworkDueToday(r.data.filter(h => new Date(h.dueDate).toDateString() === todayStr).length);
-          setRecentHomework(r.data.slice(0, 4));
-        }).catch(() => {});
-      }
+      if (data.length === 0) return;
+
+      // Build today's attendance summary across ALL assigned students
+      const today = new Date().toISOString().split('T')[0];
+      const todayDate = new Date().toDateString();
+      Promise.all(
+        data.map(s => api.get(`/attendance/${s._id}?month=${today.slice(0, 7)}`).catch(() => null))
+      ).then(results => {
+        let present = 0, absent = 0, late = 0;
+        results.forEach(r => {
+          if (!r) return;
+          (r.data.records || []).forEach(rec => {
+            if (new Date(rec.date).toDateString() !== todayDate) return;
+            if (rec.status === 'present') present++;
+            else if (rec.status === 'absent') absent++;
+            else if (rec.status === 'late') late++;
+          });
+        });
+        const total = present + absent + late;
+        if (total > 0) setTodayAttendance({ present, absent, late, total });
+      });
+
+      // Fetch homework for each unique class-section among assigned students
+      const classSections = [...new Set(data.map(s => `${s.class}-${s.section}`))];
+      Promise.all(
+        classSections.map(cs => api.get(`/homework/${cs}`).catch(() => null))
+      ).then(results => {
+        const allHw = results.flatMap(r => r?.data || []);
+        const todayStr = new Date().toDateString();
+        setHomeworkDueToday(allHw.filter(h => new Date(h.dueDate).toDateString() === todayStr).length);
+        setRecentHomework(allHw.slice(0, 4));
+      });
     });
     api.get('/chat/meetings/list').then(({ data }) => setPendingMeetings(data.filter(m => m.status === 'pending'))).catch(() => {});
   }, []);
@@ -95,19 +104,27 @@ const TeacherDashboard = () => {
 
         <div style={styles.studentsCard}>
           <h3 style={styles.cardTitle}>My Students</h3>
-          <div style={styles.studentList}>
-            {students.slice(0, 8).map(s => (
-              <div key={s._id} style={styles.studentRow}>
-                <div style={styles.sAvatar}>{s.name[0]}</div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 600, fontSize: '0.88rem' }}>{s.name}</div>
-                  <div style={{ fontSize: '0.75rem', color: '#9ca3af' }}>Roll: {s.rollNumber} · Class {s.class}-{s.section}</div>
+          {students.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '40px 0', color: '#9ca3af' }}>
+              <div style={{ fontSize: '2.5rem', marginBottom: 8 }}>👨‍🎓</div>
+              <p style={{ fontWeight: 600, color: '#374151', margin: '0 0 4px' }}>No students assigned yet</p>
+              <p style={{ fontSize: '0.8rem', margin: 0 }}>Ask your admin to assign students to your account.</p>
+            </div>
+          ) : (
+            <div style={styles.studentList}>
+              {students.slice(0, 8).map(s => (
+                <div key={s._id} style={styles.studentRow}>
+                  <div style={styles.sAvatar}>{s.name[0]}</div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: 600, fontSize: '0.88rem' }}>{s.name}</div>
+                    <div style={{ fontSize: '0.75rem', color: '#9ca3af' }}>Roll: {s.rollNumber} · Class {s.class}-{s.section}</div>
+                  </div>
+                  <Badge label={s.parent ? 'Parent Linked' : 'No Parent'} type={s.parent ? 'success' : 'gray'} />
                 </div>
-                <Badge label={s.parent ? 'Parent Linked' : 'No Parent'} type={s.parent ? 'success' : 'gray'} />
-              </div>
-            ))}
-            {students.length > 8 && <p style={{ textAlign: 'center', fontSize: '0.82rem', color: '#9ca3af', padding: '8px 0' }}>+{students.length - 8} more students</p>}
-          </div>
+              ))}
+              {students.length > 8 && <p style={{ textAlign: 'center', fontSize: '0.82rem', color: '#9ca3af', padding: '8px 0' }}>+{students.length - 8} more students</p>}
+            </div>
+          )}
         </div>
 
         {/* Recent Homework */}

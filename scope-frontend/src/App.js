@@ -19,6 +19,7 @@ import BulkImport from './pages/admin/BulkImport';
 import LinkManagement from './pages/admin/LinkManagement';
 import AdminNotifications from './pages/admin/Notifications';
 import AnalyticsDashboard from './pages/admin/AnalyticsDashboard';
+import AIModelManager from './pages/admin/AIModelManager';
 
 // Teacher
 import TeacherDashboard from './pages/teacher/TeacherDashboard';
@@ -66,6 +67,7 @@ const App = () => (
         <Route path="/admin/notifications" element={<PR roles={['admin']}><AdminNotifications /></PR>} />
         <Route path="/admin/bulk-import" element={<PR roles={['admin']}><BulkImport /></PR>} />
         <Route path="/admin/link-management" element={<PR roles={['admin']}><LinkManagement /></PR>} />
+        <Route path="/admin/ai-model" element={<PR roles={['admin']}><AIModelManager /></PR>} />
 
         {/* Teacher */}
         <Route path="/teacher" element={<PR roles={['teacher']}><TeacherDashboard /></PR>} />

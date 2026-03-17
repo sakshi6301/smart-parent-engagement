@@ -30,9 +30,11 @@ exports.getHomework = async (req, res) => {
 };
 
 exports.submitHomework = async (req, res) => {
-  const { homeworkId, studentId, fileUrl } = req.body;
+  const { homeworkId, studentId } = req.body;
   const hw = await Homework.findById(homeworkId);
   if (!hw) return res.status(404).json({ message: 'Homework not found' });
+
+  const fileUrl = req.file ? `/uploads/${req.file.filename}` : (req.body.fileUrl || '');
 
   const existing = hw.submissions.find(s => s.student.toString() === studentId);
   if (existing) {
@@ -44,5 +46,5 @@ exports.submitHomework = async (req, res) => {
   }
 
   await hw.save();
-  res.json({ message: 'Homework submitted' });
+  res.json({ message: 'Homework submitted', fileUrl });
 };
