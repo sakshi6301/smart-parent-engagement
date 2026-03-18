@@ -90,14 +90,30 @@ exports.getDashboard = async (req, res) => {
     { $unwind: '$teacher' },
     { $project: { _id: 1, studentCount: 1, 'teacher.name': 1, 'teacher.email': 1 } },
     { $sort: { studentCount: -1 } },
-    { $limit: 6 },
+    { $limit: 20 },
   ]);
+
+  // Today's absent students
+  const todayAbsent = await Attendance.find({ date: { $gte: today }, status: 'absent' })
+    .populate({ path: 'student', select: 'name rollNumber class section parent', populate: { path: 'parent', select: 'name email' } })
+    .populate('teacher', 'name')
+    .sort({ createdAt: -1 })
+    .limit(50);
+
+  // Pending meeting requests (most recent 5)
+  const pendingMeetingsList = await Meeting.find({ status: 'pending' })
+    .populate('parent', 'name email')
+    .populate('student', 'name class section')
+    .populate('teacher', 'name')
+    .sort({ createdAt: -1 })
+    .limit(5);
 
   res.json({
     totalStudents, totalTeachers, totalParents,
     todayAttendance, gradeStats, classStats,
     monthlyAttendance, recentStudents, genderStats,
     unlinkedParent, unlinkedTeacher,
-    pendingMeetings, totalHomework, overdueHomework, teacherStats,
+    pendingMeetings, totalHomework, overdueHomework,
+    teacherStats, todayAbsent, pendingMeetingsList,
   });
 };

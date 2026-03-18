@@ -288,6 +288,83 @@ const AdminDashboard = () => {
         </div>
       )}
 
+      {/* ── Today's Absent Students ── */}
+      {stats.todayAbsent?.length > 0 && (
+        <div style={{ ...s.card, marginBottom: 16 }}>
+          <div style={s.cardHeader}>
+            <div>
+              <p style={s.cardTitle}>🔴 Today's Absent Students</p>
+              <p style={s.cardSub}>{stats.todayAbsent.length} student{stats.todayAbsent.length !== 1 ? 's' : ''} marked absent today</p>
+            </div>
+            <button onClick={() => navigate('/admin/students')} style={s.linkBtn}>View All Students →</button>
+          </div>
+          <table style={s.table}>
+            <thead>
+              <tr style={s.thead}>
+                {['Student', 'Roll No', 'Class', 'Parent', 'Parent Contact', 'Teacher'].map(h => (
+                  <th key={h} style={s.th}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {stats.todayAbsent.map((a, i) => (
+                <tr key={a._id} style={{ background: i % 2 === 0 ? '#fff' : '#fef2f2' }}>
+                  <td style={s.td}>
+                    <div style={s.nameCell}>
+                      <div style={{ ...s.avatar, background: '#fee2e2', color: '#dc2626' }}>{a.student?.name?.[0] || '?'}</div>
+                      <span style={{ fontWeight: 600, fontSize: '0.88rem' }}>{a.student?.name || '—'}</span>
+                    </div>
+                  </td>
+                  <td style={s.td}><span style={{ fontSize: '0.78rem', color: '#6b7280' }}>{a.student?.rollNumber || '—'}</span></td>
+                  <td style={s.td}>{a.student?.class ? `${a.student.class} - ${a.student.section}` : '—'}</td>
+                  <td style={s.td}>{a.student?.parent?.name || <span style={{ color: '#d1d5db' }}>No parent</span>}</td>
+                  <td style={s.td}><span style={{ fontSize: '0.78rem', color: '#6b7280' }}>{a.student?.parent?.phone || a.student?.parent?.email || <span style={{ color: '#d1d5db' }}>—</span>}</span></td>
+                  <td style={s.td}>{a.student?.teacher?.name || <span style={{ color: '#d1d5db' }}>—</span>}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* ── Pending Meetings ── */}
+      {stats.pendingMeetingsList?.length > 0 && (
+        <div style={{ ...s.card, marginBottom: 16 }}>
+          <div style={s.cardHeader}>
+            <div>
+              <p style={s.cardTitle}>📅 Pending Meeting Requests</p>
+              <p style={s.cardSub}>{stats.pendingMeetings} total pending — showing latest {stats.pendingMeetingsList.length}</p>
+            </div>
+            <button onClick={() => navigate('/admin/meetings')} style={{ ...s.linkBtn, background: '#fffbeb', color: '#92400e' }}>View All →</button>
+          </div>
+          <table style={s.table}>
+            <thead>
+              <tr style={s.thead}>
+                {['Parent', 'Student', 'Teacher', 'Reason', 'Requested On'].map(h => (
+                  <th key={h} style={s.th}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {stats.pendingMeetingsList.map((m, i) => (
+                <tr key={m._id} style={{ background: i % 2 === 0 ? '#fff' : '#fffbeb' }}>
+                  <td style={s.td}>
+                    <div style={s.nameCell}>
+                      <div style={{ ...s.avatar, background: '#fef3c7', color: '#d97706' }}>{m.parent?.name?.[0] || '?'}</div>
+                      <span style={{ fontWeight: 600, fontSize: '0.88rem' }}>{m.parent?.name || '—'}</span>
+                    </div>
+                  </td>
+                  <td style={s.td}>{m.student?.name || '—'}</td>
+                  <td style={s.td}>{m.teacher?.name || '—'}</td>
+                  <td style={s.td}><span style={{ fontSize: '0.82rem', color: '#374151' }}>{m.reason || '—'}</span></td>
+                  <td style={s.td}><span style={{ fontSize: '0.78rem', color: '#6b7280' }}>{new Date(m.createdAt).toLocaleDateString('en-IN')}</span></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
       {/* ── Bottom Row ── */}
       <div style={s.row}>
         {/* Recent Students */}
