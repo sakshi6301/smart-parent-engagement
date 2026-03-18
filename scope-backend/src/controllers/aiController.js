@@ -101,6 +101,63 @@ exports.getEngagementScore = async (req, res) => {
   }
 };
 
+exports.getAllRisks = async (req, res) => {
+  const students = await Student.find({ isActive: true }).populate('parent teacher', 'name');
+
+  const results = await Promise.all(students.map(async (student) => {
+    const sid = student._id.toString();
+
+    const [attendanceData, grades, homeworks] = await Promise.all([
+      Attendance.find({ student: sid }),
+      Grade.find({ student: sid }),
+      Homework.find({ 'submissions.student': sid }),
+    ]);
+
+    const totalDays   = attendanceData.length;
+    const presentDays = attendanceData.filter(a => a.status === 'present').length;
+    const attendancePct     = totalDays ? +((presentDays / totalDays) * 100).toFixed(1) : 0;
+    const avgGrade          = grades.length
+      ? +(grades.reduce((sum, g) => sum + (g.marksObtained / g.totalMarks) * 100, 0) / grades.length).toFixed(1)
+      : 0;
+    const hwSubmitted       = homeworks.filter(hw => hw.submissions.some(s => s.student.toString() === sid)).length;
+    const hwCompletionRate  = homeworks.length ? +((hwSubmitted / homeworks.length) * 100).toFixed(1) : 0;
+
+    const payload = { attendance_pct: attendancePct, avg_grade: avgGrade, hw_completion_rate: hwCompletionRate };
+
+    let risk_level = 'unknown', confidence = 0;
+    try {
+      const { data } = await axios.post(`${process.env.AI_SERVICE_URL}/predict/risk`, payload, { timeout: 5000 });
+      risk_level  = data.risk_level;
+      confidence  = data.confidence;
+    } catch {
+      // rule-based fallback
+      const score = (attendancePct * 0.4) + (avgGrade * 0.4) + (hwCompletionRate * 0.2);
+      risk_level  = score < 40 ? 'high' : score < 65 ? 'medium' : 'low';
+      confidence  = null;
+    }
+
+    return {
+      _id:              student._id,
+      name:             student.name,
+      rollNumber:       student.rollNumber,
+      class:            student.class,
+      section:          student.section,
+      parent:           student.parent,
+      teacher:          student.teacher,
+      attendancePct,
+      avgGrade,
+      hwCompletionRate,
+      risk_level,
+      confidence,
+    };
+  }));
+
+  const order = { high: 0, medium: 1, low: 2, unknown: 3 };
+  results.sort((a, b) => (order[a.risk_level] ?? 3) - (order[b.risk_level] ?? 3));
+
+  res.json(results);
+};
+
 exports.getRecommendations = async (req, res) => {
   const { studentId } = req.params;
   const grades = await Grade.find({ student: studentId });
