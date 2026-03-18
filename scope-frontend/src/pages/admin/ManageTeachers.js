@@ -6,24 +6,23 @@ import Modal from '../../components/Modal';
 import api from '../../services/api';
 
 const ManageTeachers = () => {
-  const [teachers, setTeachers]         = useState([]);
-  const [students, setStudents]         = useState([]);
-  const [loading, setLoading]           = useState(true);
-  const [search, setSearch]             = useState('');
-  const [showAddModal, setShowAddModal] = useState(false);
+  const [teachers, setTeachers]           = useState([]);
+  const [students, setStudents]           = useState([]);
+  const [loading, setLoading]             = useState(true);
+  const [search, setSearch]               = useState('');
+  const [showAddModal, setShowAddModal]   = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showStudentsModal, setShowStudentsModal] = useState(false);
-  const [showBulkModal, setShowBulkModal]         = useState(false);
-  const [selectedTeacher, setSelectedTeacher]     = useState(null);
-  const [saving, setSaving]             = useState(false);
-  const [bulkSaving, setBulkSaving]     = useState(false);
-  const [sending, setSending]           = useState({});
-  const [resetting, setResetting]       = useState({});
-  const [msg, setMsg]                   = useState('');
-  const [bulkMsg, setBulkMsg]           = useState('');
-  const [form, setForm]                 = useState({ name: '', email: '', password: 'Welcome@123', phone: '' });
-  const [editForm, setEditForm]         = useState({ name: '', email: '', phone: '', password: '' });
-  const [bulkForm, setBulkForm]         = useState({ teacherId: '', class: '', section: '' });
+  const [showBulkModal, setShowBulkModal] = useState(false);
+  const [selectedTeacher, setSelectedTeacher] = useState(null);
+  const [saving, setSaving]               = useState(false);
+  const [bulkSaving, setBulkSaving]       = useState(false);
+  const [sending, setSending]             = useState({});
+  const [msg, setMsg]                     = useState('');
+  const [bulkMsg, setBulkMsg]             = useState('');
+  const [form, setForm]                   = useState({ name: '', email: '', password: 'Welcome@123', phone: '' });
+  const [editForm, setEditForm]           = useState({ name: '', email: '', phone: '', password: '' });
+  const [bulkForm, setBulkForm]           = useState({ teacherId: '', class: '', section: '' });
 
   const fetchAll = useCallback(() => {
     setLoading(true);
@@ -57,20 +56,6 @@ const ManageTeachers = () => {
     setSaving(false);
   };
 
-  const handleBulkAssign = async (e) => {
-    e.preventDefault();
-    setBulkSaving(true);
-    setBulkMsg('');
-    try {
-      const { data } = await api.post('/students/bulk-assign-teacher', bulkForm);
-      setBulkMsg('✅ ' + data.message);
-      fetchAll();
-    } catch (err) {
-      setBulkMsg('❌ ' + (err.response?.data?.message || 'Failed'));
-    }
-    setBulkSaving(false);
-  };
-
   const handleEditSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
@@ -84,6 +69,20 @@ const ManageTeachers = () => {
       setMsg('❌ ' + (err.response?.data?.message || 'Update failed'));
     }
     setSaving(false);
+  };
+
+  const handleBulkAssign = async (e) => {
+    e.preventDefault();
+    setBulkSaving(true);
+    setBulkMsg('');
+    try {
+      const { data } = await api.post('/students/bulk-assign-teacher', bulkForm);
+      setBulkMsg('✅ ' + data.message);
+      fetchAll();
+    } catch (err) {
+      setBulkMsg('❌ ' + (err.response?.data?.message || 'Failed'));
+    }
+    setBulkSaving(false);
   };
 
   const handleToggleActive = async (teacher) => {
@@ -109,19 +108,6 @@ const ManageTeachers = () => {
     setTimeout(() => setMsg(''), 4000);
   };
 
-  const handleResetPassword = async (teacher) => {
-    if (!window.confirm(`Reset password for ${teacher.name} to "Welcome@123"?`)) return;
-    setResetting(prev => ({ ...prev, [teacher._id]: true }));
-    try {
-      const { data } = await api.post(`/auth/admin/reset-password/${teacher._id}`, { newPassword: 'Welcome@123' });
-      setMsg('✅ ' + data.message);
-    } catch (err) {
-      setMsg('❌ ' + (err.response?.data?.message || 'Failed to reset password'));
-    }
-    setResetting(prev => ({ ...prev, [teacher._id]: false }));
-    setTimeout(() => setMsg(''), 4000);
-  };
-
   const openEditModal = (teacher) => {
     setSelectedTeacher(teacher);
     setEditForm({ name: teacher.name, email: teacher.email, phone: teacher.phone || '', password: '' });
@@ -137,17 +123,15 @@ const ManageTeachers = () => {
     const rows = [['Name', 'Email', 'Phone', 'Status', 'Classes', 'Students', 'Joined']];
     filtered.forEach(t => {
       const assigned = getAssignedStudents(t._id);
-      const classSections = [...new Set(assigned.map(s => `${s.class}-${s.section}`))].sort().join(', ');
+      const classSections = [...new Set(assigned.map(s => `${s.class}-${s.section}`))].sort().join(' | ');
       rows.push([t.name, t.email, t.phone || '', t.isActive ? 'Active' : 'Inactive', classSections || 'None', assigned.length, new Date(t.createdAt).toLocaleDateString('en-IN')]);
     });
     const csv = rows.map(r => r.join(',')).join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url;
-    a.download = `teachers_${new Date().toISOString().split('T')[0]}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
+    a.href = url; a.download = `teachers_${new Date().toISOString().split('T')[0]}.csv`;
+    a.click(); URL.revokeObjectURL(url);
   };
 
   const exportStudentsCSV = () => {
@@ -159,10 +143,8 @@ const ManageTeachers = () => {
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url;
-    a.download = `${selectedTeacher.name.replace(/\s+/g, '_')}_students_${new Date().toISOString().split('T')[0]}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
+    a.href = url; a.download = `${selectedTeacher.name.replace(/\s+/g, '_')}_students.csv`;
+    a.click(); URL.revokeObjectURL(url);
   };
 
   const filtered = teachers.filter(t =>
@@ -171,11 +153,11 @@ const ManageTeachers = () => {
     (t.phone || '').includes(search)
   );
 
-  const classes = [...new Set(students.map(s => s.class))].sort((a, b) => a - b);
+  const classes  = [...new Set(students.map(s => s.class))].sort((a, b) => a - b);
   const sections = [...new Set(students.map(s => s.section))].sort();
 
-  const activeCount = teachers.filter(t => t.isActive).length;
-  const inactiveCount = teachers.length - activeCount;
+  const activeCount     = teachers.filter(t => t.isActive).length;
+  const inactiveCount   = teachers.length - activeCount;
   const unassignedCount = teachers.filter(t => getAssignedStudents(t._id).length === 0).length;
 
   const columns = [
@@ -196,7 +178,7 @@ const ManageTeachers = () => {
       key: 'classes', label: 'Classes',
       render: r => {
         const assigned = getAssignedStudents(r._id);
-        const classSections = [...new Set(assigned.map(s => `${s.class}-${s.section}`))].sort();
+        const classSections = [...new Set(assigned.map(st => `${st.class}-${st.section}`))].sort();
         return classSections.length > 0
           ? <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
               {classSections.map(cs => <span key={cs} style={s.classChip}>{cs}</span>)}
@@ -228,12 +210,6 @@ const ManageTeachers = () => {
             {r.isActive ? 'Deactivate' : 'Activate'}
           </button>
           <button
-            onClick={() => handleResetPassword(r)}
-            disabled={resetting[r._id]}
-            style={s.resetBtn}>
-            {resetting[r._id] ? 'Resetting...' : '🔑 Reset Pass'}
-          </button>
-          <button
             onClick={() => handleSendCredentials(r)}
             disabled={sending[r._id] || r.email?.endsWith('@scope.internal')}
             style={{ ...s.sendBtn, opacity: r.email?.endsWith('@scope.internal') ? 0.4 : 1 }}>
@@ -251,33 +227,32 @@ const ManageTeachers = () => {
       <div style={s.header}>
         <div>
           <h2 style={s.title}>Teacher Management</h2>
-          <p style={s.sub}>{teachers.length} teacher{teachers.length !== 1 ? 's' : ''} registered{unassignedCount > 0 && ` · ${unassignedCount} unassigned`}</p>
+          <p style={s.sub}>
+            {teachers.length} teacher{teachers.length !== 1 ? 's' : ''} registered
+            {unassignedCount > 0 && <span style={{ color: '#f59e0b' }}> · {unassignedCount} unassigned</span>}
+          </p>
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
           <button style={s.bulkBtn} onClick={() => { setShowBulkModal(true); setBulkMsg(''); setBulkForm({ teacherId: '', class: '', section: '' }); }}>
-            📋 Bulk Assign Class
+            📋 Bulk Assign
           </button>
           <button style={s.addBtn} onClick={() => { setShowAddModal(true); setMsg(''); }}>+ Add Teacher</button>
         </div>
       </div>
 
+      {/* Stat Cards */}
       <div style={s.statsRow}>
-        <div style={s.statCard}>
-          <div style={s.statNum}>{teachers.length}</div>
-          <div style={s.statLabel}>Total Teachers</div>
-        </div>
-        <div style={{ ...s.statCard, borderLeft: '3px solid #10b981' }}>
-          <div style={{ ...s.statNum, color: '#10b981' }}>{activeCount}</div>
-          <div style={s.statLabel}>Active</div>
-        </div>
-        <div style={{ ...s.statCard, borderLeft: '3px solid #ef4444' }}>
-          <div style={{ ...s.statNum, color: '#ef4444' }}>{inactiveCount}</div>
-          <div style={s.statLabel}>Inactive</div>
-        </div>
-        <div style={{ ...s.statCard, borderLeft: '3px solid #f59e0b' }}>
-          <div style={{ ...s.statNum, color: '#f59e0b' }}>{unassignedCount}</div>
-          <div style={s.statLabel}>Unassigned</div>
-        </div>
+        {[
+          { label: 'Total', value: teachers.length, color: '#0891b2' },
+          { label: 'Active', value: activeCount, color: '#10b981' },
+          { label: 'Inactive', value: inactiveCount, color: '#ef4444' },
+          { label: 'Unassigned', value: unassignedCount, color: '#f59e0b' },
+        ].map(({ label, value, color }) => (
+          <div key={label} style={{ ...s.statCard, borderLeftColor: color }}>
+            <div style={{ ...s.statNum, color }}>{value}</div>
+            <div style={s.statLabel}>{label}</div>
+          </div>
+        ))}
       </div>
 
       {msg && <div style={msg.startsWith('✅') ? s.successBanner : s.errorBanner}>{msg}</div>}
@@ -294,8 +269,9 @@ const ManageTeachers = () => {
         : <DataTable columns={columns} data={filtered} emptyMsg="No teachers found. Add one using the button above." />
       }
 
+      {/* Edit Modal */}
       {showEditModal && selectedTeacher && (
-        <Modal title={`Edit Teacher – ${selectedTeacher.name}`} onClose={() => setShowEditModal(false)} width={440}>
+        <Modal title={`Edit Teacher — ${selectedTeacher.name}`} onClose={() => setShowEditModal(false)} width={440}>
           <form onSubmit={handleEditSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             <div style={s.field}>
               <label style={s.label}>Full Name *</label>
@@ -310,7 +286,10 @@ const ManageTeachers = () => {
               <input style={s.input} value={editForm.phone} onChange={e => setEditForm({ ...editForm, phone: e.target.value })} placeholder="Mobile number" />
             </div>
             <div style={s.field}>
-              <label style={s.label}>New Password <span style={{ color: '#9ca3af', fontWeight: 400 }}>(leave blank to keep current)</span></label>
+              <label style={s.label}>
+                New Password
+                <span style={{ color: '#9ca3af', fontWeight: 400, marginLeft: 6 }}>(leave blank to keep current)</span>
+              </label>
               <input style={s.input} type="password" value={editForm.password} onChange={e => setEditForm({ ...editForm, password: e.target.value })} placeholder="Min 6 characters" />
             </div>
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
@@ -321,13 +300,14 @@ const ManageTeachers = () => {
         </Modal>
       )}
 
+      {/* View Students Modal */}
       {showStudentsModal && selectedTeacher && (
-        <Modal title={`Students assigned to ${selectedTeacher.name}`} onClose={() => setShowStudentsModal(false)} width={500}>
+        <Modal title={`Students — ${selectedTeacher.name}`} onClose={() => setShowStudentsModal(false)} width={500}>
           {assignedStudents.length === 0
             ? <p style={{ color: '#9ca3af', textAlign: 'center', padding: 24 }}>No students assigned to this teacher.</p>
-            : (
-              <>
-                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
+            : <>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                  <span style={{ fontSize: '0.85rem', color: '#6b7280' }}>{assignedStudents.length} student{assignedStudents.length !== 1 ? 's' : ''}</span>
                   <button style={s.exportBtn} onClick={exportStudentsCSV}>📥 Export CSV</button>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -336,31 +316,27 @@ const ManageTeachers = () => {
                       <div style={s.studentAvatar}>{st.name[0]}</div>
                       <div style={{ flex: 1 }}>
                         <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>{st.name}</div>
-                        <div style={{ fontSize: '0.75rem', color: '#9ca3af' }}>
-                          Roll: {st.rollNumber} · Class {st.class}-{st.section}
-                        </div>
+                        <div style={{ fontSize: '0.75rem', color: '#9ca3af' }}>Roll: {st.rollNumber} · Class {st.class}-{st.section}</div>
                       </div>
                       <div style={{ fontSize: '0.78rem', color: '#6b7280' }}>
-                        {st.parent ? `👨👩👧 ${st.parent.name}` : <span style={{ color: '#f59e0b' }}>No parent</span>}
+                        {st.parent ? `👨‍👩‍👧 ${st.parent.name}` : <span style={{ color: '#f59e0b' }}>No parent</span>}
                       </div>
                     </div>
                   ))}
                 </div>
               </>
-            )
           }
         </Modal>
       )}
 
+      {/* Bulk Assign Modal */}
       {showBulkModal && (
         <Modal title="Bulk Assign Teacher to Class" onClose={() => setShowBulkModal(false)} width={440}>
           <form onSubmit={handleBulkAssign} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             <p style={{ fontSize: '0.85rem', color: '#6b7280', margin: 0 }}>
               Assign one teacher to all students in a specific class and section.
             </p>
-            {bulkMsg && (
-              <div style={{ ...s.successBanner, ...(bulkMsg.startsWith('❌') ? s.errorBanner : {}) }}>{bulkMsg}</div>
-            )}
+            {bulkMsg && <div style={bulkMsg.startsWith('✅') ? s.successBanner : s.errorBanner}>{bulkMsg}</div>}
             <div style={s.field}>
               <label style={s.label}>Teacher *</label>
               <select style={s.input} value={bulkForm.teacherId} onChange={e => setBulkForm({ ...bulkForm, teacherId: e.target.value })} required>
@@ -390,18 +366,20 @@ const ManageTeachers = () => {
         </Modal>
       )}
 
+      {/* Add Teacher Modal */}
       {showAddModal && (
         <Modal title="Create Teacher Account" onClose={() => setShowAddModal(false)}>
           <form onSubmit={handleAddSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-            {[['name','Full Name','text'],['email','Email Address','email'],['password','Password','password'],['phone','Phone Number','tel']].map(([key, label, type]) => (
+            {[['name', 'Full Name', 'text'], ['email', 'Email Address', 'email'], ['password', 'Password', 'password'], ['phone', 'Phone Number', 'tel']].map(([key, label, type]) => (
               <div key={key} style={s.field}>
                 <label style={s.label}>
                   {label}{key !== 'phone' && <span style={{ color: '#ef4444' }}> *</span>}
-                  {key === 'password' && <span style={{ color: '#9ca3af', fontWeight: 400, marginLeft: 6 }}>(default: Welcome@123)</span>}
+                  {key === 'password' && <span style={{ color: '#9ca3af', fontWeight: 400, marginLeft: 6 }}>default: Welcome@123</span>}
                 </label>
                 <input style={s.input} type={type} value={form[key]}
                   onChange={e => setForm({ ...form, [key]: e.target.value })}
-                  required={key !== 'phone'} placeholder={key === 'password' ? 'Min 6 characters' : ''} />
+                  required={key !== 'phone'}
+                  placeholder={key === 'password' ? 'Min 6 characters' : ''} />
               </div>
             ))}
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
@@ -422,13 +400,13 @@ const s = {
   addBtn:        { background: '#0891b2', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: 8, fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer' },
   bulkBtn:       { background: '#fff', color: '#0891b2', border: '1.5px solid #0891b2', padding: '10px 18px', borderRadius: 8, fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer' },
   statsRow:      { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 20 },
-  statCard:      { background: '#fff', border: '1.5px solid #e5e7eb', borderRadius: 10, padding: '16px 18px', borderLeft: '3px solid #0891b2' },
-  statNum:       { fontSize: '1.6rem', fontWeight: 700, color: '#0891b2', marginBottom: 4 },
+  statCard:      { background: '#fff', border: '1.5px solid #e5e7eb', borderRadius: 10, padding: '16px 18px', borderLeft: '4px solid #0891b2' },
+  statNum:       { fontSize: '1.6rem', fontWeight: 700, marginBottom: 4 },
   statLabel:     { fontSize: '0.8rem', color: '#6b7280', fontWeight: 500 },
   toolbar:       { display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 },
   search:        { flex: 1, padding: '10px 16px', border: '1.5px solid #e5e7eb', borderRadius: 8, fontSize: '0.9rem', background: '#fff', outline: 'none' },
   count:         { fontSize: '0.82rem', color: '#9ca3af', whiteSpace: 'nowrap' },
-  exportBtn:     { background: '#f0fdf4', color: '#15803d', border: '1px solid #bbf7d0', padding: '9px 16px', borderRadius: 8, fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer' },
+  exportBtn:     { background: '#f0fdf4', color: '#15803d', border: '1px solid #bbf7d0', padding: '9px 16px', borderRadius: 8, fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' },
   loading:       { textAlign: 'center', padding: '60px', color: '#9ca3af' },
   nameCell:      { display: 'flex', alignItems: 'center', gap: 10 },
   avatar:        { width: 36, height: 36, borderRadius: '50%', background: '#e0f2fe', color: '#0891b2', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.95rem', flexShrink: 0 },
@@ -437,7 +415,6 @@ const s = {
   classChip:     { background: '#f0fdf4', color: '#15803d', border: '1px solid #bbf7d0', padding: '2px 8px', borderRadius: 10, fontSize: '0.72rem', fontWeight: 600 },
   editBtn:       { background: '#f5f3ff', color: '#7c3aed', border: '1px solid #ddd6fe', padding: '5px 10px', borderRadius: 6, fontSize: '0.78rem', fontWeight: 600, cursor: 'pointer' },
   toggleBtn:     { padding: '5px 10px', borderRadius: 6, fontSize: '0.78rem', fontWeight: 600, cursor: 'pointer' },
-  resetBtn:      { background: '#fef3c7', color: '#92400e', border: '1px solid #fde68a', padding: '5px 10px', borderRadius: 6, fontSize: '0.78rem', fontWeight: 600, cursor: 'pointer' },
   sendBtn:       { background: '#eff6ff', color: '#1d4ed8', border: '1px solid #bfdbfe', padding: '5px 10px', borderRadius: 6, fontSize: '0.78rem', fontWeight: 600, cursor: 'pointer' },
   successBanner: { background: '#f0fdf4', border: '1px solid #bbf7d0', color: '#15803d', padding: '10px 16px', borderRadius: 8, marginBottom: 4, fontSize: '0.88rem' },
   errorBanner:   { background: '#fef2f2', border: '1px solid #fecaca', color: '#b91c1c', padding: '10px 16px', borderRadius: 8, marginBottom: 4, fontSize: '0.88rem' },
