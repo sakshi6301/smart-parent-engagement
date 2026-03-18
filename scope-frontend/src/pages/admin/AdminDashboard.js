@@ -20,6 +20,8 @@ const AdminDashboard = () => {
   const [error, setError]       = useState('');
   const [resetting, setResetting] = useState(false);
   const [resetMsg, setResetMsg] = useState('');
+  const [sendingDigest, setSendingDigest] = useState(false);
+  const [digestMsg, setDigestMsg] = useState('');
 
   const fetchStats = useCallback(() => {
     setLoading(true);
@@ -30,6 +32,19 @@ const AdminDashboard = () => {
   }, []);
 
   useEffect(() => { fetchStats(); }, [fetchStats]);
+
+  const handleSendDigest = async () => {
+    if (!window.confirm('Send weekly progress digest email to all linked parents now?')) return;
+    setSendingDigest(true);
+    try {
+      const { data } = await api.post('/admin/send-weekly-digest');
+      setDigestMsg('✅ ' + data.message);
+    } catch {
+      setDigestMsg('❌ Failed to trigger digest. Check server logs.');
+    }
+    setSendingDigest(false);
+    setTimeout(() => setDigestMsg(''), 6000);
+  };
 
   const handleReset = async () => {
     if (!window.confirm('⚠️ This will DELETE all students and non-admin users. Are you sure?')) return;
@@ -133,6 +148,11 @@ const AdminDashboard = () => {
           {resetMsg}
         </div>
       )}
+      {digestMsg && (
+        <div style={{ ...s.banner, background: digestMsg.startsWith('✅') ? '#f0fdf4' : '#fef2f2', borderColor: digestMsg.startsWith('✅') ? '#bbf7d0' : '#fecaca', color: digestMsg.startsWith('✅') ? '#15803d' : '#b91c1c' }}>
+          {digestMsg}
+        </div>
+      )}
 
       {/* ── Page Header ── */}
       <div style={s.pageHeader}>
@@ -140,7 +160,12 @@ const AdminDashboard = () => {
           <h2 style={s.pageTitle}>Admin Dashboard</h2>
           <p style={s.pageSub}>Welcome back! Here's what's happening at your school today.</p>
         </div>
-        <button onClick={fetchStats} style={s.refreshBtn}>🔄 Refresh</button>
+        <div style={{ display: 'flex', gap: 10 }}>
+          <button onClick={handleSendDigest} disabled={sendingDigest} style={s.digestBtn}>
+            {sendingDigest ? '📤 Sending...' : '📧 Send Weekly Digest'}
+          </button>
+          <button onClick={fetchStats} style={s.refreshBtn}>🔄 Refresh</button>
+        </div>
       </div>
 
       {/* ── Link Alerts ── */}
@@ -375,6 +400,7 @@ const s = {
   pageTitle:  { fontSize: '1.3rem', fontWeight: 800, color: '#111827', margin: 0 },
   pageSub:    { fontSize: '0.82rem', color: '#9ca3af', marginTop: 3 },
   refreshBtn: { background: '#fff', border: '1.5px solid #e5e7eb', color: '#374151', padding: '8px 16px', borderRadius: 8, fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer' },
+  digestBtn:  { background: '#4f46e5', color: '#fff', border: 'none', padding: '8px 18px', borderRadius: 8, fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer' },
   alertRow:   { display: 'flex', gap: 12, marginBottom: 16, flexWrap: 'wrap' },
   alertCard:   { flex: 1, minWidth: 260, display: 'flex', alignItems: 'center', gap: 12, background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 10, padding: '12px 16px', color: '#92400e', fontSize: '0.85rem' },
   alertBtn:    { background: '#d97706', color: '#fff', border: 'none', padding: '6px 14px', borderRadius: 6, fontWeight: 600, fontSize: '0.8rem', cursor: 'pointer', whiteSpace: 'nowrap' },

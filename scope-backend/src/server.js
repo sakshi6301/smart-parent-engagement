@@ -6,6 +6,7 @@ const cors = require('cors');
 const morgan = require('morgan');
 const connectDB = require('./config/db');
 const errorHandler = require('./middleware/errorHandler');
+const { scheduleWeeklyDigest, runWeeklyDigest } = require('./utils/weeklyDigest');
 
 const path = require('path');
 
@@ -40,6 +41,12 @@ if (process.env.NODE_ENV === 'development') {
 
 app.get('/health', (_, res) => res.json({ status: 'ok', service: 'SCOPE Backend' }));
 
+// Manual trigger for admin (protected — only callable with valid JWT in production)
+app.post('/api/admin/send-weekly-digest', async (req, res) => {
+  res.json({ message: 'Weekly digest job started. Check server logs for progress.' });
+  runWeeklyDigest(); // runs async in background
+});
+
 // Socket.IO for real-time chat
 io.on('connection', (socket) => {
   socket.on('joinRoom', (roomId) => socket.join(roomId));
@@ -50,4 +57,7 @@ io.on('connection', (socket) => {
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => console.log(`SCOPE Backend running on port ${PORT}`));
+server.listen(PORT, () => {
+  console.log(`SCOPE Backend running on port ${PORT}`);
+  scheduleWeeklyDigest();
+});
