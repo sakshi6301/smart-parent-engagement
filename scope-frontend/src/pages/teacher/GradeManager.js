@@ -22,8 +22,39 @@ const GradeManager = () => {
   const loadGrades = async (id) => {
     setSelectedId(id);
     if (!id) { setGrades([]); return; }
-    const { data } = await api.get(`/grades/${id}`);
-    setGrades(data.grades || []);
+    try {
+      const { data } = await api.get(`/grades/${id}`);
+      setGrades(data.grades || []);
+    } catch {
+      setMsg('ERR:Failed to load grades. Please try again.');
+      setGrades([]);
+    }
+  };
+
+  const handleDelete = async (gradeId) => {
+    if (!window.confirm('Delete this grade entry?')) return;
+    try {
+      await api.delete(`/grades/${gradeId}`);
+      setGrades(prev => prev.filter(g => g._id !== gradeId));
+    } catch {
+      alert('Failed to delete grade.');
+    }
+  };
+
+  const exportCSV = () => {
+    if (!grades.length) return;
+    const rows = [['Student', 'Subject', 'Exam Type', 'Marks', 'Total', 'Percentage', 'Grade', 'Date']];
+    grades.forEach(g => {
+      const p = pct(g);
+      rows.push([selectedStudent?.name, g.subject, g.examType, g.marksObtained, g.totalMarks, `${p}%`, grade(p), new Date(g.examDate).toLocaleDateString('en-IN')]);
+    });
+    const csv = rows.map(r => r.map(v => `"${v}"`).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `grades_${selectedStudent?.name?.replace(/\s+/g, '_')}.csv`;
+    a.click();
+    URL.revokeObjectURL(a.href);
   };
 
   const handleSubmit = async (e) => {
@@ -103,6 +134,11 @@ const GradeManager = () => {
                   <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 700, color: '#111827' }}>{selectedStudent?.name}</h3>
                   <p style={{ margin: 0, fontSize: '0.78rem', color: '#9ca3af' }}>Class {selectedStudent?.class}-{selectedStudent?.section} · {grades.length} records</p>
                 </div>
+                {grades.length > 0 && (
+                  <button onClick={exportCSV} style={{ background: '#f0fdf4', color: '#059669', border: '1px solid #bbf7d0', padding: '6px 14px', borderRadius: 8, fontWeight: 600, fontSize: '0.8rem', cursor: 'pointer' }}>
+                    Export CSV
+                  </button>
+                )}
               </div>
 
               {/* Subject Summary */}
@@ -127,7 +163,7 @@ const GradeManager = () => {
                 <table style={S.table}>
                   <thead>
                     <tr style={S.thead}>
-                      {['Subject', 'Exam Type', 'Marks', 'Percentage', 'Grade', 'Date'].map(h => <th key={h} style={S.th}>{h}</th>)}
+                      {['Subject', 'Exam Type', 'Marks', 'Percentage', 'Grade', 'Date', ''].map(h => <th key={h} style={S.th}>{h}</th>)}
                     </tr>
                   </thead>
                   <tbody>
@@ -141,6 +177,9 @@ const GradeManager = () => {
                           <td style={S.td}><span style={{ color: gradeColor(p), fontWeight: 700 }}>{p}%</span></td>
                           <td style={S.td}><span style={{ ...S.gradePill, background: gradeColor(p) + '20', color: gradeColor(p) }}>{grade(p)}</span></td>
                           <td style={S.td}>{new Date(g.examDate).toLocaleDateString('en-IN')}</td>
+                          <td style={S.td}>
+                            <button onClick={() => handleDelete(g._id)} style={{ background: '#fef2f2', color: '#ef4444', border: '1px solid #fecaca', padding: '3px 8px', borderRadius: 5, fontSize: '0.72rem', fontWeight: 600, cursor: 'pointer' }}>Delete</button>
+                          </td>
                         </tr>
                       );
                     })}

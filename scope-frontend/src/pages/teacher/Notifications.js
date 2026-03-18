@@ -76,10 +76,20 @@ const TeacherNotifications = () => {
     setSending(true); setMsg('');
     try {
       let audience = form.audience;
-      // 'my_class' → use first class-section of teacher's students
       if (audience === 'my_class') {
-        if (!classSections.length) return setMsg('ERR:No students assigned to you.');
-        audience = `class_${classSections[0]}`;
+        if (!classSections.length) { setMsg('ERR:No students assigned to you.'); setSending(false); return; }
+        // Send to all class-sections one by one
+        let totalSent = 0;
+        for (const cs of classSections) {
+          try {
+            const { data } = await api.post('/notifications/broadcast', { ...form, audience: `class_${cs}` });
+            totalSent += data.sent || 0;
+          } catch {}
+        }
+        setMsg(`OK:Sent to ${totalSent} parent${totalSent !== 1 ? 's' : ''} across ${classSections.length} class-section${classSections.length > 1 ? 's' : ''}.`);
+        setForm(f => ({ ...f, title: '', body: '' }));
+        setSending(false);
+        return;
       }
       const { data } = await api.post('/notifications/broadcast', { ...form, audience });
       setMsg(`OK:Sent to ${data.sent} parent${data.sent !== 1 ? 's' : ''}.`);

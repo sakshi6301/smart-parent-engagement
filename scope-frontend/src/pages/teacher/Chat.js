@@ -129,7 +129,7 @@ const Chat = () => {
                     {selected.contactRole === 'parent' ? '👨‍👩‍👧 Parent' : '🎓 Student'} · {selected.student.name} · Class {selected.student.class}-{selected.student.section}
                   </div>
                 </div>
-                <div style={S.onlineDot} />
+                <div style={S.statusIndicator}>Active</div>
               </div>
 
               <div style={S.messages}>
@@ -199,7 +199,7 @@ const S = {
   headerAvatar:  { width: 42, height: 42, borderRadius: '50%', background: 'rgba(255,255,255,0.2)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '1rem', flexShrink: 0 },
   headerName:    { color: '#fff', fontWeight: 700, fontSize: '0.95rem' },
   headerSub:     { color: '#c7d2fe', fontSize: '0.75rem', marginTop: 2 },
-  onlineDot:     { width: 10, height: 10, borderRadius: '50%', background: '#10b981', boxShadow: '0 0 0 2px rgba(16,185,129,0.3)', flexShrink: 0 },
+  statusIndicator: { fontSize: '0.72rem', color: '#a5b4fc', background: 'rgba(255,255,255,0.15)', padding: '2px 8px', borderRadius: 10, fontWeight: 600 },
   messages:      { flex: 1, overflowY: 'auto', padding: '20px 20px 10px', background: '#f8fafc', display: 'flex', flexDirection: 'column' },
   noMsg:         { display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flex: 1, color: '#9ca3af', gap: 8 },
   msgAvatar:     { width: 28, height: 28, borderRadius: '50%', background: '#e0e7ff', color: '#4f46e5', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.75rem', flexShrink: 0, marginRight: 8, alignSelf: 'flex-end' },

@@ -13,10 +13,12 @@ const TeacherDashboard = () => {
   const [homeworkDueToday, setHomeworkDueToday] = useState(0);
   const [recentHomework, setRecentHomework] = useState([]);
   const [pendingMeetings, setPendingMeetings] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     api.get('/students').then(({ data }) => {
       setStudents(data);
+      setLoading(false);
       if (data.length === 0) return;
 
       // Build today's attendance summary across ALL assigned students
@@ -49,7 +51,7 @@ const TeacherDashboard = () => {
         setHomeworkDueToday(allHw.filter(h => new Date(h.dueDate).toDateString() === todayStr).length);
         setRecentHomework(allHw.slice(0, 4));
       });
-    });
+    }).catch(() => setLoading(false));
     api.get('/chat/meetings/list').then(({ data }) => setPendingMeetings(data.filter(m => m.status === 'pending'))).catch(() => {});
   }, []);
 
@@ -63,6 +65,15 @@ const TeacherDashboard = () => {
   ];
 
   const linkedParents = students.filter(s => s.parent).length;
+
+  if (loading) return (
+    <AppLayout>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60vh', gap: 12, color: '#6b7280' }}>
+        <div style={{ width: 22, height: 22, border: '3px solid #e5e7eb', borderTop: '3px solid #4f46e5', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+        Loading your dashboard...
+      </div>
+    </AppLayout>
+  );
 
   return (
     <AppLayout>
