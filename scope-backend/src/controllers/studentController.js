@@ -193,6 +193,6 @@ exports.bulkAssignTeacher = async (req, res) => {
 exports.getUsersByRole = async (req, res) => {
   const User = require('../models/User');
   const { role } = req.params;
-  const users = await User.find({ role, isActive: true }).select('name email phone role');
+  const users = await User.find({ role }).select('name email phone role isActive createdAt');
   res.json(users);
 };

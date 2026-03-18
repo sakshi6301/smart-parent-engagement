@@ -319,7 +319,7 @@ const AdminDashboard = () => {
                   <td style={s.td}>{a.student?.class ? `${a.student.class} - ${a.student.section}` : '—'}</td>
                   <td style={s.td}>{a.student?.parent?.name || <span style={{ color: '#d1d5db' }}>No parent</span>}</td>
                   <td style={s.td}><span style={{ fontSize: '0.78rem', color: '#6b7280' }}>{a.student?.parent?.phone || a.student?.parent?.email || <span style={{ color: '#d1d5db' }}>—</span>}</span></td>
-                  <td style={s.td}>{a.student?.teacher?.name || <span style={{ color: '#d1d5db' }}>—</span>}</td>
+                  <td style={s.td}>{a.teacher?.name || <span style={{ color: '#d1d5db' }}>—</span>}</td>
                 </tr>
               ))}
             </tbody>
