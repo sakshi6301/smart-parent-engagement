@@ -67,9 +67,9 @@ const AdminNotifications = () => {
   }, []);
 
   useEffect(() => {
-    if (tab === 'history') loadHistory(1, histFilter); // eslint-disable-line
-    if (tab === 'stats') loadStats(); // eslint-disable-line
-  }, [tab]); // eslint-disable-line
+    if (tab === 'history') loadHistory(1, histFilter);
+    if (tab === 'stats') loadStats();
+  }, [tab, loadHistory, loadStats, histFilter]);
 
   const toggleChannel = (ch) => {
     setForm(f => ({

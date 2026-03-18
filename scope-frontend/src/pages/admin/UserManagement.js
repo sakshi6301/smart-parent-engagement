@@ -170,7 +170,7 @@ const UserManagement = () => {
         </button>
       </div>
 
-      {actionMsg && <div style={s.flashMsg}>{actionMsg}</div>}
+      {actionMsg && <div style={{ ...s.flashMsg, ...(actionMsg.startsWith('❌') ? s.flashErr : s.flashOk) }}>{actionMsg}</div>}
 
       {/* Role filter tabs */}
       <div style={s.tabs}>
@@ -201,7 +201,9 @@ const s = {
   header:    { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 },
   title:     { fontSize: '1.2rem', fontWeight: 700, color: '#111827', margin: 0 },
   sub:       { fontSize: '0.82rem', color: '#9ca3af', marginTop: 2 },
-  flashMsg:  { background: '#f0fdf4', border: '1px solid #bbf7d0', color: '#15803d', padding: '10px 16px', borderRadius: 8, marginBottom: 16, fontSize: '0.88rem' },
+  flashMsg:  { padding: '10px 16px', borderRadius: 8, marginBottom: 16, fontSize: '0.88rem' },
+  flashOk:   { background: '#f0fdf4', border: '1px solid #bbf7d0', color: '#15803d' },
+  flashErr:  { background: '#fef2f2', border: '1px solid #fecaca', color: '#b91c1c' },
   tabs:      { display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' },
   tab:       { display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 8, border: '1.5px solid #e5e7eb', background: '#fff', color: '#6b7280', fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer' },
   tabActive: { background: '#4f46e5', color: '#fff', borderColor: '#4f46e5' },

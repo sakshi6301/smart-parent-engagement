@@ -263,7 +263,7 @@ const AdminDashboard = () => {
         </div>
       )}
 
-      {/* ── Bottom Row ── */}}
+      {/* ── Bottom Row ── */}
       <div style={s.row}>
         {/* Recent Students */}
         <div style={{ ...s.card, flex: 2 }}>
@@ -347,15 +347,17 @@ const AdminDashboard = () => {
             </div>
           </div>
 
-          {/* Dev Reset */}
-          <div style={{ ...s.card, background: '#fef2f2', border: '1px solid #fecaca' }}>
-            <p style={{ ...s.cardTitle, color: '#b91c1c' }}>🗑️ Dev Tools</p>
-            <p style={{ fontSize: '0.78rem', color: '#9ca3af', marginBottom: 10 }}>Reset all students & users (dev only)</p>
-            <button onClick={handleReset} disabled={resetting}
-              style={{ width: '100%', padding: '9px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer' }}>
-              {resetting ? '⏳ Deleting...' : '🗑️ Reset All Data'}
-            </button>
-          </div>
+          {/* Dev Reset — only in development */}
+          {process.env.NODE_ENV === 'development' && (
+            <div style={{ ...s.card, background: '#fef2f2', border: '1px solid #fecaca' }}>
+              <p style={{ ...s.cardTitle, color: '#b91c1c' }}>Dev Tools</p>
+              <p style={{ fontSize: '0.78rem', color: '#9ca3af', marginBottom: 10 }}>Reset all students and users (dev only)</p>
+              <button onClick={handleReset} disabled={resetting}
+                style={{ width: '100%', padding: '9px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer' }}>
+                {resetting ? 'Deleting...' : 'Reset All Data'}
+              </button>
+            </div>
+          )}
 
         </div>
       </div>

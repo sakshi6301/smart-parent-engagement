@@ -45,8 +45,8 @@ const ManageTeachers = () => {
     setSaving(true);
     setMsg('');
     try {
-      await api.post('/auth/register', { ...form, role: 'teacher' });
-      setMsg('✅ Teacher account created successfully!');
+      await api.post('/auth/admin/create-user', { ...form, role: 'teacher' });
+      setMsg('✅ Teacher account created and credentials emailed!');
       setShowAddModal(false);
       setForm({ name: '', email: '', password: '', phone: '' });
       fetchAll();
