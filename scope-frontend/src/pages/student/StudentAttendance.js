@@ -17,15 +17,24 @@ const StudentAttendance = () => {
 
   useEffect(() => {
     api.get('/students').then(({ data }) => {
-      if (data.length > 0) {
-        setStudent(data[0]);
-        api.get(`/attendance/${data[0]._id}`).then(r => setAttendance(r.data)).catch(() => {});
-      }
-    });
+      if (data.length === 0) return;
+      setStudent(data[0]);
+      api.get(`/attendance/${data[0]._id}`).then(r => setAttendance(r.data)).catch(() => {});
+    }).catch(() => {});
   }, []);
 
   const records = attendance?.records || [];
   const summary = attendance?.summary || { present: 0, absent: 0, late: 0, percentage: 0 };
+
+  if (!student) return (
+    <AppLayout>
+      <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 12, padding: '40px 24px', textAlign: 'center' }}>
+        <div style={{ fontSize: '2.5rem', marginBottom: 8 }}>🎓</div>
+        <p style={{ fontWeight: 700, color: '#92400e', margin: '0 0 4px' }}>Student profile not linked</p>
+        <p style={{ fontSize: '0.85rem', color: '#9ca3af', margin: 0 }}>Contact your school admin to link your account.</p>
+      </div>
+    </AppLayout>
+  );
 
   const filtered = filter === 'all' ? records : records.filter(r => r.status === filter);
 

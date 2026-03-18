@@ -20,15 +20,14 @@ const StudentDashboard = () => {
 
   useEffect(() => {
     api.get('/students').then(({ data }) => {
-      if (data.length > 0) {
-        const s = data[0];
-        setStudent(s);
-        api.get(`/grades/${s._id}`).then(r => setGrades(r.data.grades || [])).catch(() => {});
-        api.get(`/homework/${s.class}-${s.section}`).then(r => setHomework(r.data)).catch(() => {});
-        api.get(`/attendance/${s._id}`).then(r => setAttendance(r.data)).catch(() => {});
-        api.get(`/ai/recommendations/${s._id}`).then(r => setRecommendations(r.data.recommendations || [])).catch(() => {});
-      }
-    });
+      if (data.length === 0) return;
+      const s = data[0];
+      setStudent(s);
+      api.get(`/grades/${s._id}`).then(r => setGrades(r.data.grades || [])).catch(() => {});
+      api.get(`/homework/${s.class}-${s.section}`).then(r => setHomework(r.data)).catch(() => {});
+      api.get(`/attendance/${s._id}`).then(r => setAttendance(r.data)).catch(() => {});
+      api.get(`/ai/recommendations/${s._id}`).then(r => setRecommendations(r.data.recommendations || [])).catch(() => {});
+    }).catch(() => {});
   }, []);
 
   const subjectAvg = {};
@@ -49,6 +48,14 @@ const StudentDashboard = () => {
 
   return (
     <AppLayout>
+      {!student && (
+        <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 12, padding: '32px 24px', textAlign: 'center', marginBottom: 20 }}>
+          <div style={{ fontSize: '2.5rem', marginBottom: 8 }}>🎓</div>
+          <p style={{ fontWeight: 700, color: '#92400e', margin: '0 0 4px' }}>Your student profile is not linked yet</p>
+          <p style={{ fontSize: '0.85rem', color: '#9ca3af', margin: 0 }}>Contact your school admin to link your account.</p>
+        </div>
+      )}
+      {student && (<>
       <div style={styles.banner}>
         <div style={styles.bannerLeft}>
           <div style={styles.avatar}>{user?.name?.[0]}</div>
@@ -137,6 +144,8 @@ const StudentDashboard = () => {
             ))}
           </div>
         </div>
+      )}
+      </>
       )}
     </AppLayout>
   );

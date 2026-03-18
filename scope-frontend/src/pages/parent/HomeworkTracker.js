@@ -11,18 +11,29 @@ const HomeworkTracker = () => {
 
   useEffect(() => {
     api.get('/students').then(({ data }) => {
-      if (data.length > 0) {
-        const s = data[0];
-        setStudent(s);
-        api.get(`/homework/${s.class}-${s.section}`)
-          .then(r => setHomework(r.data))
-          .catch(() => {})
-          .finally(() => setLoading(false));
-      } else setLoading(false);
-    });
+      if (data.length === 0) { setLoading(false); return; }
+      const s = data[0];
+      setStudent(s);
+      api.get(`/homework/${s.class}-${s.section}`)
+        .then(r => setHomework(r.data))
+        .catch(() => {})
+        .finally(() => setLoading(false));
+    }).catch(() => setLoading(false));
   }, []);
 
-  const isSubmitted = (hw) => student && hw.submissions?.some(s => s.student === student._id || s.student?._id === student._id);
+  if (loading) return <AppLayout><div style={S.empty}>Loading...</div></AppLayout>;
+
+  if (!student) return (
+    <AppLayout>
+      <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 12, padding: '40px 24px', textAlign: 'center' }}>
+        <div style={{ fontSize: '2.5rem', marginBottom: 8 }}>No child linked</div>
+        <p style={{ fontWeight: 700, color: '#92400e', margin: '0 0 4px' }}>No child linked to your account</p>
+        <p style={{ fontSize: '0.85rem', color: '#9ca3af', margin: 0 }}>Contact your school admin to link your child.</p>
+      </div>
+    </AppLayout>
+  );
+
+  const isSubmitted = (hw) => hw.submissions?.some(s => s.student === student._id || s.student?._id === student._id);
   const isOverdue   = (hw) => new Date(hw.dueDate) < new Date() && !isSubmitted(hw);
   const daysLeft    = (hw) => Math.ceil((new Date(hw.dueDate) - new Date()) / (1000 * 60 * 60 * 24));
 
@@ -60,9 +71,7 @@ const HomeworkTracker = () => {
         ))}
       </div>
 
-      {loading && <div style={S.empty}>Loading homework...</div>}
-
-      {!loading && filtered.length === 0 && (
+      {filtered.length === 0 && (
         <div style={S.empty}>
           <span style={{ fontSize: '3rem' }}>🎉</span>
           <p style={{ fontWeight: 600, color: '#374151' }}>No homework in this category!</p>

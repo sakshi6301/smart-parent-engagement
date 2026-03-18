@@ -22,16 +22,15 @@ const ParentDashboard = () => {
 
   useEffect(() => {
     api.get('/students').then(({ data }) => {
-      if (data.length > 0) {
-        const s = data[0];
-        setStudent(s);
-        api.get(`/attendance/${s._id}`).then(r => setAttendance(r.data)).catch(() => {});
-        api.get(`/grades/${s._id}`).then(r => setGrades(r.data.grades || [])).catch(() => {});
-        api.get(`/ai/risk/${s._id}`).then(r => setRisk(r.data)).catch(() => {});
-        api.get(`/homework/${s.class}-${s.section}`).then(r => setHomework(r.data)).catch(() => {});
-        api.get(`/analytics/engagement/${user._id}`).then(r => setEngagement(r.data[0])).catch(() => {});
-      }
-    });
+      if (data.length === 0) return;
+      const s = data[0];
+      setStudent(s);
+      api.get(`/attendance/${s._id}`).then(r => setAttendance(r.data)).catch(() => {});
+      api.get(`/grades/${s._id}`).then(r => setGrades(r.data.grades || [])).catch(() => {});
+      api.get(`/ai/risk/${s._id}`).then(r => setRisk(r.data)).catch(() => {});
+      api.get(`/homework/${s.class}-${s.section}`).then(r => setHomework(r.data)).catch(() => {});
+      api.get(`/analytics/engagement/${user._id}`).then(r => setEngagement(r.data[0])).catch(() => {});
+    }).catch(() => {});
     api.get('/notifications').then(({ data }) => setNotifications(data.slice(0, 6))).catch(() => {});
   }, [user._id]);
 
@@ -48,6 +47,13 @@ const ParentDashboard = () => {
 
   return (
     <AppLayout>
+      {!student && (
+        <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 12, padding: '24px', textAlign: 'center', marginBottom: 20 }}>
+          <div style={{ fontSize: '2.5rem', marginBottom: 8 }}>👨‍👩‍👧</div>
+          <p style={{ fontWeight: 700, color: '#92400e', margin: '0 0 4px' }}>No child linked to your account</p>
+          <p style={{ fontSize: '0.85rem', color: '#9ca3af', margin: 0 }}>Please contact your school admin to link your child's profile.</p>
+        </div>
+      )}
       {student && (
         <div style={styles.childBanner}>
           <div style={styles.childAvatar}>{student.name[0]}</div>

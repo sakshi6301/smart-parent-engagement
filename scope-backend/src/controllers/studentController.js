@@ -36,7 +36,8 @@ exports.createStudent = async (req, res) => {
 exports.getStudents = async (req, res) => {
   const filter = {};
   if (req.user.role === 'teacher') filter.teacher = req.user._id;
-  if (req.user.role === 'parent') filter.parent = req.user._id;
+  if (req.user.role === 'parent')  filter.parent  = req.user._id;
+  if (req.user.role === 'student') filter.studentUser = req.user._id;
   const students = await Student.find(filter).populate('parent teacher', 'name email phone');
   res.json(students);
 };

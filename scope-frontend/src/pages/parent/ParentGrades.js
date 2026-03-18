@@ -26,21 +26,16 @@ const ParentGrades = () => {
 
   useEffect(() => {
     api.get('/students').then(({ data }) => {
-      if (data.length > 0) {
-        const s = data[0];
-        setStudent(s);
-        api.get(`/grades/${s._id}`).then(r => {
-          setGrades(r.data.grades || []);
-          setLoading(false);
-        }).catch(() => setLoading(false));
-        // AI: grade trend
-        api.get(`/ai/grade-trend/${s._id}`).then(r => setTrends(r.data.trends || {})).catch(() => {});
-        // AI: attendance anomaly
-        api.get(`/ai/attendance-anomaly/${s._id}`).then(r => setAnomaly(r.data)).catch(() => {});
-      } else {
+      if (data.length === 0) { setLoading(false); return; }
+      const s = data[0];
+      setStudent(s);
+      api.get(`/grades/${s._id}`).then(r => {
+        setGrades(r.data.grades || []);
         setLoading(false);
-      }
-    });
+      }).catch(() => setLoading(false));
+      api.get(`/ai/grade-trend/${s._id}`).then(r => setTrends(r.data.trends || {})).catch(() => {});
+      api.get(`/ai/attendance-anomaly/${s._id}`).then(r => setAnomaly(r.data)).catch(() => {});
+    }).catch(() => setLoading(false));
   }, []);
 
   // Subject averages
@@ -68,6 +63,16 @@ const ParentGrades = () => {
   );
 
   if (loading) return <AppLayout><div style={S.center}>Loading grades...</div></AppLayout>;
+
+  if (!student) return (
+    <AppLayout>
+      <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 12, padding: '40px 24px', textAlign: 'center' }}>
+        <div style={{ fontSize: '2.5rem', marginBottom: 8 }}>👨👩👧</div>
+        <p style={{ fontWeight: 700, color: '#92400e', margin: '0 0 4px' }}>No child linked to your account</p>
+        <p style={{ fontSize: '0.85rem', color: '#9ca3af', margin: 0 }}>Contact your school admin to link your child.</p>
+      </div>
+    </AppLayout>
+  );
 
   return (
     <AppLayout>
