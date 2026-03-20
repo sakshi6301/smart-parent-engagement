@@ -2,12 +2,14 @@ import React, { useEffect, useState } from 'react';
 import AppLayout from '../../components/layout/AppLayout';
 import Badge from '../../components/Badge';
 import api from '../../services/api';
+import { useTranslation } from 'react-i18next';
 
-const pct  = (g) => +((g.marksObtained / g.totalMarks) * 100).toFixed(1);
+const pct   = (g) => +((g.marksObtained / g.totalMarks) * 100).toFixed(1);
 const grade = (p) => p >= 90 ? 'A+' : p >= 80 ? 'A' : p >= 70 ? 'B' : p >= 60 ? 'C' : p >= 40 ? 'D' : 'F';
 const color = (p) => p >= 70 ? '#10b981' : p >= 40 ? '#f59e0b' : '#ef4444';
 
 const StudentGrades = () => {
+  const { t } = useTranslation();
   const [student, setStudent] = useState(null);
   const [grades, setGrades]   = useState([]);
   const [filter, setFilter]   = useState('all');
@@ -45,15 +47,14 @@ const StudentGrades = () => {
     <AppLayout>
       <div style={S.header}>
         <div>
-          <h2 style={S.title}>My Grades</h2>
-          <p style={S.sub}>{student?.name} · Class {student?.class}-{student?.section}</p>
+          <h2 style={S.title}>{t('myGrades')}</h2>
+          <p style={S.sub}>{student?.name} · {t('class')} {student?.class}-{student?.section}</p>
         </div>
         <div style={{ ...S.overallBadge, background: color(overall) + '20', color: color(overall) }}>
-          Overall: <strong>{overall}% · {grade(overall)}</strong>
+          {t('average')}: <strong>{overall}% · {grade(overall)}</strong>
         </div>
       </div>
 
-      {/* Subject Summary */}
       <div style={S.subjectRow}>
         {subjects.map(sub => (
           <div key={sub} onClick={() => setFilter(filter === sub ? 'all' : sub)}
@@ -65,15 +66,14 @@ const StudentGrades = () => {
         ))}
       </div>
 
-      {/* Grades Table */}
       <div style={S.card}>
         {filtered.length === 0 ? (
-          <div style={S.empty}>No grades recorded yet.</div>
+          <div style={S.empty}>{t('noData')}</div>
         ) : (
           <table style={S.table}>
             <thead>
               <tr style={S.thead}>
-                {['Subject','Exam Type','Marks','Score','Grade','Date'].map(h => <th key={h} style={S.th}>{h}</th>)}
+                {[t('subject'), t('examType'), t('marksObtained'), t('score'), 'Grade', t('date')].map(h => <th key={h} style={S.th}>{h}</th>)}
               </tr>
             </thead>
             <tbody>

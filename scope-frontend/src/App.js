@@ -45,6 +45,7 @@ import StudentGrades from './pages/student/StudentGrades';
 import StudentAttendance from './pages/student/StudentAttendance';
 import StudentHomework from './pages/student/StudentHomework';
 import StudentChat from './pages/student/StudentChat';
+import StudentNotifications from './pages/student/StudentNotifications';
 
 // Shared
 import FeedbackPage from './pages/FeedbackPage';
@@ -94,6 +95,7 @@ const App = () => (
         <Route path="/student/homework" element={<PR roles={['student']}><StudentHomework /></PR>} />
         <Route path="/student/attendance" element={<PR roles={['student']}><StudentAttendance /></PR>} />
         <Route path="/student/chat" element={<PR roles={['student']}><StudentChat /></PR>} />
+        <Route path="/student/notifications" element={<PR roles={['student']}><StudentNotifications /></PR>} />
         <Route path="/student/recommendations" element={<PR roles={['student']}><StudentDashboard /></PR>} />
 
         {/* Shared */}

@@ -1,19 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import AppLayout from '../../components/layout/AppLayout';
 import api from '../../services/api';
-
-const STATUS_CFG = {
-  present: { color: '#10b981', bg: '#f0fdf4', label: 'Present', icon: '✅' },
-  absent:  { color: '#ef4444', bg: '#fef2f2', label: 'Absent',  icon: '❌' },
-  late:    { color: '#f59e0b', bg: '#fffbeb', label: 'Late',    icon: '⏰' },
-};
+import { useTranslation } from 'react-i18next';
 
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
 const StudentAttendance = () => {
-  const [student, setStudent]     = useState(null);
+  const { t } = useTranslation();
+  const [student, setStudent]       = useState(null);
   const [attendance, setAttendance] = useState(null);
-  const [filter, setFilter]       = useState('all');
+  const [filter, setFilter]         = useState('all');
 
   useEffect(() => {
     api.get('/students').then(({ data }) => {
@@ -25,6 +21,12 @@ const StudentAttendance = () => {
 
   const records = attendance?.records || [];
   const summary = attendance?.summary || { present: 0, absent: 0, late: 0, percentage: 0 };
+
+  const STATUS_CFG = {
+    present: { color: '#10b981', bg: '#f0fdf4', label: t('present'), icon: '✅' },
+    absent:  { color: '#ef4444', bg: '#fef2f2', label: t('absent'),  icon: '❌' },
+    late:    { color: '#f59e0b', bg: '#fffbeb', label: t('late'),    icon: '⏰' },
+  };
 
   if (!student) return (
     <AppLayout>
@@ -38,7 +40,6 @@ const StudentAttendance = () => {
 
   const filtered = filter === 'all' ? records : records.filter(r => r.status === filter);
 
-  // Group by month
   const byMonth = {};
   filtered.forEach(r => {
     const d = new Date(r.date);
@@ -51,28 +52,27 @@ const StudentAttendance = () => {
     <AppLayout>
       <div style={S.header}>
         <div>
-          <h2 style={S.title}>My Attendance</h2>
-          <p style={S.sub}>{student?.name} · Class {student?.class}-{student?.section}</p>
+          <h2 style={S.title}>{t('myAttendance')}</h2>
+          <p style={S.sub}>{student?.name} · {t('class')} {student?.class}-{student?.section}</p>
         </div>
         <div style={{ ...S.pctBadge, background: summary.percentage < 75 ? '#fef2f2' : '#f0fdf4', color: summary.percentage < 75 ? '#ef4444' : '#10b981' }}>
-          {summary.percentage}% Attendance
+          {summary.percentage}% {t('attendance')}
           {summary.percentage < 75 && ' ⚠️'}
         </div>
       </div>
 
-      {/* Summary Cards */}
       <div style={S.summaryRow}>
         {[['present','✅','#10b981'],['absent','❌','#ef4444'],['late','⏰','#f59e0b']].map(([key, icon, clr]) => (
           <div key={key} onClick={() => setFilter(filter === key ? 'all' : key)}
             style={{ ...S.summaryCard, borderTop: `3px solid ${filter === key ? clr : '#e5e7eb'}`, cursor: 'pointer' }}>
             <span style={{ fontSize: '1.4rem' }}>{icon}</span>
             <span style={{ fontSize: '1.6rem', fontWeight: 800, color: clr }}>{summary[key] || 0}</span>
-            <span style={{ fontSize: '0.78rem', color: '#6b7280', textTransform: 'capitalize' }}>{key}</span>
+            <span style={{ fontSize: '0.78rem', color: '#6b7280' }}>{t(key)}</span>
           </div>
         ))}
         <div style={{ ...S.summaryCard, borderTop: `3px solid #4f46e5`, flex: 2 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', marginBottom: 8 }}>
-            <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#374151' }}>Attendance Rate</span>
+            <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#374151' }}>{t('attendancePct')}</span>
             <span style={{ fontWeight: 800, color: '#4f46e5' }}>{summary.percentage}%</span>
           </div>
           <div style={S.progressBg}>
@@ -82,9 +82,8 @@ const StudentAttendance = () => {
         </div>
       </div>
 
-      {/* Records */}
       {Object.keys(byMonth).length === 0 ? (
-        <div style={S.empty}>No attendance records found.</div>
+        <div style={S.empty}>{t('noData')}</div>
       ) : (
         Object.entries(byMonth).reverse().map(([month, recs]) => (
           <div key={month} style={S.monthSection}>

@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { register, login, getProfile, updateFCMToken, adminCreateUser, adminUpdateUser, resendCredentials, toggleActive, resetPassword, sendCredentials } = require('../controllers/authController');
+const { register, login, getProfile, updateFCMToken, adminCreateUser, adminUpdateUser, resendCredentials, toggleActive, resetPassword, sendCredentials, provisionStudentUsers } = require('../controllers/authController');
 const { protect, authorize } = require('../middleware/auth');
 
 router.post('/register', register);
@@ -14,5 +14,6 @@ router.post('/admin/resend-credentials', protect, authorize('admin'), resendCred
 router.put('/admin/toggle-active/:id',    protect, authorize('admin'), toggleActive);
 router.put('/admin/reset-password/:id',   protect, authorize('admin'), resetPassword);
 router.post('/admin/send-credentials/:id',protect, authorize('admin'), sendCredentials);
+router.post('/admin/provision-students',  protect, authorize('admin'), provisionStudentUsers);
 
 module.exports = router;

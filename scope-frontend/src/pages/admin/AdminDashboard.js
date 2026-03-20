@@ -161,10 +161,10 @@ const AdminDashboard = () => {
           <p style={s.pageSub}>Welcome back! Here's what's happening at your school today.</p>
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
-          <button onClick={handleSendDigest} disabled={sendingDigest} style={s.digestBtn}>
-            {sendingDigest ? '📤 Sending...' : '📧 Send Weekly Digest'}
-          </button>
           <button onClick={fetchStats} style={s.refreshBtn}>🔄 Refresh</button>
+          <button onClick={handleSendDigest} disabled={sendingDigest} style={s.digestBtn}>
+            {sendingDigest ? '📤 Sending...' : '📧 Digest'}
+          </button>
         </div>
       </div>
 
@@ -270,7 +270,8 @@ const AdminDashboard = () => {
             </div>
             <button onClick={() => navigate('/admin/teachers')} style={s.linkBtn}>Manage Teachers →</button>
           </div>
-          <div style={s.teacherGrid}>
+          <div className="section-scroll" style={{ maxHeight: 320, borderRadius: 8 }}>
+            <div style={s.teacherGrid}>
             {stats.teacherStats.map(t => (
               <div key={t._id} style={s.teacherCard}>
                 <div style={s.teacherAvatar}>{t.teacher.name[0]}</div>
@@ -284,6 +285,7 @@ const AdminDashboard = () => {
                 </div>
               </div>
             ))}
+            </div>
           </div>
         </div>
       )}
@@ -298,6 +300,7 @@ const AdminDashboard = () => {
             </div>
             <button onClick={() => navigate('/admin/students')} style={s.linkBtn}>View All Students →</button>
           </div>
+          <div className="section-scroll" style={{ maxHeight: 360, borderRadius: 8 }}>
           <table style={s.table}>
             <thead>
               <tr style={s.thead}>
@@ -324,6 +327,7 @@ const AdminDashboard = () => {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
       )}
 
@@ -335,7 +339,7 @@ const AdminDashboard = () => {
               <p style={s.cardTitle}>📅 Pending Meeting Requests</p>
               <p style={s.cardSub}>{stats.pendingMeetings} total pending — showing latest {stats.pendingMeetingsList.length}</p>
             </div>
-            <button onClick={() => navigate('/admin/meetings')} style={{ ...s.linkBtn, background: '#fffbeb', color: '#92400e' }}>View All →</button>
+            <button onClick={() => navigate('/admin/users')} style={{ ...s.linkBtn, background: '#fffbeb', color: '#92400e' }}>View All →</button>
           </div>
           <table style={s.table}>
             <thead>
@@ -433,17 +437,18 @@ const AdminDashboard = () => {
             <p style={s.cardTitle}>⚡ Quick Actions</p>
             <div style={s.actionGrid}>
               {[
-                { label: 'Link Mgmt',  icon: '🔗', path: '/admin/link-management', color: '#fefce8', border: '#fef08a', text: '#713f12' },
-                { label: 'Students',    icon: '🎓', path: '/admin/students',    color: '#eff6ff', border: '#bfdbfe', text: '#1d4ed8' },
-                { label: 'Teachers',    icon: '👨🏫', path: '/admin/teachers',    color: '#f5f3ff', border: '#ddd6fe', text: '#6d28d9' },
-                { label: 'Parents',     icon: '👨👩👧', path: '/admin/parents',     color: '#f0fdf4', border: '#bbf7d0', text: '#15803d' },
-                { label: 'Bulk Import', icon: '📥', path: '/admin/bulk-import', color: '#fffbeb', border: '#fde68a', text: '#92400e' },
-                { label: 'Users',       icon: '👥', path: '/admin/users',       color: '#fef2f2', border: '#fecaca', text: '#b91c1c' },
+                { label: 'Link Mgmt',  icon: '🔗', path: '/admin/link-management', color: '#fefce8', border: '#fef08a', text: '#713f12', count: (stats.unlinkedParent || 0) + (stats.unlinkedTeacher || 0) || null },
+                { label: 'Students',   icon: '🎓', path: '/admin/students',         color: '#eff6ff', border: '#bfdbfe', text: '#1d4ed8', count: stats.totalStudents },
+                { label: 'Teachers',   icon: '👨🏫', path: '/admin/teachers',        color: '#f5f3ff', border: '#ddd6fe', text: '#6d28d9', count: stats.totalTeachers },
+                { label: 'Parents',    icon: '👨👩👧', path: '/admin/parents',        color: '#f0fdf4', border: '#bbf7d0', text: '#15803d', count: stats.totalParents },
+                { label: 'Bulk Import',icon: '📥', path: '/admin/bulk-import',      color: '#fffbeb', border: '#fde68a', text: '#92400e', count: null },
+                { label: 'Users',      icon: '👥', path: '/admin/users',            color: '#fef2f2', border: '#fecaca', text: '#b91c1c', count: null },
               ].map(a => (
                 <button key={a.label} onClick={() => navigate(a.path)}
                   style={{ ...s.actionBtn, background: a.color, borderColor: a.border, color: a.text }}>
                   <span style={{ fontSize: '1.2rem' }}>{a.icon}</span>
                   <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>{a.label}</span>
+                  {a.count != null && <span style={{ fontSize: '0.7rem', fontWeight: 700, opacity: 0.8 }}>{a.count}</span>}
                 </button>
               ))}
             </div>
@@ -477,7 +482,7 @@ const s = {
   pageTitle:  { fontSize: '1.3rem', fontWeight: 800, color: '#111827', margin: 0 },
   pageSub:    { fontSize: '0.82rem', color: '#9ca3af', marginTop: 3 },
   refreshBtn: { background: '#fff', border: '1.5px solid #e5e7eb', color: '#374151', padding: '8px 16px', borderRadius: 8, fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer' },
-  digestBtn:  { background: '#4f46e5', color: '#fff', border: 'none', padding: '8px 18px', borderRadius: 8, fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer' },
+  digestBtn:  { background: '#fff', color: '#6b7280', border: '1.5px solid #e5e7eb', padding: '8px 14px', borderRadius: 8, fontWeight: 600, fontSize: '0.82rem', cursor: 'pointer' },
   alertRow:   { display: 'flex', gap: 12, marginBottom: 16, flexWrap: 'wrap' },
   alertCard:   { flex: 1, minWidth: 260, display: 'flex', alignItems: 'center', gap: 12, background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 10, padding: '12px 16px', color: '#92400e', fontSize: '0.85rem' },
   alertBtn:    { background: '#d97706', color: '#fff', border: 'none', padding: '6px 14px', borderRadius: 6, fontWeight: 600, fontSize: '0.8rem', cursor: 'pointer', whiteSpace: 'nowrap' },
@@ -502,6 +507,7 @@ const s = {
   genderBox:  { flex: 1, border: '2px solid', borderRadius: 10, padding: '12px 8px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 },
   actionGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginTop: 8 },
   actionBtn:  { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, padding: '10px 6px', border: '1.5px solid', borderRadius: 8, cursor: 'pointer', fontFamily: 'inherit' },
+  scrollBox:   { overflowY: 'auto', maxHeight: 360, borderRadius: 8 },
   teacherGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 10, marginTop: 4 },
   teacherCard: { display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px', background: '#f8fafc', borderRadius: 10, border: '1px solid #e5e7eb' },
   teacherAvatar: { width: 38, height: 38, borderRadius: '50%', background: '#e0e7ff', color: '#4f46e5', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.95rem', flexShrink: 0 },

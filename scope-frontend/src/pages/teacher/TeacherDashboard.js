@@ -5,9 +5,11 @@ import Badge from '../../components/Badge';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 const TeacherDashboard = () => {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const [students, setStudents] = useState([]);
   const [todayAttendance, setTodayAttendance] = useState(null);
   const [homeworkDueToday, setHomeworkDueToday] = useState(0);
@@ -21,7 +23,6 @@ const TeacherDashboard = () => {
       setLoading(false);
       if (data.length === 0) return;
 
-      // Build today's attendance summary across ALL assigned students
       const today = new Date().toISOString().split('T')[0];
       const todayDate = new Date().toDateString();
       Promise.all(
@@ -41,7 +42,6 @@ const TeacherDashboard = () => {
         if (total > 0) setTodayAttendance({ present, absent, late, total });
       });
 
-      // Fetch homework for each unique class-section among assigned students
       const classSections = [...new Set(data.map(s => `${s.class}-${s.section}`))];
       Promise.all(
         classSections.map(cs => api.get(`/homework/${cs}`).catch(() => null))
@@ -56,12 +56,12 @@ const TeacherDashboard = () => {
   }, []);
 
   const quickLinks = [
-    { label: 'Mark Attendance', icon: '✅', path: '/teacher/attendance', color: '#10b981' },
-    { label: 'Add Grades', icon: '📝', path: '/teacher/grades', color: '#4f46e5' },
-    { label: 'Post Homework', icon: '📚', path: '/teacher/homework', color: '#f59e0b' },
-    { label: 'AI Risk Monitor', icon: '🤖', path: '/teacher/risk', color: '#ef4444' },
-    { label: 'Messages', icon: '💬', path: '/teacher/chat', color: '#0891b2' },
-    { label: 'Meetings', icon: '📅', path: '/teacher/meetings', color: '#7c3aed' },
+    { label: t('markAttendance'), icon: '✅', path: '/teacher/attendance', color: '#10b981' },
+    { label: t('addGrade'),       icon: '📝', path: '/teacher/grades',     color: '#4f46e5' },
+    { label: t('assignHomework'), icon: '📚', path: '/teacher/homework',   color: '#f59e0b' },
+    { label: t('aiRiskMonitor'),  icon: '🤖', path: '/teacher/risk',       color: '#ef4444' },
+    { label: t('chat'),           icon: '💬', path: '/teacher/chat',       color: '#0891b2' },
+    { label: t('meetings'),       icon: '📅', path: '/teacher/meetings',   color: '#7c3aed' },
   ];
 
   const linkedParents = students.filter(s => s.parent).length;
@@ -70,39 +70,42 @@ const TeacherDashboard = () => {
     <AppLayout>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60vh', gap: 12, color: '#6b7280' }}>
         <div style={{ width: 22, height: 22, border: '3px solid #e5e7eb', borderTop: '3px solid #4f46e5', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
-        Loading your dashboard...
+        {t('loading')}
       </div>
     </AppLayout>
   );
+
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? 'Morning' : hour < 17 ? 'Afternoon' : 'Evening';
 
   return (
     <AppLayout>
       <div style={styles.welcome}>
         <div>
-          <h2 style={styles.welcomeTitle}>Good {new Date().getHours() < 12 ? 'Morning' : new Date().getHours() < 17 ? 'Afternoon' : 'Evening'}, {user?.name?.split(' ')[0]}! 👋</h2>
+          <h2 style={styles.welcomeTitle}>Good {greeting}, {user?.name?.split(' ')[0]}! 👋</h2>
           <p style={styles.welcomeSub}>Here's what's happening in your class today.</p>
         </div>
         {pendingMeetings.length > 0 && (
           <div style={styles.alert}>
-            📅 <strong>{pendingMeetings.length}</strong> pending meeting request{pendingMeetings.length > 1 ? 's' : ''}
-            <Link to="/teacher/meetings" style={{ color: '#4f46e5', marginLeft: 8, fontWeight: 600 }}>View →</Link>
+            📅 <strong>{pendingMeetings.length}</strong> {t('pendingMeetings')}
+            <Link to="/teacher/meetings" style={{ color: '#4f46e5', marginLeft: 8, fontWeight: 600 }}>{t('view')} →</Link>
           </div>
         )}
       </div>
 
       <div style={styles.statsRow}>
-        <StatCard title="My Students" value={students.length} icon="🎓" color="blue" subtitle={`${linkedParents} parents linked`} />
-        <StatCard title="Pending Meetings" value={pendingMeetings.length} icon="📅" color="yellow" subtitle="Awaiting confirmation" />
-        <StatCard title="HW Due Today" value={homeworkDueToday} icon="📚" color="red" subtitle="Assignments due today" />
-        <StatCard title="Today Attendance"
-          value={todayAttendance ? `${todayAttendance.present}/${todayAttendance.total}` : 'Not marked'}
+        <StatCard title={t('students')} value={students.length} icon="🎓" color="blue" subtitle={`${linkedParents} ${t('parents')} linked`} />
+        <StatCard title={t('pendingMeetings')} value={pendingMeetings.length} icon="📅" color="yellow" subtitle="Awaiting confirmation" />
+        <StatCard title={t('homework')} value={homeworkDueToday} icon="📚" color="red" subtitle={t('dueToday')} />
+        <StatCard title={t('todayAttendance')}
+          value={todayAttendance ? `${todayAttendance.present}/${todayAttendance.total}` : t('markAttendance')}
           icon="✅" color={todayAttendance && todayAttendance.absent > 0 ? 'red' : 'green'}
-          subtitle={todayAttendance ? `${todayAttendance.absent} absent, ${todayAttendance.late} late` : 'Mark attendance'} />
+          subtitle={todayAttendance ? `${todayAttendance.absent} ${t('absent')}, ${todayAttendance.late} ${t('late')}` : t('markAttendance')} />
       </div>
 
       <div style={styles.row}>
         <div style={styles.quickLinksCard}>
-          <h3 style={styles.cardTitle}>Quick Actions</h3>
+          <h3 style={styles.cardTitle}>{t('quickActions')}</h3>
           <div style={styles.quickGrid}>
             {quickLinks.map(q => (
               <Link key={q.label} to={q.path} style={{ ...styles.quickBtn, borderColor: q.color }}>
@@ -114,11 +117,11 @@ const TeacherDashboard = () => {
         </div>
 
         <div style={styles.studentsCard}>
-          <h3 style={styles.cardTitle}>My Students</h3>
+          <h3 style={styles.cardTitle}>{t('students')}</h3>
           {students.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '40px 0', color: '#9ca3af' }}>
-              <div style={{ fontSize: '2.5rem', marginBottom: 8 }}>👨‍🎓</div>
-              <p style={{ fontWeight: 600, color: '#374151', margin: '0 0 4px' }}>No students assigned yet</p>
+              <div style={{ fontSize: '2.5rem', marginBottom: 8 }}>👨🎓</div>
+              <p style={{ fontWeight: 600, color: '#374151', margin: '0 0 4px' }}>{t('noData')}</p>
               <p style={{ fontSize: '0.8rem', margin: 0 }}>Ask your admin to assign students to your account.</p>
             </div>
           ) : (
@@ -128,7 +131,7 @@ const TeacherDashboard = () => {
                   <div style={styles.sAvatar}>{s.name[0]}</div>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontWeight: 600, fontSize: '0.88rem' }}>{s.name}</div>
-                    <div style={{ fontSize: '0.75rem', color: '#9ca3af' }}>Roll: {s.rollNumber} · Class {s.class}-{s.section}</div>
+                    <div style={{ fontSize: '0.75rem', color: '#9ca3af' }}>Roll: {s.rollNumber} · {t('class')} {s.class}-{s.section}</div>
                   </div>
                   <Badge label={s.parent ? 'Parent Linked' : 'No Parent'} type={s.parent ? 'success' : 'gray'} />
                 </div>
@@ -138,12 +141,11 @@ const TeacherDashboard = () => {
           )}
         </div>
 
-        {/* Recent Homework */}
         {recentHomework.length > 0 && (
           <div style={{ ...styles.studentsCard, minWidth: 240 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-              <h3 style={styles.cardTitle}>Recent Homework</h3>
-              <Link to="/teacher/homework" style={{ fontSize: '0.78rem', color: '#4f46e5', fontWeight: 600 }}>View All →</Link>
+              <h3 style={styles.cardTitle}>{t('homework')}</h3>
+              <Link to="/teacher/homework" style={{ fontSize: '0.78rem', color: '#4f46e5', fontWeight: 600 }}>{t('view')} →</Link>
             </div>
             {recentHomework.map(hw => {
               const overdue = new Date(hw.dueDate) < new Date();
@@ -153,9 +155,9 @@ const TeacherDashboard = () => {
                     <div>
                       <span style={{ background: '#e0e7ff', color: '#4f46e5', padding: '2px 7px', borderRadius: 8, fontSize: '0.7rem', fontWeight: 700 }}>{hw.subject}</span>
                       <div style={{ fontWeight: 600, fontSize: '0.85rem', color: '#111827', marginTop: 4 }}>{hw.title}</div>
-                      <div style={{ fontSize: '0.72rem', color: '#9ca3af', marginTop: 2 }}>Due: {new Date(hw.dueDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</div>
+                      <div style={{ fontSize: '0.72rem', color: '#9ca3af', marginTop: 2 }}>{t('dueDate')}: {new Date(hw.dueDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</div>
                     </div>
-                    <Badge label={overdue ? 'Overdue' : 'Active'} type={overdue ? 'danger' : 'success'} />
+                    <Badge label={overdue ? t('overdue') : 'Active'} type={overdue ? 'danger' : 'success'} />
                   </div>
                 </div>
               );

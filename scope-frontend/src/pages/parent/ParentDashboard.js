@@ -7,11 +7,13 @@ import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend);
 
 const ParentDashboard = () => {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const [student, setStudent] = useState(null);
   const [attendance, setAttendance] = useState(null);
   const [grades, setGrades] = useState([]);
@@ -39,7 +41,7 @@ const ParentDashboard = () => {
 
   const gradeChartData = {
     labels: grades.slice(-8).map(g => `${g.subject.slice(0, 4)} (${g.examType.slice(0, 3)})`),
-    datasets: [{ label: 'Score %', data: grades.slice(-8).map(g => +((g.marksObtained / g.totalMarks) * 100).toFixed(1)), borderColor: '#4f46e5', backgroundColor: 'rgba(79,70,229,0.08)', tension: 0.4, pointBackgroundColor: '#4f46e5', pointRadius: 5 }]
+    datasets: [{ label: t('score') + ' %', data: grades.slice(-8).map(g => +((g.marksObtained / g.totalMarks) * 100).toFixed(1)), borderColor: '#4f46e5', backgroundColor: 'rgba(79,70,229,0.08)', tension: 0.4, pointBackgroundColor: '#4f46e5', pointRadius: 5 }]
   };
 
   const pendingHW = homework.filter(h => new Date(h.dueDate) >= new Date());
@@ -49,7 +51,7 @@ const ParentDashboard = () => {
     <AppLayout>
       {!student && (
         <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 12, padding: '24px', textAlign: 'center', marginBottom: 20 }}>
-          <div style={{ fontSize: '2.5rem', marginBottom: 8 }}>👨‍👩‍👧</div>
+          <div style={{ fontSize: '2.5rem', marginBottom: 8 }}>👨👩👧</div>
           <p style={{ fontWeight: 700, color: '#92400e', margin: '0 0 4px' }}>No child linked to your account</p>
           <p style={{ fontSize: '0.85rem', color: '#9ca3af', margin: 0 }}>Please contact your school admin to link your child's profile.</p>
         </div>
@@ -59,40 +61,38 @@ const ParentDashboard = () => {
           <div style={styles.childAvatar}>{student.name[0]}</div>
           <div>
             <h2 style={styles.childName}>{student.name}</h2>
-            <p style={styles.childInfo}>Class {student.class}-{student.section} · Roll No: {student.rollNumber}</p>
+            <p style={styles.childInfo}>{t('class')} {student.class}-{student.section} · Roll No: {student.rollNumber}</p>
           </div>
           {rc && <div style={{ ...styles.riskPill, background: rc.bg, color: rc.color, border: `1.5px solid ${rc.color}` }}>
-            AI Risk: <strong>{risk.risk_level.toUpperCase()}</strong>
+            {t('riskLevel')}: <strong>{t(risk.risk_level + 'Risk')}</strong>
           </div>}
         </div>
       )}
 
       <div style={styles.statsRow}>
-        <StatCard title="Attendance" value={attendance ? `${attendance.summary.percentage}%` : '—'} icon="✅" color={attendance?.summary.percentage < 75 ? 'red' : 'green'} subtitle={attendance ? `${attendance.summary.present} present / ${attendance.summary.absent} absent` : 'Loading...'} />
-        <StatCard title="Pending Homework" value={pendingHW.length} icon="📚" color="yellow" subtitle="Due assignments" />
-        <StatCard title="Engagement Score" value={engagement ? `${engagement.score}/100` : '—'} icon="⭐" color="purple" subtitle={engagement ? `Level: ${engagement.level}` : 'Not calculated yet'} />
-        <StatCard title="Unread Alerts" value={notifications.filter(n => !n.isRead).length} icon="🔔" color="red" subtitle="New notifications" />
+        <StatCard title={t('attendance')} value={attendance ? `${attendance.summary.percentage}%` : '—'} icon="✅" color={attendance?.summary.percentage < 75 ? 'red' : 'green'} subtitle={attendance ? `${attendance.summary.present} ${t('present')} / ${attendance.summary.absent} ${t('absent')}` : t('loading')} />
+        <StatCard title={t('homework')} value={pendingHW.length} icon="📚" color="yellow" subtitle={t('pending')} />
+        <StatCard title={t('engagement')} value={engagement ? `${engagement.score}/100` : '—'} icon="⭐" color="purple" subtitle={engagement ? `Level: ${engagement.level}` : t('loading')} />
+        <StatCard title={t('notifications')} value={notifications.filter(n => !n.isRead).length} icon="🔔" color="red" subtitle={t('noNotifications')} />
       </div>
 
       <div style={styles.mainRow}>
-        {/* Performance Chart */}
         <div style={styles.chartCard}>
           <div style={styles.cardHeader}>
-            <h3 style={styles.cardTitle}>📊 Academic Performance</h3>
-            <Link to="/parent/grades" style={styles.viewAll}>View All →</Link>
+            <h3 style={styles.cardTitle}>📊 {t('subjectPerformance')}</h3>
+            <Link to="/parent/grades" style={styles.viewAll}>{t('view')} →</Link>
           </div>
           {grades.length > 0
             ? <Line data={gradeChartData} options={{ responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, max: 100 } } }} />
-            : <div style={styles.noData}>No grades recorded yet</div>}
+            : <div style={styles.noData}>{t('noData')}</div>}
         </div>
 
-        {/* Notifications */}
         <div style={styles.notifCard}>
           <div style={styles.cardHeader}>
-            <h3 style={styles.cardTitle}>🔔 Recent Alerts</h3>
-            <Link to="/parent/notifications" style={styles.viewAll}>View All →</Link>
+            <h3 style={styles.cardTitle}>🔔 {t('notifications')}</h3>
+            <Link to="/parent/notifications" style={styles.viewAll}>{t('view')} →</Link>
           </div>
-          {notifications.length === 0 && <div style={styles.noData}>No notifications yet</div>}
+          {notifications.length === 0 && <div style={styles.noData}>{t('noNotifications')}</div>}
           {notifications.map(n => (
             <div key={n._id} style={{ ...styles.notifItem, background: n.isRead ? '#fff' : '#f5f3ff' }}>
               <span style={styles.notifIcon}>{notifTypes[n.type] || '📌'}</span>
@@ -106,10 +106,9 @@ const ParentDashboard = () => {
         </div>
       </div>
 
-      {/* AI Suggestions */}
       {risk?.suggestions?.length > 0 && (
         <div style={styles.suggestCard}>
-          <h3 style={styles.cardTitle}>🤖 AI Recommendations for {student?.name}</h3>
+          <h3 style={styles.cardTitle}>🤖 {t('recommendations')} — {student?.name}</h3>
           <div style={styles.suggestGrid}>
             {risk.suggestions.map((s, i) => (
               <div key={i} style={styles.suggestItem}>

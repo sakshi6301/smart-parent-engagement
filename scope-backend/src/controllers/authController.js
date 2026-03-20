@@ -193,6 +193,47 @@ exports.adminUpdateUser = async (req, res) => {
   }
 };
 
+// Auto-create User accounts for all students that don't have one yet
+exports.provisionStudentUsers = async (req, res) => {
+  const Student = require('../models/Student');
+
+  const students = await Student.find({ isActive: true });
+  let created = 0, skipped = 0;
+
+  for (const student of students) {
+    if (student.studentUser) { skipped++; continue; }
+
+    const email = student.email?.trim()
+      ? student.email.toLowerCase()
+      : `${student.rollNumber.toLowerCase().replace(/\s+/g, '')}@scope.internal`;
+
+    let user = await User.findOne({ email });
+    if (!user) {
+      // Pass plain text — User model pre('save') hook will hash it
+      user = await User.create({
+        name: student.name,
+        email,
+        password: 'Welcome@123',
+        role: 'student',
+        phone: student.phone || '',
+        isActive: true,
+      });
+      created++;
+    } else {
+      skipped++;
+    }
+
+    // Link user back to student
+    await Student.findByIdAndUpdate(student._id, { studentUser: user._id });
+  }
+
+  res.json({
+    message: `Provisioning complete. ${created} accounts created, ${skipped} skipped.`,
+    created,
+    skipped,
+  });
+};
+
 // Resend credentials to existing user
 exports.resendCredentials = async (req, res) => {
   const { userId, password } = req.body;

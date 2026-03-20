@@ -1,7 +1,8 @@
 import React from 'react';
 
-const DataTable = ({ columns, data, emptyMsg = 'No data found' }) => (
+const DataTable = ({ columns, data, emptyMsg = 'No data found', maxHeight = 520 }) => (
   <div style={styles.wrapper}>
+    <div className="section-scroll" style={{ maxHeight, borderRadius: 12 }}>
     <table style={styles.table}>
       <thead>
         <tr style={styles.thead}>
@@ -23,13 +24,14 @@ const DataTable = ({ columns, data, emptyMsg = 'No data found' }) => (
         }
       </tbody>
     </table>
+    </div>
   </div>
 );
 
 const styles = {
-  wrapper: { background: '#fff', borderRadius: 12, overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,0.07)' },
+  wrapper: { background: '#fff', borderRadius: 12, boxShadow: '0 1px 4px rgba(0,0,0,0.07)' },
   table: { width: '100%', borderCollapse: 'collapse' },
-  thead: { background: '#f8fafc' },
+  thead: { background: '#f8fafc', position: 'sticky', top: 0, zIndex: 1 },
   th: { padding: '12px 16px', textAlign: 'left', fontSize: '0.78rem', fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px', borderBottom: '1px solid #e5e7eb' },
   tr: { borderBottom: '1px solid #f3f4f6', transition: 'background 0.1s' },
   td: { padding: '13px 16px', fontSize: '0.88rem', color: '#374151' },

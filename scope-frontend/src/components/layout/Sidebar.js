@@ -1,51 +1,52 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 
 const menus = {
   admin: [
-    { path: '/admin',              label: 'Dashboard',       icon: '🏠', exact: true },
-    { path: '/admin/students',     label: 'Students',        icon: '🎓' },
-    { path: '/admin/teachers',     label: 'Teachers',        icon: '👨‍🏫' },
-    { path: '/admin/parents',      label: 'Parents',         icon: '👨‍👩‍👧' },
-    { path: '/admin/users',        label: 'User Management', icon: '👥' },
-    { path: '/admin/link-management', label: 'Link Management', icon: '🔗' },
-    { path: '/admin/analytics',    label: 'Analytics',       icon: '📊' },
-    { path: '/admin/notifications',label: 'Notifications',   icon: '🔔' },
-    { path: '/admin/bulk-import',  label: 'Bulk Import',     icon: '📥' },
-    { path: '/admin/ai-model',     label: 'AI Model',        icon: '🤖' },
-    { path: '/feedback',           label: 'Feedback',        icon: '💬' },
+    { path: '/admin',                 key: 'dashboard',      icon: '🏠', exact: true },
+    { path: '/admin/students',        key: 'students',       icon: '🎓' },
+    { path: '/admin/teachers',        key: 'teachers',       icon: '👨🏫' },
+    { path: '/admin/parents',         key: 'parents',        icon: '👨‍👩‍👧' },
+    { path: '/admin/users',           key: 'userManagement', icon: '👥' },
+    { path: '/admin/link-management', key: 'linkManagement', icon: '🔗' },
+    { path: '/admin/analytics',       key: 'analytics',      icon: '📊' },
+    { path: '/admin/notifications',   key: 'notifications',  icon: '🔔' },
+    { path: '/admin/bulk-import',     key: 'bulkImport',     icon: '📥' },
+    { path: '/admin/ai-model',        key: 'aiModel',        icon: '🤖' },
+    { path: '/feedback',              key: 'feedback',       icon: '💬' },
   ],
   teacher: [
-    { path: '/teacher',             label: 'Dashboard',      icon: '🏠', exact: true },
-    { path: '/teacher/attendance',  label: 'Attendance',     icon: '✅' },
-    { path: '/teacher/grades',      label: 'Grades',         icon: '📝' },
-    { path: '/teacher/homework',    label: 'Homework',       icon: '📚' },
-    { path: '/teacher/chat',        label: 'Messages',       icon: '💬' },
-    { path: '/teacher/meetings',       label: 'Meetings',       icon: '📅' },
-    { path: '/teacher/notifications',  label: 'Notifications',  icon: '🔔' },
-    { path: '/teacher/risk',           label: 'AI Risk Monitor',icon: '🤖' },
-    { path: '/feedback',               label: 'Feedback',       icon: '📣' },
+    { path: '/teacher',               key: 'dashboard',      icon: '🏠', exact: true },
+    { path: '/teacher/attendance',    key: 'attendance',     icon: '✅' },
+    { path: '/teacher/grades',        key: 'grades',         icon: '📝' },
+    { path: '/teacher/homework',      key: 'homework',       icon: '📚' },
+    { path: '/teacher/chat',          key: 'chat',           icon: '💬' },
+    { path: '/teacher/meetings',      key: 'meetings',       icon: '📅' },
+    { path: '/teacher/notifications', key: 'notifications',  icon: '🔔' },
+    { path: '/teacher/risk',          key: 'aiRiskMonitor',  icon: '🤖' },
+    { path: '/feedback',              key: 'feedback',       icon: '📣' },
   ],
   parent: [
-    { path: '/parent',              label: 'Dashboard',        icon: '🏠', exact: true },
-    { path: '/parent/attendance',   label: 'Attendance',       icon: '✅' },
-    { path: '/parent/grades',       label: 'Performance',      icon: '📊' },
-    { path: '/parent/homework',     label: 'Homework',         icon: '📚' },
-    { path: '/parent/chat',         label: 'Chat with Teacher',icon: '💬' },
-    { path: '/parent/meetings',     label: 'Meetings',         icon: '📅' },
-    { path: '/parent/notifications',label: 'Notifications',    icon: '🔔' },
-    { path: '/feedback',            label: 'Feedback',         icon: '📣' },
+    { path: '/parent',                key: 'dashboard',      icon: '🏠', exact: true },
+    { path: '/parent/attendance',     key: 'attendance',     icon: '✅' },
+    { path: '/parent/grades',         key: 'performance',    icon: '📊' },
+    { path: '/parent/homework',       key: 'homework',       icon: '📚' },
+    { path: '/parent/chat',           key: 'chatWithTeacher',icon: '💬' },
+    { path: '/parent/meetings',       key: 'meetings',       icon: '📅' },
+    { path: '/parent/notifications',  key: 'notifications',  icon: '🔔' },
+    { path: '/feedback',              key: 'feedback',       icon: '📣' },
   ],
   student: [
-    { path: '/student',                  label: 'Dashboard',    icon: '🏠', exact: true },
-    { path: '/student/grades',           label: 'My Grades',    icon: '📝' },
-    { path: '/student/homework',         label: 'Homework',     icon: '📚' },
-    { path: '/student/attendance',       label: 'Attendance',   icon: '✅' },
-    { path: '/student/chat',             label: 'Chat with Teacher', icon: '💬' },
-    { path: '/student/recommendations',  label: 'AI Study Tips',icon: '🤖' },
-    { path: '/feedback',                 label: 'Feedback',     icon: '📣' },
+    { path: '/student',                 key: 'dashboard',      icon: '🏠', exact: true },
+    { path: '/student/grades',          key: 'myGrades',       icon: '📝' },
+    { path: '/student/homework',        key: 'homework',       icon: '📚' },
+    { path: '/student/attendance',      key: 'attendance',     icon: '✅' },
+    { path: '/student/chat',            key: 'chatWithTeacher',icon: '💬' },
+    { path: '/student/notifications',   key: 'notifications',  icon: '🔔' },
+    { path: '/student/recommendations', key: 'aiStudyTips',    icon: '🤖' },
+    { path: '/feedback',                key: 'feedback',       icon: '📣' },
   ],
 };
 
@@ -60,7 +61,7 @@ const roleLabels = { admin: 'Administrator', teacher: 'Teacher', parent: 'Parent
 
 const Sidebar = ({ collapsed, setCollapsed }) => {
   const { user, logout } = useAuth();
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const items = menus[user?.role] || [];
   const color = roleColors[user?.role] || '#4f46e5';
@@ -89,21 +90,21 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
           <NavLink key={item.path} to={item.path} end={item.exact}
             style={({ isActive }) => ({ ...styles.navItem, background: isActive ? color : 'transparent', color: isActive ? '#fff' : '#c7d2fe' })}>
             <span style={styles.navIcon}>{item.icon}</span>
-            {!collapsed && <span style={styles.navLabel}>{item.label}</span>}
+            {!collapsed && <span style={styles.navLabel}>{t(item.key)}</span>}
           </NavLink>
         ))}
       </nav>
 
       <div style={styles.bottom}>
         {!collapsed && (
-          <select onChange={(e) => i18n.changeLanguage(e.target.value)} defaultValue={i18n.language} style={styles.langSelect}>
+          <select onChange={(e) => i18n.changeLanguage(e.target.value)} value={i18n.language} style={styles.langSelect}>
             <option value="en">🌐 English</option>
             <option value="hi">🌐 हिंदी</option>
             <option value="mr">🌐 मराठी</option>
           </select>
         )}
-        <button onClick={handleLogout} style={styles.logoutBtn} title="Logout">
-          <span>🚪</span>{!collapsed && <span> Logout</span>}
+        <button onClick={handleLogout} style={styles.logoutBtn} title={t('logout')}>
+          <span>🚪</span>{!collapsed && <span> {t('logout')}</span>}
         </button>
       </div>
     </aside>

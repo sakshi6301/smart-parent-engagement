@@ -3,16 +3,18 @@ import AppLayout from '../../components/layout/AppLayout';
 import Badge from '../../components/Badge';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 
 const StudentHomework = () => {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const [student, setStudent]   = useState(null);
   const [homework, setHomework] = useState([]);
   const [loading, setLoading]   = useState(true);
-  const [tab, setTab]           = useState('pending'); // pending | overdue | submitted | all
+  const [tab, setTab]           = useState('pending');
   const [submitting, setSubmitting] = useState({});
   const [msg, setMsg]           = useState('');
-  const [fileMap, setFileMap]   = useState({}); // hwId -> File
+  const [fileMap, setFileMap]   = useState({});
 
   useEffect(() => {
     api.get('/students').then(({ data }) => {
@@ -29,15 +31,9 @@ const StudentHomework = () => {
     });
   }, []);
 
-  const isOverdue = (hw) => new Date(hw.dueDate) < new Date();
-  const isSubmitted = (hw) => hw.submissions?.some(s =>
-    s.student === student?._id || s.student?._id === student?._id
-  );
-
-  const daysLeft = (dueDate) => {
-    const diff = Math.ceil((new Date(dueDate) - new Date()) / (1000 * 60 * 60 * 24));
-    return diff;
-  };
+  const isOverdue   = (hw) => new Date(hw.dueDate) < new Date();
+  const isSubmitted = (hw) => hw.submissions?.some(s => s.student === student?._id || s.student?._id === student?._id);
+  const daysLeft    = (dueDate) => Math.ceil((new Date(dueDate) - new Date()) / (1000 * 60 * 60 * 24));
 
   const handleSubmit = async (hwId) => {
     if (!student) return;
@@ -54,7 +50,7 @@ const StudentHomework = () => {
           : hw
       ));
       setFileMap(prev => { const n = { ...prev }; delete n[hwId]; return n; });
-      setMsg('✅ Homework submitted!');
+      setMsg('✅ ' + t('homeworkSubmitted'));
       setTimeout(() => setMsg(''), 3000);
     } catch {
       setMsg('❌ Failed to submit. Try again.');
@@ -71,20 +67,20 @@ const StudentHomework = () => {
   const displayed = tabData[tab] || [];
 
   const tabs = [
-    { key: 'pending',   label: 'Pending',   count: pending.length,   color: '#f59e0b' },
-    { key: 'overdue',   label: 'Overdue',   count: overdue.length,   color: '#ef4444' },
-    { key: 'submitted', label: 'Submitted', count: submitted.length, color: '#10b981' },
-    { key: 'all',       label: 'All',       count: homework.length,  color: '#6b7280' },
+    { key: 'pending',   label: t('pending'),   count: pending.length,   color: '#f59e0b' },
+    { key: 'overdue',   label: t('overdue'),   count: overdue.length,   color: '#ef4444' },
+    { key: 'submitted', label: t('submitted'), count: submitted.length, color: '#10b981' },
+    { key: 'all',       label: 'All',          count: homework.length,  color: '#6b7280' },
   ];
 
-  if (loading) return <AppLayout><div style={S.center}>Loading homework...</div></AppLayout>;
+  if (loading) return <AppLayout><div style={S.center}>{t('loading')}</div></AppLayout>;
 
   return (
     <AppLayout>
       <div style={S.header}>
         <div>
-          <h2 style={S.title}>📚 Homework</h2>
-          <p style={S.sub}>{student?.name} · Class {student?.class}-{student?.section}</p>
+          <h2 style={S.title}>📚 {t('homework')}</h2>
+          <p style={S.sub}>{student?.name} · {t('class')} {student?.class}-{student?.section}</p>
         </div>
       </div>
 
@@ -94,41 +90,38 @@ const StudentHomework = () => {
         </div>
       )}
 
-      {/* Summary Cards */}
       <div style={S.summaryRow}>
-        {tabs.slice(0, 3).map(t => (
-          <div key={t.key} onClick={() => setTab(t.key)}
-            style={{ ...S.summaryCard, borderTop: `3px solid ${t.color}`, cursor: 'pointer', background: tab === t.key ? '#f8fafc' : '#fff' }}>
+        {tabs.slice(0, 3).map(tb => (
+          <div key={tb.key} onClick={() => setTab(tb.key)}
+            style={{ ...S.summaryCard, borderTop: `3px solid ${tb.color}`, cursor: 'pointer', background: tab === tb.key ? '#f8fafc' : '#fff' }}>
             <span style={{ fontSize: '1.4rem' }}>
-              {t.key === 'pending' ? '⏳' : t.key === 'overdue' ? '⚠️' : '✅'}
+              {tb.key === 'pending' ? '⏳' : tb.key === 'overdue' ? '⚠️' : '✅'}
             </span>
-            <span style={{ fontSize: '1.8rem', fontWeight: 800, color: t.color }}>{t.count}</span>
-            <span style={{ fontSize: '0.78rem', color: '#6b7280' }}>{t.label}</span>
+            <span style={{ fontSize: '1.8rem', fontWeight: 800, color: tb.color }}>{tb.count}</span>
+            <span style={{ fontSize: '0.78rem', color: '#6b7280' }}>{tb.label}</span>
           </div>
         ))}
       </div>
 
-      {/* Tabs */}
       <div style={S.tabs}>
-        {tabs.map(t => (
-          <button key={t.key} onClick={() => setTab(t.key)}
-            style={{ ...S.tab, borderBottom: tab === t.key ? `2px solid ${t.color}` : '2px solid transparent', color: tab === t.key ? t.color : '#6b7280', fontWeight: tab === t.key ? 700 : 500 }}>
-            {t.label}
-            <span style={{ ...S.tabCount, background: tab === t.key ? t.color : '#e5e7eb', color: tab === t.key ? '#fff' : '#6b7280' }}>
-              {t.count}
+        {tabs.map(tb => (
+          <button key={tb.key} onClick={() => setTab(tb.key)}
+            style={{ ...S.tab, borderBottom: tab === tb.key ? `2px solid ${tb.color}` : '2px solid transparent', color: tab === tb.key ? tb.color : '#6b7280', fontWeight: tab === tb.key ? 700 : 500 }}>
+            {tb.label}
+            <span style={{ ...S.tabCount, background: tab === tb.key ? tb.color : '#e5e7eb', color: tab === tb.key ? '#fff' : '#6b7280' }}>
+              {tb.count}
             </span>
           </button>
         ))}
       </div>
 
-      {/* Homework List */}
       {displayed.length === 0 ? (
         <div style={S.empty}>
           <span style={{ fontSize: '3rem' }}>
             {tab === 'pending' ? '🎉' : tab === 'overdue' ? '✅' : '📚'}
           </span>
           <h3 style={{ color: '#374151' }}>
-            {tab === 'pending' ? 'No pending homework!' : tab === 'overdue' ? 'No overdue homework!' : 'No homework found'}
+            {tab === 'pending' ? t('noPending') : tab === 'overdue' ? t('noOverdue') : t('noHomework')}
           </h3>
         </div>
       ) : (
@@ -148,25 +141,25 @@ const StudentHomework = () => {
                     {hw.description && <p style={S.hwDesc}>{hw.description}</p>}
                     <div style={S.meta}>
                       <span>👨🏫 {hw.teacher?.name || 'Teacher'}</span>
-                      <span>🏫 Class {hw.class}-{hw.section}</span>
+                      <span>🏫 {t('class')} {hw.class}-{hw.section}</span>
                       <span style={{ color: done ? '#10b981' : late ? '#ef4444' : days <= 1 ? '#f59e0b' : '#6b7280', fontWeight: 600 }}>
-                        📅 {done ? `Submitted ${sub?.submittedAt ? new Date(sub.submittedAt).toLocaleDateString('en-IN') : ''}` :
-                            late ? `Overdue since ${new Date(hw.dueDate).toLocaleDateString('en-IN')}` :
-                            days === 0 ? 'Due today!' :
-                            days === 1 ? 'Due tomorrow!' :
-                            `Due in ${days} days (${new Date(hw.dueDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })})`}
+                        📅 {done ? `${t('submitted')} ${sub?.submittedAt ? new Date(sub.submittedAt).toLocaleDateString('en-IN') : ''}` :
+                            late ? `${t('overdue')} ${new Date(hw.dueDate).toLocaleDateString('en-IN')}` :
+                            days === 0 ? t('dueToday') :
+                            days === 1 ? t('dueTomorrow') :
+                            `${t('dueDate')}: ${new Date(hw.dueDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}`}
                       </span>
                     </div>
                   </div>
                   <div style={S.cardRight}>
                     <Badge
-                      label={done ? 'Submitted' : late ? 'Overdue' : days <= 1 ? 'Urgent' : 'Pending'}
+                      label={done ? t('submitted') : late ? t('overdue') : days <= 1 ? 'Urgent' : t('pending')}
                       type={done ? 'success' : late ? 'danger' : days <= 1 ? 'warning' : 'info'}
                     />
                     {!done && (
                       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
                         <label style={S.fileLabel}>
-                          📎 {fileMap[hw._id] ? fileMap[hw._id].name : 'Attach file (optional)'}
+                          📎 {fileMap[hw._id] ? fileMap[hw._id].name : t('attachFile')}
                           <input type="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.zip" style={{ display: 'none' }}
                             onChange={e => setFileMap(prev => ({ ...prev, [hw._id]: e.target.files[0] }))} />
                         </label>
@@ -174,13 +167,13 @@ const StudentHomework = () => {
                           onClick={() => handleSubmit(hw._id)}
                           disabled={submitting[hw._id]}
                           style={{ ...S.submitBtn, background: late ? '#fef2f2' : '#f0fdf4', color: late ? '#b91c1c' : '#15803d', border: `1px solid ${late ? '#fecaca' : '#bbf7d0'}` }}>
-                          {submitting[hw._id] ? 'Submitting...' : '✓ Submit'}
+                          {submitting[hw._id] ? t('submitting') : `✓ ${t('submitHomework')}`}
                         </button>
                       </div>
                     )}
                     {done && sub?.status && (
                       <span style={S.submittedLabel}>
-                        {sub.status === 'late' ? '⏰ Late' : '✅ On time'}
+                        {sub.status === 'late' ? '⏰ Late' : `✅ ${t('submitted')}`}
                       </span>
                     )}
                   </div>

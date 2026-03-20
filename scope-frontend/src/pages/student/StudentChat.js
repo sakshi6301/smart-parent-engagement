@@ -3,11 +3,13 @@ import AppLayout from '../../components/layout/AppLayout';
 import api from '../../services/api';
 import socket from '../../services/socket';
 import { useAuth } from '../../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 
 const getRoomId = (idA, idB) => [idA, idB].sort().join('_');
 
 const StudentChat = () => {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const [student, setStudent] = useState(null);
   const [teacher, setTeacher] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -21,13 +23,11 @@ const StudentChat = () => {
       if (data.length > 0) {
         const s = data[0];
         setStudent(s);
-        const t = s.teacher;
-        if (t) {
-          const teacherId = t._id || t;
-          const teacherObj = t.name ? t : { _id: teacherId, name: 'Teacher' };
+        const tc = s.teacher;
+        if (tc) {
+          const teacherId = tc._id || tc;
+          const teacherObj = tc.name ? tc : { _id: teacherId, name: 'Teacher' };
           setTeacher(teacherObj);
-
-          // Student-teacher room: use studentUser ID + teacher ID
           const studentUserId = s.studentUser || user._id;
           const roomId = getRoomId(studentUserId, teacherId);
           currentRoom.current = roomId;
@@ -41,16 +41,12 @@ const StudentChat = () => {
     }).catch(() => setLoading(false));
 
     socket.on('newMessage', (msg) => {
-      if (msg.roomId === currentRoom.current) {
-        setMessages(prev => [...prev, msg]);
-      }
+      if (msg.roomId === currentRoom.current) setMessages(prev => [...prev, msg]);
     });
     return () => { socket.off('newMessage'); socket.disconnect(); };
   }, [user._id]);
 
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+  useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
 
   const sendMessage = async (e) => {
     e.preventDefault();
@@ -61,7 +57,7 @@ const StudentChat = () => {
 
   const isMe = (m) => (m.sender?._id || m.sender) === user._id;
 
-  if (loading) return <AppLayout><div style={S.center}>Loading...</div></AppLayout>;
+  if (loading) return <AppLayout><div style={S.center}>{t('loading')}</div></AppLayout>;
 
   if (!student || !teacher) return (
     <AppLayout>
@@ -81,27 +77,25 @@ const StudentChat = () => {
           <div style={{ flex: 1 }}>
             <div style={S.headerName}>{teacher.name || 'Class Teacher'}</div>
             <div style={S.headerSub}>
-              👨🏫 Class Teacher · Class {student.class}-{student.section}
+              👨🏫 {t('teachers')} · {t('class')} {student.class}-{student.section}
             </div>
           </div>
-          <div style={S.onlineDot} title="Connected" />
+          <div style={S.onlineDot} title={t('online')} />
         </div>
 
         <div style={S.messages}>
           {messages.length === 0 && (
             <div style={S.noMsg}>
               <span style={{ fontSize: '2.5rem' }}>💬</span>
-              <p style={{ fontWeight: 600 }}>No messages yet</p>
-              <p style={{ fontSize: '0.82rem' }}>Ask your teacher anything!</p>
+              <p style={{ fontWeight: 600 }}>{t('noMessages')}</p>
+              <p style={{ fontSize: '0.82rem' }}>{t('startConversation')}</p>
             </div>
           )}
           {messages.map((m, i) => {
             const mine = isMe(m);
             return (
               <div key={m._id || i} style={{ display: 'flex', justifyContent: mine ? 'flex-end' : 'flex-start', marginBottom: 8 }}>
-                {!mine && (
-                  <div style={S.msgAvatar}>{(teacher.name || 'T')[0]}</div>
-                )}
+                {!mine && <div style={S.msgAvatar}>{(teacher.name || 'T')[0]}</div>}
                 <div style={{ maxWidth: '60%' }}>
                   {!mine && <div style={S.senderLabel}>{m.sender?.name || teacher.name}</div>}
                   <div style={{ ...S.bubble, background: mine ? '#4f46e5' : '#fff', color: mine ? '#fff' : '#111827', borderRadius: mine ? '16px 16px 4px 16px' : '16px 16px 16px 4px' }}>
@@ -122,11 +116,11 @@ const StudentChat = () => {
             style={S.input}
             value={text}
             onChange={e => setText(e.target.value)}
-            placeholder={`Message ${teacher.name || 'your teacher'}...`}
+            placeholder={t('typeMessage')}
             autoFocus
           />
           <button type="submit" style={{ ...S.sendBtn, opacity: text.trim() ? 1 : 0.5 }} disabled={!text.trim()}>
-            Send ➤
+            {t('send')} ➤
           </button>
         </form>
       </div>

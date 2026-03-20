@@ -19,6 +19,23 @@ const UserManagement = () => {
   const [sending, setSending]   = useState({});
   const [sendingAll, setSendingAll] = useState(false);
   const [sendProgress, setSendProgress] = useState({ done: 0, total: 0 });
+  const [provisioning, setProvisioning] = useState(false);
+  const [editUser, setEditUser] = useState(null);
+  const [editForm, setEditForm] = useState({ name: '', email: '', phone: '', password: '' });
+  const [saving, setSaving] = useState(false);
+
+  const provisionStudents = async () => {
+    if (!window.confirm('This will create login accounts for all students that don\'t have one yet. Default password: Welcome@123. Continue?')) return;
+    setProvisioning(true);
+    try {
+      const { data } = await api.post('/auth/admin/provision-students');
+      flash('✅ ' + data.message);
+      fetchAll();
+    } catch (err) {
+      flash('❌ ' + (err.response?.data?.message || 'Provisioning failed'));
+    }
+    setProvisioning(false);
+  };
 
   const fetchAll = async () => {
     setLoading(true);
@@ -46,14 +63,24 @@ const UserManagement = () => {
     }
   };
 
-  const resetPassword = async (user) => {
-    if (!window.confirm(`Reset password for ${user.name} to "Welcome@123"?`)) return;
+  const openEdit = (user) => {
+    setEditUser(user);
+    setEditForm({ name: user.name, email: user.email, phone: user.phone || '', password: '' });
+  };
+
+  const saveEdit = async () => {
+    setSaving(true);
     try {
-      await api.put(`/auth/admin/reset-password/${user._id}`);
-      flash(`Password reset for ${user.name}. New password: Welcome@123`);
+      const payload = { ...editForm };
+      if (!payload.password) delete payload.password;
+      const { data } = await api.put(`/auth/admin/users/${editUser._id}`, payload);
+      setUsers(prev => prev.map(u => u._id === editUser._id ? { ...u, ...data } : u));
+      flash(`✅ ${data.name} updated successfully`);
+      setEditUser(null);
     } catch (err) {
-      flash('Failed to reset password');
+      flash('❌ ' + (err.response?.data?.message || 'Update failed'));
     }
+    setSaving(false);
   };
 
   const sendCredentials = async (user) => {
@@ -142,9 +169,9 @@ const UserManagement = () => {
           </button>
           <button
             style={{ ...s.actionBtn, background: '#f5f3ff', color: '#7c3aed', border: '1px solid #ddd6fe' }}
-            onClick={() => resetPassword(r)}
+            onClick={() => openEdit(r)}
           >
-            Reset Pwd
+            ✏️ Edit
           </button>
           <button
             style={{ ...s.actionBtn, background: '#eff6ff', color: '#1d4ed8', border: '1px solid #bfdbfe' }}
@@ -165,6 +192,9 @@ const UserManagement = () => {
           <h2 style={s.title}>User Management</h2>
           <p style={s.sub}>View, activate/deactivate, reset passwords and send login credentials</p>
         </div>
+        <button onClick={provisionStudents} disabled={provisioning} style={{ ...s.sendAllBtn, background: '#059669', marginRight: 8, opacity: provisioning ? 0.7 : 1 }}>
+          {provisioning ? '⏳ Provisioning...' : '🎓 Create Student Accounts'}
+        </button>
         <button onClick={sendToAll} disabled={sendingAll} style={{ ...s.sendAllBtn, opacity: sendingAll ? 0.7 : 1 }}>
           {sendingAll ? `📧 Sending ${sendProgress.done}/${sendProgress.total}...` : '📧 Send Credentials to All'}
         </button>
@@ -193,6 +223,32 @@ const UserManagement = () => {
         ? <div style={s.loading}>Loading users...</div>
         : <DataTable columns={columns} data={filtered} emptyMsg="No users found." />
       }
+
+      {editUser && (
+        <div style={s.overlay}>
+          <div style={s.modal}>
+            <h3 style={{ margin: '0 0 16px', fontSize: '1rem', fontWeight: 700, color: '#111827' }}>Edit User</h3>
+            {['name', 'email', 'phone', 'password'].map(field => (
+              <div key={field} style={{ marginBottom: 12 }}>
+                <label style={s.label}>{field === 'password' ? 'New Password (leave blank to keep)' : field.charAt(0).toUpperCase() + field.slice(1)}</label>
+                <input
+                  style={s.input}
+                  type={field === 'password' ? 'password' : 'text'}
+                  value={editForm[field]}
+                  onChange={e => setEditForm(f => ({ ...f, [field]: e.target.value }))}
+                  placeholder={field === 'password' ? 'Leave blank to keep current' : field}
+                />
+              </div>
+            ))}
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 8 }}>
+              <button style={{ ...s.actionBtn, background: '#f3f4f6', color: '#374151', border: '1px solid #e5e7eb' }} onClick={() => setEditUser(null)}>Cancel</button>
+              <button style={{ ...s.actionBtn, background: '#4f46e5', color: '#fff', border: 'none' }} onClick={saveEdit} disabled={saving}>
+                {saving ? 'Saving...' : 'Save'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </AppLayout>
   );
 };
@@ -218,6 +274,10 @@ const s = {
   actions:   { display: 'flex', gap: 6 },
   actionBtn:  { padding: '5px 10px', borderRadius: 6, fontSize: '0.78rem', fontWeight: 600, cursor: 'pointer' },
   sendAllBtn: { background: '#1d4ed8', color: '#fff', border: 'none', padding: '10px 18px', borderRadius: 8, fontWeight: 600, fontSize: '0.88rem', cursor: 'pointer', whiteSpace: 'nowrap' },
+  overlay:   { position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 },
+  modal:     { background: '#fff', borderRadius: 12, padding: '28px 32px', width: 360, boxShadow: '0 8px 32px rgba(0,0,0,0.18)' },
+  label:     { display: 'block', fontSize: '0.78rem', fontWeight: 600, color: '#6b7280', marginBottom: 4, textTransform: 'capitalize' },
+  input:     { width: '100%', padding: '9px 12px', border: '1.5px solid #e5e7eb', borderRadius: 7, fontSize: '0.9rem', outline: 'none', boxSizing: 'border-box' },
 };
 
 export default UserManagement;
