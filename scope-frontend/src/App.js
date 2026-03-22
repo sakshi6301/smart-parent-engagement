@@ -34,6 +34,7 @@ import TeacherNotifications from './pages/teacher/Notifications';
 // Parent
 import ParentDashboard from './pages/parent/ParentDashboard';
 import HomeworkTracker from './pages/parent/HomeworkTracker';
+import ParentAttendance from './pages/parent/ParentAttendance';
 import ParentChat from './pages/parent/ParentChat';
 import ParentGrades from './pages/parent/ParentGrades';
 import ParentMeetings from './pages/parent/ParentMeetings';
@@ -82,7 +83,7 @@ const App = () => (
 
         {/* Parent */}
         <Route path="/parent" element={<PR roles={['parent']}><ParentDashboard /></PR>} />
-        <Route path="/parent/attendance" element={<PR roles={['parent']}><HomeworkTracker /></PR>} />
+        <Route path="/parent/attendance" element={<PR roles={['parent']}><ParentAttendance /></PR>} />
         <Route path="/parent/grades" element={<PR roles={['parent']}><ParentGrades /></PR>} />
         <Route path="/parent/homework" element={<PR roles={['parent']}><HomeworkTracker /></PR>} />
         <Route path="/parent/chat" element={<PR roles={['parent']}><ParentChat /></PR>} />

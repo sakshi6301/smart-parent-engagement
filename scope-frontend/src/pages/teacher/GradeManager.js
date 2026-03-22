@@ -108,7 +108,7 @@ const GradeManager = () => {
       <div style={S.layout}>
         {/* Student List */}
         <div style={S.studentPanel}>
-          <input style={S.search} placeholder="🔍 Search students..." value={search} onChange={e => setSearch(e.target.value)} />
+          <input style={S.search} placeholder="Search students..." value={search} onChange={e => setSearch(e.target.value)} />
           <div style={S.studentList}>
             {filtered.map(s => (
               <div key={s._id} onClick={() => loadGrades(s._id)}
@@ -126,7 +126,7 @@ const GradeManager = () => {
         {/* Grades Panel */}
         <div style={S.gradesPanel}>
           {!selectedId ? (
-            <div style={S.empty}><span style={{ fontSize: '3rem' }}>📝</span><p>Select a student to view grades</p></div>
+            <div style={S.empty}><p>Select a student to view grades</p></div>
           ) : (
             <>
               <div style={S.gradeHeader}>

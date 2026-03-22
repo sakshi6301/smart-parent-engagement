@@ -38,23 +38,23 @@ const AdminDashboard = () => {
     setSendingDigest(true);
     try {
       const { data } = await api.post('/admin/send-weekly-digest');
-      setDigestMsg('✅ ' + data.message);
+      setDigestMsg(data.message);
     } catch {
-      setDigestMsg('❌ Failed to trigger digest. Check server logs.');
+      setDigestMsg('Failed to trigger digest. Check server logs.');
     }
     setSendingDigest(false);
     setTimeout(() => setDigestMsg(''), 6000);
   };
 
   const handleReset = async () => {
-    if (!window.confirm('⚠️ This will DELETE all students and non-admin users. Are you sure?')) return;
+    if (!window.confirm('This will DELETE all students and non-admin users. Are you sure?')) return;
     setResetting(true);
     try {
       const { data } = await api.delete('/dev/reset-data');
-      setResetMsg('✅ ' + data.message);
+      setResetMsg(data.message);
       setTimeout(() => { setResetMsg(''); fetchStats(); }, 2000);
     } catch (err) {
-      setResetMsg('❌ ' + (err.response?.data?.message || 'Reset failed'));
+      setResetMsg(err.response?.data?.message || 'Reset failed');
     }
     setResetting(false);
   };
@@ -68,11 +68,11 @@ const AdminDashboard = () => {
   if (error) return (
     <AppLayout>
       <div style={s.errorBox}>
-        <span style={{ fontSize: '2rem' }}>⚠️</span>
+        <span style={s.errorBox}>
         <div>
           <p style={{ fontWeight: 700, margin: 0 }}>Dashboard Error</p>
           <p style={{ margin: '4px 0 12px', fontSize: '0.88rem' }}>{error}</p>
-          <button onClick={fetchStats} style={s.retryBtn}>🔄 Retry</button>
+          <button onClick={fetchStats} style={s.retryBtn}>Retry</button>
         </div>
       </div>
     </AppLayout>
@@ -144,12 +144,12 @@ const AdminDashboard = () => {
   return (
     <AppLayout>
       {resetMsg && (
-        <div style={{ ...s.banner, background: resetMsg.startsWith('✅') ? '#f0fdf4' : '#fef2f2', borderColor: resetMsg.startsWith('✅') ? '#bbf7d0' : '#fecaca', color: resetMsg.startsWith('✅') ? '#15803d' : '#b91c1c' }}>
+        <div style={{ ...s.banner, background: resetMsg.includes('complete') || resetMsg.includes('success') ? '#f0fdf4' : '#fef2f2', borderColor: resetMsg.includes('complete') || resetMsg.includes('success') ? '#bbf7d0' : '#fecaca', color: resetMsg.includes('complete') || resetMsg.includes('success') ? '#15803d' : '#b91c1c' }}>
           {resetMsg}
         </div>
       )}
       {digestMsg && (
-        <div style={{ ...s.banner, background: digestMsg.startsWith('✅') ? '#f0fdf4' : '#fef2f2', borderColor: digestMsg.startsWith('✅') ? '#bbf7d0' : '#fecaca', color: digestMsg.startsWith('✅') ? '#15803d' : '#b91c1c' }}>
+        <div style={{ ...s.banner, background: digestMsg.includes('sent') || digestMsg.includes('success') ? '#f0fdf4' : '#fef2f2', borderColor: digestMsg.includes('sent') || digestMsg.includes('success') ? '#bbf7d0' : '#fecaca', color: digestMsg.includes('sent') || digestMsg.includes('success') ? '#15803d' : '#b91c1c' }}>
           {digestMsg}
         </div>
       )}
@@ -161,9 +161,9 @@ const AdminDashboard = () => {
           <p style={s.pageSub}>Welcome back! Here's what's happening at your school today.</p>
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
-          <button onClick={fetchStats} style={s.refreshBtn}>🔄 Refresh</button>
+          <button onClick={fetchStats} style={s.refreshBtn}>Refresh</button>
           <button onClick={handleSendDigest} disabled={sendingDigest} style={s.digestBtn}>
-            {sendingDigest ? '📤 Sending...' : '📧 Digest'}
+            {sendingDigest ? 'Sending...' : 'Send Digest'}
           </button>
         </div>
       </div>
@@ -173,7 +173,6 @@ const AdminDashboard = () => {
         <div style={s.alertRow}>
           {stats.unlinkedParent > 0 && (
             <div style={s.alertCard}>
-              <span style={{ fontSize: '1.3rem' }}>⚠️</span>
               <div style={{ flex: 1 }}>
                 <strong>{stats.unlinkedParent} students</strong> have no parent linked
               </div>
@@ -182,7 +181,6 @@ const AdminDashboard = () => {
           )}
           {stats.unlinkedTeacher > 0 && (
             <div style={{ ...s.alertCard, background: '#eff6ff', borderColor: '#bfdbfe', color: '#1e40af' }}>
-              <span style={{ fontSize: '1.3rem' }}>👨🏫</span>
               <div style={{ flex: 1 }}>
                 <strong>{stats.unlinkedTeacher} students</strong> have no teacher assigned
               </div>
@@ -194,12 +192,12 @@ const AdminDashboard = () => {
 
       {/* ── Stat Cards ── */}
       <div style={s.statsRow}>
-        <StatCard title="Total Students"     value={stats.totalStudents}  icon="🎓" color="blue"   subtitle="Active enrollments" />
-        <StatCard title="Teachers"           value={stats.totalTeachers}  icon="👨🏫" color="purple" subtitle="Active faculty" />
-        <StatCard title="Parents"            value={stats.totalParents}   icon="👨👩👧" color="green"  subtitle="Registered parents" />
-        <StatCard title="Today's Attendance" value={totalToday ? `${attPct}%` : 'N/A'} icon="✅" color={attPct < 75 && totalToday ? 'red' : 'cyan'} subtitle={totalToday ? `${attMap.present || 0} present of ${totalToday}` : 'No attendance marked today'} />
-        <StatCard title="Pending Meetings"   value={stats.pendingMeetings || 0} icon="📅" color="yellow" subtitle="Awaiting confirmation" />
-        <StatCard title="Total Homework"     value={stats.totalHomework || 0} icon="📚" color="orange" subtitle={`${stats.overdueHomework || 0} overdue`} />
+        <StatCard title="Total Students"     value={stats.totalStudents}  color="blue"   subtitle="Active enrollments" />
+        <StatCard title="Teachers"           value={stats.totalTeachers}  color="purple" subtitle="Active faculty" />
+        <StatCard title="Parents"            value={stats.totalParents}   color="green"  subtitle="Registered parents" />
+        <StatCard title="Today's Attendance" value={totalToday ? `${attPct}%` : 'N/A'} color={attPct < 75 && totalToday ? 'red' : 'cyan'} subtitle={totalToday ? `${attMap.present || 0} present of ${totalToday}` : 'No attendance marked today'} />
+        <StatCard title="Pending Meetings"   value={stats.pendingMeetings || 0} color="yellow" subtitle="Awaiting confirmation" />
+        <StatCard title="Total Homework"     value={stats.totalHomework || 0} color="orange" subtitle={`${stats.overdueHomework || 0} overdue`} />
       </div>
 
       {/* ── Charts Row 1 ── */}
@@ -208,7 +206,7 @@ const AdminDashboard = () => {
         <div style={{ ...s.card, flex: 2 }}>
           <div style={s.cardHeader}>
             <div>
-              <p style={s.cardTitle}>📊 Subject-wise Performance</p>
+              <p style={s.cardTitle}>Subject-wise Performance</p>
               <p style={s.cardSub}>Average scores across all subjects</p>
             </div>
             <button onClick={() => navigate('/admin/students')} style={s.linkBtn}>View Grades →</button>
@@ -221,7 +219,7 @@ const AdminDashboard = () => {
 
         {/* Today Attendance Doughnut */}
         <div style={{ ...s.card, flex: 1, minWidth: 240 }}>
-          <p style={s.cardTitle}>✅ Today's Attendance</p>
+          <p style={s.cardTitle}>Today's Attendance</p>
           <p style={s.cardSub}>{totalToday ? `${totalToday} students marked` : 'Not marked yet'}</p>
           {totalToday
             ? <>
@@ -241,7 +239,7 @@ const AdminDashboard = () => {
       <div style={s.row}>
         {/* Class-wise Students */}
         <div style={{ ...s.card, flex: 1 }}>
-          <p style={s.cardTitle}>🏫 Class-wise Students</p>
+          <p style={s.cardTitle}>Class-wise Students</p>
           <p style={s.cardSub}>Student distribution per class</p>
           {stats.classStats?.length
             ? <Bar data={classChartData} options={chartOpts()} />
@@ -251,7 +249,7 @@ const AdminDashboard = () => {
 
         {/* Monthly Attendance Trend */}
         <div style={{ ...s.card, flex: 2 }}>
-          <p style={s.cardTitle}>📈 Monthly Attendance Trend</p>
+          <p style={s.cardTitle}>Monthly Attendance Trend</p>
           <p style={s.cardSub}>Present count over last 6 months</p>
           {monthlyData.length
             ? <Line data={trendChartData} options={chartOpts()} />
@@ -265,7 +263,7 @@ const AdminDashboard = () => {
         <div style={{ ...s.card, marginBottom: 16 }}>
           <div style={s.cardHeader}>
             <div>
-              <p style={s.cardTitle}>👨🏫 Teacher Workload</p>
+              <p style={s.cardTitle}>Teacher Workload</p>
               <p style={s.cardSub}>Students assigned per teacher</p>
             </div>
             <button onClick={() => navigate('/admin/teachers')} style={s.linkBtn}>Manage Teachers →</button>
@@ -295,7 +293,7 @@ const AdminDashboard = () => {
         <div style={{ ...s.card, marginBottom: 16 }}>
           <div style={s.cardHeader}>
             <div>
-              <p style={s.cardTitle}>🔴 Today's Absent Students</p>
+              <p style={s.cardTitle}>Today's Absent Students</p>
               <p style={s.cardSub}>{stats.todayAbsent.length} student{stats.todayAbsent.length !== 1 ? 's' : ''} marked absent today</p>
             </div>
             <button onClick={() => navigate('/admin/students')} style={s.linkBtn}>View All Students →</button>
@@ -336,7 +334,7 @@ const AdminDashboard = () => {
         <div style={{ ...s.card, marginBottom: 16 }}>
           <div style={s.cardHeader}>
             <div>
-              <p style={s.cardTitle}>📅 Pending Meeting Requests</p>
+              <p style={s.cardTitle}>Pending Meeting Requests</p>
               <p style={s.cardSub}>{stats.pendingMeetings} total pending — showing latest {stats.pendingMeetingsList.length}</p>
             </div>
             <button onClick={() => navigate('/admin/users')} style={{ ...s.linkBtn, background: '#fffbeb', color: '#92400e' }}>View All →</button>
@@ -375,7 +373,7 @@ const AdminDashboard = () => {
         <div style={{ ...s.card, flex: 2 }}>
           <div style={s.cardHeader}>
             <div>
-              <p style={s.cardTitle}>🎓 Recently Added Students</p>
+              <p style={s.cardTitle}>Recently Added Students</p>
               <p style={s.cardSub}>Last 5 students enrolled</p>
             </div>
             <button onClick={() => navigate('/admin/students')} style={s.linkBtn}>View All →</button>
@@ -419,12 +417,11 @@ const AdminDashboard = () => {
 
           {/* Gender Split */}
           <div style={s.card}>
-            <p style={s.cardTitle}>👥 Gender Distribution</p>
+            <p style={s.cardTitle}>Gender Distribution</p>
             <p style={s.cardSub}>Across all students</p>
             <div style={s.genderRow}>
               {[['Male','#3b82f6','#eff6ff', genderMap.male||0],['Female','#ec4899','#fdf2f8',genderMap.female||0],['Other','#8b5cf6','#f5f3ff',genderMap.other||0]].map(([l,c,bg,v]) => (
                 <div key={l} style={{ ...s.genderBox, background: bg, borderColor: c }}>
-                  <span style={{ fontSize: '1.4rem' }}>{l === 'Male' ? '👦' : l === 'Female' ? '👧' : '🧑'}</span>
                   <span style={{ fontWeight: 800, fontSize: '1.3rem', color: c }}>{v}</span>
                   <span style={{ fontSize: '0.72rem', color: '#6b7280' }}>{l}</span>
                 </div>
@@ -434,19 +431,18 @@ const AdminDashboard = () => {
 
           {/* Quick Actions */}
           <div style={s.card}>
-            <p style={s.cardTitle}>⚡ Quick Actions</p>
+            <p style={s.cardTitle}>Quick Actions</p>
             <div style={s.actionGrid}>
               {[
-                { label: 'Link Mgmt',  icon: '🔗', path: '/admin/link-management', color: '#fefce8', border: '#fef08a', text: '#713f12', count: (stats.unlinkedParent || 0) + (stats.unlinkedTeacher || 0) || null },
-                { label: 'Students',   icon: '🎓', path: '/admin/students',         color: '#eff6ff', border: '#bfdbfe', text: '#1d4ed8', count: stats.totalStudents },
-                { label: 'Teachers',   icon: '👨🏫', path: '/admin/teachers',        color: '#f5f3ff', border: '#ddd6fe', text: '#6d28d9', count: stats.totalTeachers },
-                { label: 'Parents',    icon: '👨👩👧', path: '/admin/parents',        color: '#f0fdf4', border: '#bbf7d0', text: '#15803d', count: stats.totalParents },
-                { label: 'Bulk Import',icon: '📥', path: '/admin/bulk-import',      color: '#fffbeb', border: '#fde68a', text: '#92400e', count: null },
-                { label: 'Users',      icon: '👥', path: '/admin/users',            color: '#fef2f2', border: '#fecaca', text: '#b91c1c', count: null },
+                { label: 'Link Mgmt',   path: '/admin/link-management', color: '#fefce8', border: '#fef08a', text: '#713f12', count: (stats.unlinkedParent || 0) + (stats.unlinkedTeacher || 0) || null },
+                { label: 'Students',    path: '/admin/students',         color: '#eff6ff', border: '#bfdbfe', text: '#1d4ed8', count: stats.totalStudents },
+                { label: 'Teachers',    path: '/admin/teachers',         color: '#f5f3ff', border: '#ddd6fe', text: '#6d28d9', count: stats.totalTeachers },
+                { label: 'Parents',     path: '/admin/parents',          color: '#f0fdf4', border: '#bbf7d0', text: '#15803d', count: stats.totalParents },
+                { label: 'Bulk Import', path: '/admin/bulk-import',      color: '#fffbeb', border: '#fde68a', text: '#92400e', count: null },
+                { label: 'Users',       path: '/admin/users',            color: '#fef2f2', border: '#fecaca', text: '#b91c1c', count: null },
               ].map(a => (
                 <button key={a.label} onClick={() => navigate(a.path)}
                   style={{ ...s.actionBtn, background: a.color, borderColor: a.border, color: a.text }}>
-                  <span style={{ fontSize: '1.2rem' }}>{a.icon}</span>
                   <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>{a.label}</span>
                   {a.count != null && <span style={{ fontSize: '0.7rem', fontWeight: 700, opacity: 0.8 }}>{a.count}</span>}
                 </button>

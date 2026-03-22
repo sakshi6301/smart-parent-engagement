@@ -52,7 +52,6 @@ const StudentDashboard = () => {
     <AppLayout>
       {!student && (
         <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 12, padding: '32px 24px', textAlign: 'center', marginBottom: 20 }}>
-          <div style={{ fontSize: '2.5rem', marginBottom: 8 }}>🎓</div>
           <p style={{ fontWeight: 700, color: '#92400e', margin: '0 0 4px' }}>Your student profile is not linked yet</p>
           <p style={{ fontSize: '0.85rem', color: '#9ca3af', margin: 0 }}>Contact your school admin to link your account.</p>
         </div>
@@ -62,7 +61,7 @@ const StudentDashboard = () => {
         <div style={styles.bannerLeft}>
           <div style={styles.avatar}>{user?.name?.[0]}</div>
           <div>
-            <h2 style={styles.bannerName}>{t('welcome')}, {user?.name?.split(' ')[0]}! 👋</h2>
+            <h2 style={styles.bannerName}>{t('welcome')}, {user?.name?.split(' ')[0]}</h2>
             {student && <p style={styles.bannerInfo}>{t('class')} {student.class}-{student.section} · Roll No: {student.rollNumber}</p>}
           </div>
         </div>
@@ -83,17 +82,17 @@ const StudentDashboard = () => {
       </div>
 
       <div style={styles.statsRow}>
-        <StatCard title={t('attendance')} value={`${attendance?.summary.percentage || 0}%`} icon="✅" color={attendance?.summary.percentage < 75 ? 'red' : 'green'} subtitle={`${attendance?.summary.present || 0} days ${t('present')}`} />
-        <StatCard title={t('homework')} value={pendingHW.length} icon="📚" color="yellow" subtitle={t('pending')} />
-        <StatCard title={t('overdue')} value={overdueHW.length} icon="⚠️" color="red" subtitle={t('overdue')} />
-        <StatCard title={t('subject')} value={subjects.length} icon="📖" color="purple" subtitle="Being tracked" />
+        <StatCard title={t('attendance')} value={`${attendance?.summary.percentage || 0}%`} color={attendance?.summary.percentage < 75 ? 'red' : 'green'} subtitle={`${attendance?.summary.present || 0} days ${t('present')}`} />
+        <StatCard title={t('homework')} value={pendingHW.length} color="yellow" subtitle={t('pending')} />
+        <StatCard title={t('overdue')} value={overdueHW.length} color="red" subtitle={t('overdue')} />
+        <StatCard title={t('subject')} value={subjects.length} color="purple" subtitle="Being tracked" />
       </div>
 
       <div style={styles.mainRow}>
         {subjects.length > 0 && (
           <div style={styles.chartCard}>
             <div style={styles.cardHeader}>
-              <h3 style={styles.cardTitle}>📊 {t('subjectPerformance')}</h3>
+              <h3 style={styles.cardTitle}>{t('subjectPerformance')}</h3>
               <Link to="/student/grades" style={styles.viewAll}>{t('view')} →</Link>
             </div>
             <Radar data={radarData} options={{ responsive: true, scales: { r: { beginAtZero: true, max: 100 } }, plugins: { legend: { display: false } } }} />
@@ -102,10 +101,10 @@ const StudentDashboard = () => {
 
         <div style={styles.hwCard}>
           <div style={styles.cardHeader}>
-            <h3 style={styles.cardTitle}>📚 {t('homework')}</h3>
+            <h3 style={styles.cardTitle}>{t('homework')}</h3>
             <Link to="/student/homework" style={styles.viewAll}>{t('view')} →</Link>
           </div>
-          {pendingHW.length === 0 && <div style={styles.noData}>🎉 {t('noPending')}</div>}
+          {pendingHW.length === 0 && <div style={styles.noData}>{t('noPending')}</div>}
           {pendingHW.slice(0, 5).map(hw => {
             const daysLeft = Math.ceil((new Date(hw.dueDate) - new Date()) / (1000 * 60 * 60 * 24));
             return (
@@ -126,7 +125,7 @@ const StudentDashboard = () => {
 
       {recommendations.length > 0 && (
         <div style={styles.recSection}>
-          <h3 style={styles.cardTitle}>🤖 {t('recommendations')}</h3>
+          <h3 style={styles.cardTitle}>{t('recommendations')}</h3>
           <div style={styles.recGrid}>
             {recommendations.map((r, i) => (
               <div key={i} style={{ ...styles.recCard, borderTop: `3px solid ${r.priority === 'high' ? '#ef4444' : '#f59e0b'}` }}>
@@ -135,11 +134,11 @@ const StudentDashboard = () => {
                   <Badge label={`${t('average')}: ${r.average_score}%`} type={r.average_score < 40 ? 'danger' : 'warning'} />
                 </div>
                 <div style={styles.recSection2}>
-                  <p style={styles.recLabel}>📝 Practice:</p>
+                  <p style={styles.recLabel}>Practice:</p>
                   <ul style={styles.recList}>{r.recommendations.exercises.slice(0, 2).map((e, j) => <li key={j}>{e}</li>)}</ul>
                 </div>
                 <div style={styles.recSection2}>
-                  <p style={styles.recLabel}>🎥 Watch:</p>
+                  <p style={styles.recLabel}>Watch:</p>
                   <ul style={styles.recList}>{r.recommendations.videos.slice(0, 2).map((v, j) => <li key={j}>{v}</li>)}</ul>
                 </div>
               </div>

@@ -23,15 +23,14 @@ const StudentAttendance = () => {
   const summary = attendance?.summary || { present: 0, absent: 0, late: 0, percentage: 0 };
 
   const STATUS_CFG = {
-    present: { color: '#10b981', bg: '#f0fdf4', label: t('present'), icon: '✅' },
-    absent:  { color: '#ef4444', bg: '#fef2f2', label: t('absent'),  icon: '❌' },
-    late:    { color: '#f59e0b', bg: '#fffbeb', label: t('late'),    icon: '⏰' },
+    present: { color: '#10b981', bg: '#f0fdf4', label: t('present') },
+    absent:  { color: '#ef4444', bg: '#fef2f2', label: t('absent')  },
+    late:    { color: '#f59e0b', bg: '#fffbeb', label: t('late')    },
   };
 
   if (!student) return (
     <AppLayout>
       <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 12, padding: '40px 24px', textAlign: 'center' }}>
-        <div style={{ fontSize: '2.5rem', marginBottom: 8 }}>🎓</div>
         <p style={{ fontWeight: 700, color: '#92400e', margin: '0 0 4px' }}>Student profile not linked</p>
         <p style={{ fontSize: '0.85rem', color: '#9ca3af', margin: 0 }}>Contact your school admin to link your account.</p>
       </div>
@@ -57,15 +56,14 @@ const StudentAttendance = () => {
         </div>
         <div style={{ ...S.pctBadge, background: summary.percentage < 75 ? '#fef2f2' : '#f0fdf4', color: summary.percentage < 75 ? '#ef4444' : '#10b981' }}>
           {summary.percentage}% {t('attendance')}
-          {summary.percentage < 75 && ' ⚠️'}
+          {summary.percentage < 75 && ' — Low'}
         </div>
       </div>
 
       <div style={S.summaryRow}>
-        {[['present','✅','#10b981'],['absent','❌','#ef4444'],['late','⏰','#f59e0b']].map(([key, icon, clr]) => (
+        {[['present','#10b981'],['absent','#ef4444'],['late','#f59e0b']].map(([key, clr]) => (
           <div key={key} onClick={() => setFilter(filter === key ? 'all' : key)}
             style={{ ...S.summaryCard, borderTop: `3px solid ${filter === key ? clr : '#e5e7eb'}`, cursor: 'pointer' }}>
-            <span style={{ fontSize: '1.4rem' }}>{icon}</span>
             <span style={{ fontSize: '1.6rem', fontWeight: 800, color: clr }}>{summary[key] || 0}</span>
             <span style={{ fontSize: '0.78rem', color: '#6b7280' }}>{t(key)}</span>
           </div>
@@ -93,7 +91,6 @@ const StudentAttendance = () => {
                 const cfg = STATUS_CFG[r.status] || STATUS_CFG.present;
                 return (
                   <div key={r._id} style={{ ...S.recordCard, background: cfg.bg, borderColor: cfg.color }}>
-                    <div style={{ fontSize: '1.1rem' }}>{cfg.icon}</div>
                     <div style={{ fontSize: '0.78rem', fontWeight: 600, color: '#374151' }}>
                       {new Date(r.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
                     </div>

@@ -49,7 +49,6 @@ const Meetings = () => {
 
       {!loading && meetings.length === 0 && (
         <div style={styles.empty}>
-          <span style={{ fontSize: '3rem' }}>📅</span>
           <h3>No meeting requests yet</h3>
           <p style={{ color: '#9ca3af' }}>Parents can request meetings from their dashboard</p>
         </div>
@@ -66,8 +65,8 @@ const Meetings = () => {
                   <div style={styles.parentName}>{m.parent?.name || 'Parent'}</div>
                   <div style={styles.meta}>{m.parent?.email}</div>
                   <div style={styles.meta}>Student: <strong>{m.student?.name}</strong></div>
-                  {m.agenda && <div style={styles.agenda}>📋 {m.agenda}</div>}
-                  {m.notes && <div style={styles.noteDisplay}>📝 {m.notes}</div>}
+                  {m.agenda && <div style={styles.agenda}>{m.agenda}</div>}
+                  {m.notes && <div style={styles.noteDisplay}>{m.notes}</div>}
                 </div>
               </div>
 

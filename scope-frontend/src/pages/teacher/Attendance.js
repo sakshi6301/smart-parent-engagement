@@ -165,7 +165,6 @@ const Attendance = () => {
 
       {students.length === 0 && (
         <div style={styles.empty}>
-          <span style={{ fontSize: '3rem' }}>👥</span>
           <h3>No students assigned</h3>
           <p style={{ color: '#9ca3af' }}>Ask your admin to assign students to your account.</p>
         </div>
@@ -177,13 +176,11 @@ const Attendance = () => {
           <div style={styles.summaryRow}>
             {Object.entries(counts).map(([status, count]) => (
               <div key={status} style={{ ...styles.summaryCard, borderColor: statusConfig[status].color, background: statusConfig[status].bg }}>
-                <span style={{ fontSize: '1.4rem' }}>{status === 'present' ? '✅' : status === 'absent' ? '❌' : '⏰'}</span>
                 <span style={{ fontSize: '1.6rem', fontWeight: 800, color: statusConfig[status].color }}>{count}</span>
                 <span style={{ fontSize: '0.8rem', color: '#6b7280', textTransform: 'capitalize' }}>{status}</span>
               </div>
             ))}
             <div style={{ ...styles.summaryCard, borderColor: '#4f46e5', background: '#f5f3ff' }}>
-              <span style={{ fontSize: '1.4rem' }}>📊</span>
               <span style={{ fontSize: '1.6rem', fontWeight: 800, color: '#4f46e5' }}>
                 {students.length ? Math.round(counts.present / students.length * 100) : 0}%
               </span>
@@ -247,7 +244,6 @@ const Attendance = () => {
             <div style={styles.loadingBox}><div style={styles.spinner} /><span>Loading history...</span></div>
           ) : Object.keys(histByDate).length === 0 ? (
             <div style={styles.empty}>
-              <span style={{ fontSize: '3rem' }}>📅</span>
               <h3>No attendance records</h3>
               <p style={{ color: '#9ca3af' }}>No records found for {histMonth}. Try a different month.</p>
             </div>

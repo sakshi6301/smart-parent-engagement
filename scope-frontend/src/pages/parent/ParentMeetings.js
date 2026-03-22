@@ -56,10 +56,10 @@ const ParentMeetings = () => {
   };
 
   const statusConfig = {
-    pending:   { color: '#f59e0b', bg: '#fffbeb', icon: '⏳' },
-    confirmed: { color: '#10b981', bg: '#f0fdf4', icon: '✅' },
-    cancelled: { color: '#ef4444', bg: '#fef2f2', icon: '❌' },
-    completed: { color: '#6b7280', bg: '#f3f4f6', icon: '✔️' },
+    pending:   { color: '#f59e0b', bg: '#fffbeb' },
+    confirmed: { color: '#10b981', bg: '#f0fdf4' },
+    cancelled: { color: '#ef4444', bg: '#fef2f2' },
+    completed: { color: '#6b7280', bg: '#f3f4f6' },
   };
 
   if (loading) return <AppLayout><div style={styles.loading}>Loading...</div></AppLayout>;
@@ -67,7 +67,6 @@ const ParentMeetings = () => {
   if (!student) return (
     <AppLayout>
       <div style={styles.empty}>
-        <span style={{ fontSize: '3rem' }}>👤</span>
         <h3>No child linked</h3>
         <p style={{ color: '#9ca3af' }}>Contact your school admin to link your child's profile.</p>
       </div>
@@ -86,7 +85,6 @@ const ParentMeetings = () => {
 
       {meetings.length === 0 && (
         <div style={styles.empty}>
-          <span style={{ fontSize: '3rem' }}>📅</span>
           <h3>No meetings yet</h3>
           <p style={{ color: '#9ca3af' }}>Request a meeting with your child's teacher</p>
         </div>
@@ -99,19 +97,19 @@ const ParentMeetings = () => {
             <div key={m._id} style={{ ...styles.card, borderLeft: `4px solid ${cfg.color}` }}>
               <div style={styles.cardTop}>
                 <div style={{ ...styles.statusBadge, background: cfg.bg, color: cfg.color }}>
-                  {cfg.icon} {m.status.charAt(0).toUpperCase() + m.status.slice(1)}
+                  {m.status.charAt(0).toUpperCase() + m.status.slice(1)}
                 </div>
                 <span style={styles.date}>
                   {new Date(m.requestedSlot).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}
                 </span>
               </div>
-              {m.agenda && <p style={styles.agenda}>📋 {m.agenda}</p>}
+              {m.agenda && <p style={styles.agenda}>{m.agenda}</p>}
               {m.status === 'confirmed' && m.confirmedSlot && (
                 <p style={styles.confirmed}>
                   Confirmed for: {new Date(m.confirmedSlot).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}
                 </p>
               )}
-              {m.notes && <p style={styles.notes}>📝 {m.notes}</p>}
+              {m.notes && <p style={styles.notes}>{m.notes}</p>}
               {m.status === 'pending' && (
                 <div style={{ marginTop: 4 }}>
                   <button onClick={() => handleCancel(m._id)} style={styles.cancelMeetingBtn}>Cancel Request</button>

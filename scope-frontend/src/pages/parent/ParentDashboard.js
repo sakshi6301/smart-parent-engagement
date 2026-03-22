@@ -45,13 +45,12 @@ const ParentDashboard = () => {
   };
 
   const pendingHW = homework.filter(h => new Date(h.dueDate) >= new Date());
-  const notifTypes = { absence: '🚨', performance: '📊', homework: '📚', exam: '📝', announcement: '📢', meeting: '📅' };
+  const notifTypes = { absence: 'A', performance: 'P', homework: 'H', exam: 'E', announcement: 'N', meeting: 'M' };
 
   return (
     <AppLayout>
       {!student && (
         <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 12, padding: '24px', textAlign: 'center', marginBottom: 20 }}>
-          <div style={{ fontSize: '2.5rem', marginBottom: 8 }}>👨👩👧</div>
           <p style={{ fontWeight: 700, color: '#92400e', margin: '0 0 4px' }}>No child linked to your account</p>
           <p style={{ fontSize: '0.85rem', color: '#9ca3af', margin: 0 }}>Please contact your school admin to link your child's profile.</p>
         </div>
@@ -70,16 +69,16 @@ const ParentDashboard = () => {
       )}
 
       <div style={styles.statsRow}>
-        <StatCard title={t('attendance')} value={attendance ? `${attendance.summary.percentage}%` : '—'} icon="✅" color={attendance?.summary.percentage < 75 ? 'red' : 'green'} subtitle={attendance ? `${attendance.summary.present} ${t('present')} / ${attendance.summary.absent} ${t('absent')}` : t('loading')} />
-        <StatCard title={t('homework')} value={pendingHW.length} icon="📚" color="yellow" subtitle={t('pending')} />
-        <StatCard title={t('engagement')} value={engagement ? `${engagement.score}/100` : '—'} icon="⭐" color="purple" subtitle={engagement ? `Level: ${engagement.level}` : t('loading')} />
-        <StatCard title={t('notifications')} value={notifications.filter(n => !n.isRead).length} icon="🔔" color="red" subtitle={t('noNotifications')} />
+        <StatCard title={t('attendance')} value={attendance ? `${attendance.summary.percentage}%` : '—'} color={attendance?.summary.percentage < 75 ? 'red' : 'green'} subtitle={attendance ? `${attendance.summary.present} ${t('present')} / ${attendance.summary.absent} ${t('absent')}` : t('loading')} />
+        <StatCard title={t('homework')} value={pendingHW.length} color="yellow" subtitle={t('pending')} />
+        <StatCard title={t('engagement')} value={engagement ? `${engagement.score}/100` : '—'} color="purple" subtitle={engagement ? `Level: ${engagement.level}` : t('loading')} />
+        <StatCard title={t('notifications')} value={notifications.filter(n => !n.isRead).length} color="red" subtitle={t('noNotifications')} />
       </div>
 
       <div style={styles.mainRow}>
         <div style={styles.chartCard}>
           <div style={styles.cardHeader}>
-            <h3 style={styles.cardTitle}>📊 {t('subjectPerformance')}</h3>
+            <h3 style={styles.cardTitle}>Performance</h3>
             <Link to="/parent/grades" style={styles.viewAll}>{t('view')} →</Link>
           </div>
           {grades.length > 0
@@ -89,13 +88,13 @@ const ParentDashboard = () => {
 
         <div style={styles.notifCard}>
           <div style={styles.cardHeader}>
-            <h3 style={styles.cardTitle}>🔔 {t('notifications')}</h3>
+            <h3 style={styles.cardTitle}>Notifications</h3>
             <Link to="/parent/notifications" style={styles.viewAll}>{t('view')} →</Link>
           </div>
           {notifications.length === 0 && <div style={styles.noData}>{t('noNotifications')}</div>}
           {notifications.map(n => (
             <div key={n._id} style={{ ...styles.notifItem, background: n.isRead ? '#fff' : '#f5f3ff' }}>
-              <span style={styles.notifIcon}>{notifTypes[n.type] || '📌'}</span>
+              <span style={{ ...styles.notifIcon, fontSize: '0.75rem', fontWeight: 800, width: 28, height: 28, borderRadius: 8, background: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{notifTypes[n.type] || 'I'}</span>
               <div style={{ flex: 1 }}>
                 <div style={styles.notifTitle}>{n.title}</div>
                 <div style={styles.notifBody}>{n.body}</div>
@@ -108,11 +107,10 @@ const ParentDashboard = () => {
 
       {risk?.suggestions?.length > 0 && (
         <div style={styles.suggestCard}>
-          <h3 style={styles.cardTitle}>🤖 {t('recommendations')} — {student?.name}</h3>
+          <h3 style={styles.cardTitle}>AI Recommendations — {student?.name}</h3>
           <div style={styles.suggestGrid}>
             {risk.suggestions.map((s, i) => (
               <div key={i} style={styles.suggestItem}>
-                <span style={styles.suggestIcon}>💡</span>
                 <span style={styles.suggestText}>{s}</span>
               </div>
             ))}

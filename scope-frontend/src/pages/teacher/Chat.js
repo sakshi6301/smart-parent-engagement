@@ -9,7 +9,7 @@ const getRoomId = (idA, idB) => [idA, idB].sort().join('_');
 const Chat = () => {
   const { user } = useAuth();
   const [students, setStudents] = useState([]);
-  const [selected, setSelected] = useState(null); // { student, roomId, contactName, contactRole }
+  const [selected, setSelected] = useState(null);
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState('');
   const [search, setSearch] = useState('');
@@ -51,7 +51,6 @@ const Chat = () => {
 
   const isMe = (m) => (m.sender?._id || m.sender) === user._id;
 
-  // Build contact list: each student → parent contact + (future) student contact
   const filtered = students.filter(s =>
     s.name.toLowerCase().includes(search.toLowerCase()) ||
     s.rollNumber?.toLowerCase().includes(search.toLowerCase())
@@ -63,7 +62,7 @@ const Chat = () => {
         {/* Sidebar */}
         <div style={S.sidebar}>
           <div style={S.sidebarHeader}>
-            <div style={S.sidebarTitle}>💬 Conversations</div>
+            <div style={S.sidebarTitle}>Conversations</div>
             <input
               style={S.search}
               placeholder="Search students..."
@@ -82,7 +81,6 @@ const Chat = () => {
 
               return (
                 <div key={s._id}>
-                  {/* Parent contact */}
                   {parentId ? (
                     <div
                       onClick={() => selectContact(s, parentId, parentName || `${s.name}'s Parent`, 'parent')}
@@ -93,7 +91,7 @@ const Chat = () => {
                       </div>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={S.contactName}>{parentName || `${s.name}'s Parent`}</div>
-                        <div style={S.contactSub}>👨‍👩‍👧 Parent · {s.name} · {s.class}-{s.section}</div>
+                        <div style={S.contactSub}>Parent · {s.name} · {s.class}-{s.section}</div>
                       </div>
                     </div>
                   ) : (
@@ -101,7 +99,7 @@ const Chat = () => {
                       <div style={{ ...S.avatar, background: '#f3f4f6', color: '#9ca3af' }}>{s.name[0]}</div>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={S.contactName}>{s.name}</div>
-                        <div style={{ ...S.contactSub, color: '#ef4444' }}>⚠️ No parent linked</div>
+                        <div style={{ ...S.contactSub, color: '#ef4444' }}>No parent linked</div>
                       </div>
                     </div>
                   )}
@@ -115,7 +113,6 @@ const Chat = () => {
         <div style={S.chatArea}>
           {!selected ? (
             <div style={S.placeholder}>
-              <span style={{ fontSize: '3rem' }}>💬</span>
               <p style={{ fontWeight: 600, color: '#374151' }}>Select a contact to start chatting</p>
               <p style={{ fontSize: '0.82rem', color: '#9ca3af' }}>Choose a parent from the list on the left</p>
             </div>
@@ -126,7 +123,7 @@ const Chat = () => {
                 <div style={{ flex: 1 }}>
                   <div style={S.headerName}>{selected.contactName}</div>
                   <div style={S.headerSub}>
-                    {selected.contactRole === 'parent' ? '👨‍👩‍👧 Parent' : '🎓 Student'} · {selected.student.name} · Class {selected.student.class}-{selected.student.section}
+                    {selected.contactRole === 'parent' ? 'Parent' : 'Student'} · {selected.student.name} · Class {selected.student.class}-{selected.student.section}
                   </div>
                 </div>
                 <div style={S.statusIndicator}>Active</div>
@@ -135,7 +132,6 @@ const Chat = () => {
               <div style={S.messages}>
                 {messages.length === 0 && (
                   <div style={S.noMsg}>
-                    <span style={{ fontSize: '2rem' }}>💬</span>
                     <p>No messages yet. Start the conversation!</p>
                   </div>
                 )}
@@ -170,7 +166,7 @@ const Chat = () => {
                   autoFocus
                 />
                 <button type="submit" style={{ ...S.sendBtn, opacity: text.trim() ? 1 : 0.5 }} disabled={!text.trim()}>
-                  Send ➤
+                  Send
                 </button>
               </form>
             </>

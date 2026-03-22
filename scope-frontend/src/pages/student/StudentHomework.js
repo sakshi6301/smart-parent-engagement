@@ -79,7 +79,7 @@ const StudentHomework = () => {
     <AppLayout>
       <div style={S.header}>
         <div>
-          <h2 style={S.title}>📚 {t('homework')}</h2>
+          <h2 style={S.title}>{t('homework')}</h2>
           <p style={S.sub}>{student?.name} · {t('class')} {student?.class}-{student?.section}</p>
         </div>
       </div>
@@ -94,9 +94,6 @@ const StudentHomework = () => {
         {tabs.slice(0, 3).map(tb => (
           <div key={tb.key} onClick={() => setTab(tb.key)}
             style={{ ...S.summaryCard, borderTop: `3px solid ${tb.color}`, cursor: 'pointer', background: tab === tb.key ? '#f8fafc' : '#fff' }}>
-            <span style={{ fontSize: '1.4rem' }}>
-              {tb.key === 'pending' ? '⏳' : tb.key === 'overdue' ? '⚠️' : '✅'}
-            </span>
             <span style={{ fontSize: '1.8rem', fontWeight: 800, color: tb.color }}>{tb.count}</span>
             <span style={{ fontSize: '0.78rem', color: '#6b7280' }}>{tb.label}</span>
           </div>
@@ -117,9 +114,6 @@ const StudentHomework = () => {
 
       {displayed.length === 0 ? (
         <div style={S.empty}>
-          <span style={{ fontSize: '3rem' }}>
-            {tab === 'pending' ? '🎉' : tab === 'overdue' ? '✅' : '📚'}
-          </span>
           <h3 style={{ color: '#374151' }}>
             {tab === 'pending' ? t('noPending') : tab === 'overdue' ? t('noOverdue') : t('noHomework')}
           </h3>
@@ -140,10 +134,10 @@ const StudentHomework = () => {
                     <h3 style={S.hwTitle}>{hw.title}</h3>
                     {hw.description && <p style={S.hwDesc}>{hw.description}</p>}
                     <div style={S.meta}>
-                      <span>👨🏫 {hw.teacher?.name || 'Teacher'}</span>
-                      <span>🏫 {t('class')} {hw.class}-{hw.section}</span>
+                      <span>{hw.teacher?.name || 'Teacher'}</span>
+                      <span>{t('class')} {hw.class}-{hw.section}</span>
                       <span style={{ color: done ? '#10b981' : late ? '#ef4444' : days <= 1 ? '#f59e0b' : '#6b7280', fontWeight: 600 }}>
-                        📅 {done ? `${t('submitted')} ${sub?.submittedAt ? new Date(sub.submittedAt).toLocaleDateString('en-IN') : ''}` :
+                        {done ? `${t('submitted')} ${sub?.submittedAt ? new Date(sub.submittedAt).toLocaleDateString('en-IN') : ''}` :
                             late ? `${t('overdue')} ${new Date(hw.dueDate).toLocaleDateString('en-IN')}` :
                             days === 0 ? t('dueToday') :
                             days === 1 ? t('dueTomorrow') :
@@ -159,7 +153,7 @@ const StudentHomework = () => {
                     {!done && (
                       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
                         <label style={S.fileLabel}>
-                          📎 {fileMap[hw._id] ? fileMap[hw._id].name : t('attachFile')}
+                          {fileMap[hw._id] ? fileMap[hw._id].name : t('attachFile')}
                           <input type="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.zip" style={{ display: 'none' }}
                             onChange={e => setFileMap(prev => ({ ...prev, [hw._id]: e.target.files[0] }))} />
                         </label>
@@ -173,7 +167,7 @@ const StudentHomework = () => {
                     )}
                     {done && sub?.status && (
                       <span style={S.submittedLabel}>
-                        {sub.status === 'late' ? '⏰ Late' : `✅ ${t('submitted')}`}
+                        {sub.status === 'late' ? 'Late' : t('submitted')}
                       </span>
                     )}
                   </div>

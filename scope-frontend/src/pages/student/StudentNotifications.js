@@ -4,12 +4,12 @@ import api from '../../services/api';
 import { useTranslation } from 'react-i18next';
 
 const TYPE_CFG = {
-  absence:      { icon: '🚨', color: '#ef4444', bg: '#fef2f2', labelKey: 'absentAlert' },
-  performance:  { icon: '📊', color: '#f59e0b', bg: '#fffbeb', labelKey: 'subjectPerformance' },
-  homework:     { icon: '📚', color: '#4f46e5', bg: '#f5f3ff', labelKey: 'homework' },
-  exam:         { icon: '📝', color: '#0891b2', bg: '#ecfeff', labelKey: 'examType' },
-  announcement: { icon: '📢', color: '#059669', bg: '#f0fdf4', labelKey: 'notifications' },
-  meeting:      { icon: '📅', color: '#7c3aed', bg: '#f5f3ff', labelKey: 'meetings' },
+  absence:      { color: '#ef4444', bg: '#fef2f2', labelKey: 'absentAlert' },
+  performance:  { color: '#f59e0b', bg: '#fffbeb', labelKey: 'subjectPerformance' },
+  homework:     { color: '#4f46e5', bg: '#f5f3ff', labelKey: 'homework' },
+  exam:         { color: '#0891b2', bg: '#ecfeff', labelKey: 'examType' },
+  announcement: { color: '#059669', bg: '#f0fdf4', labelKey: 'notifications' },
+  meeting:      { color: '#7c3aed', bg: '#f5f3ff', labelKey: 'meetings' },
 };
 
 const StudentNotifications = () => {
@@ -57,7 +57,7 @@ const StudentNotifications = () => {
     <AppLayout>
       <div style={S.header}>
         <div>
-          <h2 style={S.title}>🔔 {t('notifications')}</h2>
+          <h2 style={S.title}>{t('notifications')}</h2>
           <p style={S.sub}>
             {unreadCount > 0 ? `${unreadCount} unread` : 'All caught up'}
             {' · '}{notifications.length} total
@@ -93,7 +93,6 @@ const StudentNotifications = () => {
 
         {!loading && filtered.length === 0 && (
           <div style={S.empty}>
-            <div style={{ fontSize: '2.5rem', marginBottom: 8 }}>🔔</div>
             <p style={{ fontWeight: 600, color: '#374151' }}>{t('noNotifications')}</p>
             <p style={{ fontSize: '0.82rem', color: '#9ca3af' }}>
               {showUnreadOnly ? 'No unread notifications.' : "You're all caught up!"}
@@ -102,13 +101,13 @@ const StudentNotifications = () => {
         )}
 
         {filtered.map(n => {
-          const cfg = TYPE_CFG[n.type] || { icon: '📌', color: '#6b7280', bg: '#f3f4f6', labelKey: 'notifications' };
+          const cfg = TYPE_CFG[n.type] || { color: '#6b7280', bg: '#f3f4f6', labelKey: 'notifications' };
           return (
             <div key={n._id}
               onClick={() => !n.isRead && markRead(n._id)}
               style={{ ...S.card, background: n.isRead ? '#fff' : cfg.bg, borderLeft: `4px solid ${cfg.color}`, cursor: n.isRead ? 'default' : 'pointer' }}>
               <div style={{ ...S.iconBox, background: n.isRead ? '#f3f4f6' : '#fff', color: cfg.color }}>
-                {cfg.icon}
+                <span style={{ fontSize: '0.75rem', fontWeight: 800 }}>{n.type?.[0]?.toUpperCase() || '!'}</span>
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={S.cardTitle}>

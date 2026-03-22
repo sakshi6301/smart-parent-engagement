@@ -67,7 +67,6 @@ const ParentGrades = () => {
   if (!student) return (
     <AppLayout>
       <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 12, padding: '40px 24px', textAlign: 'center' }}>
-        <div style={{ fontSize: '2.5rem', marginBottom: 8 }}>👨👩👧</div>
         <p style={{ fontWeight: 700, color: '#92400e', margin: '0 0 4px' }}>No child linked to your account</p>
         <p style={{ fontSize: '0.85rem', color: '#9ca3af', margin: 0 }}>Contact your school admin to link your child.</p>
       </div>
@@ -79,7 +78,7 @@ const ParentGrades = () => {
       {/* Header */}
       <div style={S.header}>
         <div>
-          <h2 style={S.title}>📊 Academic Performance</h2>
+          <h2 style={S.title}>Academic Performance</h2>
           <p style={S.sub}>{student?.name} · Class {student?.class}-{student?.section}</p>
         </div>
         <div style={S.overallBadge}>
@@ -92,13 +91,12 @@ const ParentGrades = () => {
       {/* AI Anomaly Alert */}
       {anomaly?.is_anomaly && (
         <div style={S.anomalyAlert}>
-          ⚠️ <strong>Attendance Alert:</strong> {anomaly.message}
+          <strong>Attendance Alert:</strong> {anomaly.message}
         </div>
       )}
 
       {grades.length === 0 ? (
         <div style={S.empty}>
-          <span style={{ fontSize: '3rem' }}>📝</span>
           <h3 style={{ color: '#374151' }}>No grades recorded yet</h3>
           <p style={{ color: '#9ca3af' }}>Grades will appear here once your child's teacher uploads them.</p>
         </div>
@@ -107,7 +105,7 @@ const ParentGrades = () => {
           {/* AI Grade Trend Panel */}
           {Object.keys(trends).length > 0 && (
             <div style={S.trendCard}>
-              <h3 style={S.trendTitle}>🤖 AI Grade Trend Forecast</h3>
+              <h3 style={S.trendTitle}>AI Grade Trend Forecast</h3>
               <div style={S.trendGrid}>
                 {Object.entries(trends).map(([sub, t]) => (
                   <div key={sub} style={S.trendItem}>

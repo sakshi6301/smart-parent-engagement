@@ -62,7 +62,6 @@ const StudentChat = () => {
   if (!student || !teacher) return (
     <AppLayout>
       <div style={S.empty}>
-        <span style={{ fontSize: '3rem' }}>👨🏫</span>
         <h3 style={{ color: '#111827' }}>No teacher assigned yet</h3>
         <p style={{ color: '#9ca3af' }}>Your class teacher hasn't been assigned. Please contact the school admin.</p>
       </div>
@@ -77,7 +76,7 @@ const StudentChat = () => {
           <div style={{ flex: 1 }}>
             <div style={S.headerName}>{teacher.name || 'Class Teacher'}</div>
             <div style={S.headerSub}>
-              👨🏫 {t('teachers')} · {t('class')} {student.class}-{student.section}
+              Teacher · {t('class')} {student.class}-{student.section}
             </div>
           </div>
           <div style={S.onlineDot} title={t('online')} />
@@ -86,7 +85,6 @@ const StudentChat = () => {
         <div style={S.messages}>
           {messages.length === 0 && (
             <div style={S.noMsg}>
-              <span style={{ fontSize: '2.5rem' }}>💬</span>
               <p style={{ fontWeight: 600 }}>{t('noMessages')}</p>
               <p style={{ fontSize: '0.82rem' }}>{t('startConversation')}</p>
             </div>

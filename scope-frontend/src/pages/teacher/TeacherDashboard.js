@@ -56,12 +56,12 @@ const TeacherDashboard = () => {
   }, []);
 
   const quickLinks = [
-    { label: t('markAttendance'), icon: '✅', path: '/teacher/attendance', color: '#10b981' },
-    { label: t('addGrade'),       icon: '📝', path: '/teacher/grades',     color: '#4f46e5' },
-    { label: t('assignHomework'), icon: '📚', path: '/teacher/homework',   color: '#f59e0b' },
-    { label: t('aiRiskMonitor'),  icon: '🤖', path: '/teacher/risk',       color: '#ef4444' },
-    { label: t('chat'),           icon: '💬', path: '/teacher/chat',       color: '#0891b2' },
-    { label: t('meetings'),       icon: '📅', path: '/teacher/meetings',   color: '#7c3aed' },
+    { label: t('markAttendance'), path: '/teacher/attendance', color: '#10b981' },
+    { label: t('addGrade'),       path: '/teacher/grades',     color: '#4f46e5' },
+    { label: t('assignHomework'), path: '/teacher/homework',   color: '#f59e0b' },
+    { label: t('aiRiskMonitor'),  path: '/teacher/risk',       color: '#ef4444' },
+    { label: t('chat'),           path: '/teacher/chat',       color: '#0891b2' },
+    { label: t('meetings'),       path: '/teacher/meetings',   color: '#7c3aed' },
   ];
 
   const linkedParents = students.filter(s => s.parent).length;
@@ -82,24 +82,24 @@ const TeacherDashboard = () => {
     <AppLayout>
       <div style={styles.welcome}>
         <div>
-          <h2 style={styles.welcomeTitle}>Good {greeting}, {user?.name?.split(' ')[0]}! 👋</h2>
+          <h2 style={styles.welcomeTitle}>Good {greeting}, {user?.name?.split(' ')[0]}</h2>
           <p style={styles.welcomeSub}>Here's what's happening in your class today.</p>
         </div>
         {pendingMeetings.length > 0 && (
           <div style={styles.alert}>
-            📅 <strong>{pendingMeetings.length}</strong> {t('pendingMeetings')}
+            <strong>{pendingMeetings.length}</strong> {t('pendingMeetings')}
             <Link to="/teacher/meetings" style={{ color: '#4f46e5', marginLeft: 8, fontWeight: 600 }}>{t('view')} →</Link>
           </div>
         )}
       </div>
 
       <div style={styles.statsRow}>
-        <StatCard title={t('students')} value={students.length} icon="🎓" color="blue" subtitle={`${linkedParents} ${t('parents')} linked`} />
-        <StatCard title={t('pendingMeetings')} value={pendingMeetings.length} icon="📅" color="yellow" subtitle="Awaiting confirmation" />
-        <StatCard title={t('homework')} value={homeworkDueToday} icon="📚" color="red" subtitle={t('dueToday')} />
+        <StatCard title={t('students')} value={students.length} color="blue" subtitle={`${linkedParents} ${t('parents')} linked`} />
+        <StatCard title={t('pendingMeetings')} value={pendingMeetings.length} color="yellow" subtitle="Awaiting confirmation" />
+        <StatCard title={t('homework')} value={homeworkDueToday} color="red" subtitle={t('dueToday')} />
         <StatCard title={t('todayAttendance')}
           value={todayAttendance ? `${todayAttendance.present}/${todayAttendance.total}` : t('markAttendance')}
-          icon="✅" color={todayAttendance && todayAttendance.absent > 0 ? 'red' : 'green'}
+          color={todayAttendance && todayAttendance.absent > 0 ? 'red' : 'green'}
           subtitle={todayAttendance ? `${todayAttendance.absent} ${t('absent')}, ${todayAttendance.late} ${t('late')}` : t('markAttendance')} />
       </div>
 
@@ -109,8 +109,7 @@ const TeacherDashboard = () => {
           <div style={styles.quickGrid}>
             {quickLinks.map(q => (
               <Link key={q.label} to={q.path} style={{ ...styles.quickBtn, borderColor: q.color }}>
-                <span style={{ fontSize: '1.6rem' }}>{q.icon}</span>
-                <span style={{ fontSize: '0.82rem', fontWeight: 600, color: '#374151' }}>{q.label}</span>
+                <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#374151' }}>{q.label}</span>
               </Link>
             ))}
           </div>
@@ -120,7 +119,6 @@ const TeacherDashboard = () => {
           <h3 style={styles.cardTitle}>{t('students')}</h3>
           {students.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '40px 0', color: '#9ca3af' }}>
-              <div style={{ fontSize: '2.5rem', marginBottom: 8 }}>👨🎓</div>
               <p style={{ fontWeight: 600, color: '#374151', margin: '0 0 4px' }}>{t('noData')}</p>
               <p style={{ fontSize: '0.8rem', margin: 0 }}>Ask your admin to assign students to your account.</p>
             </div>
