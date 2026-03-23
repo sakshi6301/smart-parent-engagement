@@ -1,4 +1,0 @@
-ManageStudents: ['0x2715']
-ManageTeachers: CLEAN
-HomeworkTracker: CLEAN
-ParentChat: CLEAN
