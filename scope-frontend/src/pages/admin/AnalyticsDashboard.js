@@ -11,9 +11,8 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, PointElemen
 
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
-const StatBox = ({ label, value, icon, color }) => (
+const StatBox = ({ label, value, color }) => (
   <div style={{ ...S.statBox, borderTop: `4px solid ${color}` }}>
-    <div style={{ fontSize: '1.8rem' }}>{icon}</div>
     <div style={{ fontSize: '1.8rem', fontWeight: 800, color }}>{value}</div>
     <div style={{ fontSize: '0.78rem', color: '#6b7280', marginTop: 2 }}>{label}</div>
   </div>
@@ -36,7 +35,6 @@ const AnalyticsDashboard = () => {
   if (loading) return <AppLayout><div style={S.center}>Loading analytics...</div></AppLayout>;
   if (error)   return <AppLayout><div style={S.errorBox}>{error} <button onClick={load} style={S.retryBtn}>Retry</button></div></AppLayout>;
 
-  // ── derived data ──
   const attMap = {};
   (stats.todayAttendance || []).forEach(a => { attMap[a._id] = a.count; });
   const totalToday = (attMap.present || 0) + (attMap.absent || 0) + (attMap.late || 0);
@@ -49,7 +47,6 @@ const AnalyticsDashboard = () => {
     ? Math.round(((stats.totalStudents - stats.unlinkedParent) / stats.totalStudents) * 100)
     : 0;
 
-  // ── chart data ──
   const gradeChart = {
     labels: stats.gradeStats?.map(g => g._id) || [],
     datasets: [{
@@ -97,30 +94,28 @@ const AnalyticsDashboard = () => {
           <h2 style={S.title}>Analytics Dashboard</h2>
           <p style={S.sub}>School-wide performance and engagement overview</p>
         </div>
-        <button onClick={load} style={S.refreshBtn}>🔄 Refresh</button>
+        <button onClick={load} style={S.refreshBtn}>Refresh</button>
       </div>
 
-      {/* ── Overview Stats ── */}
       <div style={S.statRow}>
-        <StatBox label="Total Students"   value={stats.totalStudents}  icon="🎓" color="#4f46e5" />
-        <StatBox label="Teachers"         value={stats.totalTeachers}  icon="👨🏫" color="#0891b2" />
-        <StatBox label="Parents"          value={stats.totalParents}   icon="👨‍👩‍👧" color="#059669" />
-        <StatBox label="Today Attendance" value={totalToday ? `${attPct}%` : 'N/A'} icon="✅" color={attPct < 75 && totalToday ? '#ef4444' : '#10b981'} />
-        <StatBox label="Parent Linked"    value={`${linkedPct}%`}      icon="🔗" color="#7c3aed" />
-        <StatBox label="Unlinked Students" value={stats.unlinkedParent} icon="⚠️" color="#f59e0b" />
+        <StatBox label="Total Students"   value={stats.totalStudents}  color="#4f46e5" />
+        <StatBox label="Teachers"         value={stats.totalTeachers}  color="#0891b2" />
+        <StatBox label="Parents"          value={stats.totalParents}   color="#059669" />
+        <StatBox label="Today Attendance" value={totalToday ? `${attPct}%` : 'N/A'} color={attPct < 75 && totalToday ? '#ef4444' : '#10b981'} />
+        <StatBox label="Parent Linked"    value={`${linkedPct}%`}      color="#7c3aed" />
+        <StatBox label="Unlinked Students" value={stats.unlinkedParent} color="#f59e0b" />
       </div>
 
-      {/* ── Row 1: Subject Performance + Attendance Doughnut ── */}
       <div style={S.row}>
         <div style={{ ...S.card, flex: 2 }}>
-          <p style={S.cardTitle}>📊 Subject-wise Average Performance</p>
+          <p style={S.cardTitle}>Subject-wise Average Performance</p>
           <p style={S.cardSub}>Average score % per subject across all students</p>
           {stats.gradeStats?.length
             ? <Bar data={gradeChart} options={chartOpts(100)} />
             : <div style={S.empty}>No grade data yet.</div>}
         </div>
         <div style={{ ...S.card, flex: 1, minWidth: 220 }}>
-          <p style={S.cardTitle}>✅ Today's Attendance</p>
+          <p style={S.cardTitle}>Today's Attendance</p>
           <p style={S.cardSub}>{totalToday ? `${totalToday} students marked` : 'Not marked yet'}</p>
           {totalToday
             ? <Doughnut data={attChart} options={doughnutOpts} />
@@ -135,17 +130,16 @@ const AnalyticsDashboard = () => {
         </div>
       </div>
 
-      {/* ── Row 2: Monthly Trend + Class Distribution ── */}
       <div style={S.row}>
         <div style={{ ...S.card, flex: 2 }}>
-          <p style={S.cardTitle}>📈 Monthly Attendance Trend</p>
+          <p style={S.cardTitle}>Monthly Attendance Trend</p>
           <p style={S.cardSub}>Present count over last 6 months</p>
           {stats.monthlyAttendance?.length
             ? <Line data={trendChart} options={chartOpts()} />
             : <div style={S.empty}>No attendance history yet.</div>}
         </div>
         <div style={{ ...S.card, flex: 1, minWidth: 220 }}>
-          <p style={S.cardTitle}>🏫 Class-wise Students</p>
+          <p style={S.cardTitle}>Class-wise Students</p>
           <p style={S.cardSub}>Student count per class</p>
           {stats.classStats?.length
             ? <Bar data={classChart} options={chartOpts()} />
@@ -153,16 +147,15 @@ const AnalyticsDashboard = () => {
         </div>
       </div>
 
-      {/* ── Row 3: Gender + Link Status ── */}
       <div style={S.row}>
         <div style={{ ...S.card, flex: 1, minWidth: 220 }}>
-          <p style={S.cardTitle}>👥 Gender Distribution</p>
+          <p style={S.cardTitle}>Gender Distribution</p>
           <p style={S.cardSub}>Across all active students</p>
           <Doughnut data={genderChart} options={doughnutOpts} />
         </div>
 
         <div style={{ ...S.card, flex: 1, minWidth: 220 }}>
-          <p style={S.cardTitle}>🔗 Parent Link Status</p>
+          <p style={S.cardTitle}>Parent Link Status</p>
           <p style={S.cardSub}>How many students have parents linked</p>
           <div style={S.progressSection}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
@@ -190,7 +183,7 @@ const AnalyticsDashboard = () => {
         </div>
 
         <div style={{ ...S.card, flex: 2 }}>
-          <p style={S.cardTitle}>🎓 Recently Added Students</p>
+          <p style={S.cardTitle}>Recently Added Students</p>
           <p style={S.cardSub}>Last 5 enrolled students</p>
           {stats.recentStudents?.length ? (
             <table style={S.table}>
@@ -212,7 +205,7 @@ const AnalyticsDashboard = () => {
                       </div>
                     </td>
                     <td style={S.td}>{st.class}-{st.section}</td>
-                    <td style={S.td}>{st.parent?.name || <span style={{ color: '#f59e0b' }}>⚠ None</span>}</td>
+                    <td style={S.td}>{st.parent?.name || <span style={{ color: '#f59e0b' }}>None</span>}</td>
                     <td style={S.td}>{st.teacher?.name || <span style={{ color: '#d1d5db' }}>—</span>}</td>
                     <td style={S.td}>{new Date(st.createdAt).toLocaleDateString('en-IN')}</td>
                   </tr>

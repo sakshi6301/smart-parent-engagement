@@ -104,7 +104,6 @@ const LinkManagement = () => {
 
   return (
     <AppLayout>
-      {/* Header */}
       <div style={s.header}>
         <div>
           <h2 style={s.title}>Link Management</h2>
@@ -120,9 +119,7 @@ const LinkManagement = () => {
         </div>
       </div>
 
-      {/* Info box */}
       <div style={s.infoBox}>
-        <span style={{ fontSize: '1rem' }}>💡</span>
         <span style={{ fontSize: '0.82rem', color: '#1e40af' }}>
           <strong>CSV Import</strong> links everything automatically (recommended).
           {' · '}<strong>Auto-Link</strong> fixes manually added students by matching father/mother email then name.
@@ -131,7 +128,6 @@ const LinkManagement = () => {
         </span>
       </div>
 
-      {/* Auto-link result banner */}
       {autoResult && (
         <div style={{ ...s.banner, ...(autoResult.error ? s.bannerRed : s.bannerGreen) }}>
           {autoResult.error ? (
@@ -165,24 +161,23 @@ const LinkManagement = () => {
         </div>
       )}
 
-      {/* Summary cards */}
       <div style={s.summaryRow}>
         <div style={s.card('#fef3c7', '#f59e0b', '#92400e')}>
-          <div style={{ fontSize: '1.8rem' }}>⚠️</div>
+          <div style={{ fontSize: '1.1rem', fontWeight: 700 }}>!</div>
           <div>
             <div style={{ fontSize: '1.5rem', fontWeight: 800 }}>{unlinkedCount}</div>
             <div style={{ fontSize: '0.78rem' }}>No parent linked</div>
           </div>
         </div>
         <div style={s.card('#fce7f3', '#ec4899', '#831843')}>
-          <div style={{ fontSize: '1.8rem' }}>👨‍🏫</div>
+          <div style={{ fontSize: '1.1rem', fontWeight: 700 }}>T</div>
           <div>
             <div style={{ fontSize: '1.5rem', fontWeight: 800 }}>{noTeacherCount}</div>
             <div style={{ fontSize: '0.78rem' }}>No teacher assigned</div>
           </div>
         </div>
         <div style={s.card('#d1fae5', '#10b981', '#065f46')}>
-          <div style={{ fontSize: '1.8rem' }}>✅</div>
+          <div style={{ fontSize: '1.1rem', fontWeight: 700 }}>&#10003;</div>
           <div>
             <div style={{ fontSize: '1.5rem', fontWeight: 800 }}>{students.length - unlinkedCount}</div>
             <div style={{ fontSize: '0.78rem' }}>Parent linked</div>
@@ -200,7 +195,6 @@ const LinkManagement = () => {
         </div>
       </div>
 
-      {/* Filters */}
       <div style={s.filterRow}>
         <div style={s.tabs}>
           {[
@@ -225,7 +219,6 @@ const LinkManagement = () => {
         </div>
       </div>
 
-      {/* Table */}
       {loading ? (
         <div style={s.loading}>Loading...</div>
       ) : displayed.length === 0 ? (
@@ -274,8 +267,8 @@ const LinkManagement = () => {
                             <option key={p._id} value={p._id}>{p.name} · {p.phone || p.email}</option>
                           ))}
                         </select>
-                        {savingParent  && <span>⏳</span>}
-                        {st.parent && !savingParent && <span>✅</span>}
+                        {savingParent  && <span style={{ fontSize: '0.78rem', color: '#9ca3af' }}>...</span>}
+                        {st.parent && !savingParent && <span style={{ color: '#10b981', fontWeight: 700 }}>&#10003;</span>}
                       </div>
                     </td>
                     <td style={s.td}>
@@ -291,8 +284,8 @@ const LinkManagement = () => {
                             <option key={t._id} value={t._id}>{t.name}</option>
                           ))}
                         </select>
-                        {savingTeacher  && <span>⏳</span>}
-                        {st.teacher && !savingTeacher && <span>✅</span>}
+                        {savingTeacher  && <span style={{ fontSize: '0.78rem', color: '#9ca3af' }}>...</span>}
+                        {st.teacher && !savingTeacher && <span style={{ color: '#10b981', fontWeight: 700 }}>&#10003;</span>}
                       </div>
                     </td>
                     <td style={s.td}>
@@ -314,7 +307,6 @@ const LinkManagement = () => {
         </div>
       )}
 
-      {/* Bulk Assign Teacher Modal */}
       {showBulkModal && (
         <Modal title="Bulk Assign Teacher to Class" onClose={() => setShowBulkModal(false)} width={440}>
           <form onSubmit={handleBulkAssign} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>

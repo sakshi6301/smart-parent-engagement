@@ -75,11 +75,11 @@ const BulkImport = () => {
         {/* Header */}
         <div style={s.header}>
           <div>
-            <h2 style={s.title}>📥 Bulk Import Data</h2>
+            <h2 style={s.title}>Bulk Import Data</h2>
             <p style={s.subtitle}>Upload a CSV or Excel file to import students, parents, and teachers at once.</p>
           </div>
           <button onClick={handleTemplate} style={s.templateBtn}>
-            ⬇️ Download Template
+            Download Template
           </button>
         </div>
 
@@ -107,27 +107,27 @@ const BulkImport = () => {
           />
           {file ? (
             <>
-              <span style={s.fileIcon}>📄</span>
+              <span style={s.fileIcon}>&#9654;</span>
               <p style={s.fileName}>{file.name}</p>
               <p style={s.fileSize}>{(file.size / 1024).toFixed(1)} KB — click to change</p>
             </>
           ) : (
             <>
-              <span style={s.fileIcon}>☁️</span>
+              <span style={s.fileIcon}>&#8679;</span>
               <p style={s.dropText}>Drag & drop your file here, or <span style={s.browse}>browse</span></p>
               <p style={s.dropSub}>Supports .csv and .xlsx — max 5 MB</p>
             </>
           )}
         </div>
 
-        {error && <div style={s.errorBanner}>⚠️ {error}</div>}
+        {error && <div style={s.errorBanner}>{error}</div>}
 
         <button
           onClick={handleSubmit}
           disabled={!file || loading}
           style={{ ...s.uploadBtn, opacity: (!file || loading) ? 0.5 : 1 }}
         >
-          {loading ? '⏳ Processing...' : '🚀 Upload & Import'}
+          {loading ? 'Processing...' : 'Upload & Import'}
         </button>
 
         {/* Results */}
@@ -143,11 +143,11 @@ const BulkImport = () => {
               </div>
               <div style={{ ...s.statBox, borderColor: '#10b981' }}>
                 <span style={{ ...s.statNum, color: '#10b981' }}>{result.inserted}</span>
-                <span style={s.statLabel}>✅ Inserted</span>
+                <span style={s.statLabel}>Inserted</span>
               </div>
               <div style={{ ...s.statBox, borderColor: '#f59e0b' }}>
                 <span style={{ ...s.statNum, color: '#f59e0b' }}>{result.skipped}</span>
-                <span style={s.statLabel}>⚠️ Skipped</span>
+                <span style={s.statLabel}>Skipped</span>
               </div>
               <div style={{ ...s.statBox, borderColor: '#e5e7eb' }}>
                 <span style={{ ...s.statNum, color: '#6366f1' }}>{successRate}%</span>
@@ -164,7 +164,7 @@ const BulkImport = () => {
             {result.errors?.length > 0 && (
               <div style={s.errorReport}>
                 <div style={s.errorReportHeader}>
-                  ❌ {result.errors.length} issue{result.errors.length > 1 ? 's' : ''} found
+                  {result.errors.length} issue{result.errors.length > 1 ? 's' : ''} found
                   <button
                     style={s.downloadErrBtn}
                     onClick={() => {
@@ -175,7 +175,7 @@ const BulkImport = () => {
                       a.click();
                     }}
                   >
-                    ⬇️ Download Error Report
+                    Download Error Report
                   </button>
                 </div>
                 <ul style={s.errorList}>

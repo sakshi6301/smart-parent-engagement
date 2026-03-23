@@ -28,6 +28,8 @@ const AIModelManager = () => {
   const [riskSearch, setRiskSearch] = useState('');
 
   const showMsg = (text) => { setMsg(text); setTimeout(() => setMsg(''), 5000); };
+  const isOk = msg.startsWith('OK:');
+  const msgText = msg.startsWith('OK:') || msg.startsWith('ERR:') ? msg.slice(3) : msg;
 
   const fetchInfo = () => {
     setInfoLoading(true);
@@ -46,7 +48,7 @@ const AIModelManager = () => {
       setRisks(data);
       setRiskLoaded(true);
     } catch {
-      showMsg('❌ Failed to load risk data.');
+      showMsg('ERR:Failed to load risk data.');
     }
     setRiskLoading(false);
   };
@@ -61,12 +63,12 @@ const AIModelManager = () => {
       const res = await fetch(`${AI_URL}/train/upload`, { method: 'POST', body: fd });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Upload failed');
-      showMsg(`✅ ${data.message}`);
+      showMsg(`OK:${data.message}`);
       setFile(null);
       fileRef.current.value = '';
       fetchInfo();
     } catch (err) {
-      showMsg(`❌ ${err.message}`);
+      showMsg(`ERR:${err.message}`);
     }
     setUploading(false);
   };
@@ -77,16 +79,16 @@ const AIModelManager = () => {
     try {
       const res = await fetch(`${AI_URL}/train`, { method: 'POST' });
       const data = await res.json();
-      showMsg(`✅ ${data.message} — Accuracy: ${data.accuracy}%`);
+      showMsg(`OK:${data.message} — Accuracy: ${data.accuracy}%`);
       fetchInfo();
     } catch {
-      showMsg('❌ Retraining failed');
+      showMsg('ERR:Retraining failed');
     }
     setRetraining(false);
   };
 
   const sourceColor = info?.source === 'real' ? '#10b981' : info?.source === 'synthetic' ? '#f59e0b' : '#9ca3af';
-  const sourceLabel = info?.source === 'real' ? '✅ Real Data' : info?.source === 'synthetic' ? '⚠️ Synthetic' : '—';
+  const sourceLabel = info?.source === 'real' ? 'Real Data' : info?.source === 'synthetic' ? 'Synthetic' : '—';
 
   const highCount   = risks.filter(r => r.risk_level === 'high').length;
   const mediumCount = risks.filter(r => r.risk_level === 'medium').length;
@@ -104,25 +106,25 @@ const AIModelManager = () => {
     <AppLayout>
       <div style={s.header}>
         <div>
-          <h2 style={s.title}>🤖 AI Risk Monitor</h2>
+          <h2 style={s.title}>AI Risk Monitor</h2>
           <p style={s.sub}>Live student risk predictions · Model management</p>
         </div>
       </div>
 
       {msg && (
-        <div style={{ ...s.msg, background: msg.startsWith('✅') ? '#f0fdf4' : '#fef2f2', color: msg.startsWith('✅') ? '#15803d' : '#b91c1c', borderColor: msg.startsWith('✅') ? '#bbf7d0' : '#fecaca' }}>
-          {msg}
+        <div style={{ ...s.msg, background: isOk ? '#f0fdf4' : '#fef2f2', color: isOk ? '#15803d' : '#b91c1c', borderColor: isOk ? '#bbf7d0' : '#fecaca' }}>
+          {msgText}
         </div>
       )}
 
       {/* ── Model Status ── */}
       <div style={s.row}>
         <div style={{ ...s.card, flex: 1 }}>
-          <p style={s.cardTitle}>📊 Model Status</p>
+          <p style={s.cardTitle}>Model Status</p>
           {infoLoading ? (
             <p style={{ color: '#9ca3af', fontSize: '0.85rem' }}>Loading...</p>
           ) : !info ? (
-            <p style={{ color: '#ef4444', fontSize: '0.85rem' }}>⚠️ AI service not reachable on port 8000.</p>
+            <p style={{ color: '#ef4444', fontSize: '0.85rem' }}>AI service not reachable on port 8000.</p>
           ) : (
             <div style={s.statGrid}>
               <div style={s.statBox}>
@@ -140,21 +142,21 @@ const AIModelManager = () => {
             </div>
           )}
           {info?.source === 'synthetic' && (
-            <div style={s.warning}>⚠️ Trained on synthetic data. Upload real data below to improve accuracy.</div>
+            <div style={s.warning}>Trained on synthetic data. Upload real data below to improve accuracy.</div>
           )}
         </div>
 
         {/* Upload CSV */}
         <div style={{ ...s.card, flex: 2 }}>
-          <p style={s.cardTitle}>📥 Upload Real Data to Retrain</p>
+          <p style={s.cardTitle}>Upload Real Data to Retrain</p>
           <p style={s.cardSub}>CSV columns: <code style={s.code}>attendance_pct, avg_grade, hw_completion_rate, risk</code> — min 20 rows</p>
           <form onSubmit={handleUpload} style={{ marginTop: 12, display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
             <input ref={fileRef} type="file" accept=".csv" onChange={e => setFile(e.target.files[0])} style={s.fileInput} />
             <button type="submit" disabled={!file || uploading} style={{ ...s.btn, background: '#4f46e5', opacity: (!file || uploading) ? 0.6 : 1 }}>
-              {uploading ? '⏳ Training...' : '🚀 Upload & Retrain'}
+              {uploading ? 'Training...' : 'Upload & Retrain'}
             </button>
             <button type="button" onClick={handleRetrain} disabled={retraining} style={{ ...s.btn, background: '#f59e0b' }}>
-              {retraining ? '⏳ Retraining...' : '🔄 Reset to Synthetic'}
+              {retraining ? 'Retraining...' : 'Reset to Synthetic'}
             </button>
           </form>
         </div>
@@ -164,11 +166,11 @@ const AIModelManager = () => {
       <div style={s.card}>
         <div style={s.cardHeader}>
           <div>
-            <p style={s.cardTitle}>🎯 Live Student Risk Analysis</p>
+            <p style={s.cardTitle}>Live Student Risk Analysis</p>
             <p style={s.cardSub}>AI-predicted risk based on attendance, grades and homework completion</p>
           </div>
           <button onClick={fetchRisks} disabled={riskLoading} style={{ ...s.btn, background: '#4f46e5' }}>
-            {riskLoading ? '⏳ Analysing...' : riskLoaded ? '🔄 Refresh' : '▶ Run Analysis'}
+            {riskLoading ? 'Analysing...' : riskLoaded ? 'Refresh' : 'Run Analysis'}
           </button>
         </div>
 
@@ -178,9 +180,9 @@ const AIModelManager = () => {
             <div style={s.summaryRow}>
               {[
                 { key: 'all',    label: `All (${risks.length})`,       color: '#6b7280', bg: '#f3f4f6' },
-                { key: 'high',   label: `🔴 High (${highCount})`,      color: '#b91c1c', bg: '#fef2f2' },
-                { key: 'medium', label: `🟡 Medium (${mediumCount})`,  color: '#92400e', bg: '#fffbeb' },
-                { key: 'low',    label: `🟢 Low (${lowCount})`,        color: '#15803d', bg: '#f0fdf4' },
+                { key: 'high',   label: `High (${highCount})`,    color: '#b91c1c', bg: '#fef2f2' },
+                { key: 'medium', label: `Medium (${mediumCount})`, color: '#92400e', bg: '#fffbeb' },
+                { key: 'low',    label: `Low (${lowCount})`,       color: '#15803d', bg: '#f0fdf4' },
               ].map(f => (
                 <button key={f.key} onClick={() => setRiskFilter(f.key)}
                   style={{ ...s.chip, background: riskFilter === f.key ? f.bg : '#fff', color: f.color, borderColor: riskFilter === f.key ? f.color : '#e5e7eb', fontWeight: riskFilter === f.key ? 700 : 500 }}>
@@ -188,7 +190,7 @@ const AIModelManager = () => {
                 </button>
               ))}
               <input
-                placeholder="🔍 Search student..."
+                placeholder="Search student..."
                 value={riskSearch}
                 onChange={e => setRiskSearch(e.target.value)}
                 style={s.searchInput}
@@ -243,7 +245,7 @@ const AIModelManager = () => {
           <div style={s.empty}>Click "Run Analysis" to predict risk levels for all students using the AI model.</div>
         )}
         {riskLoading && (
-          <div style={s.empty}>⏳ Running predictions for all students... this may take a few seconds.</div>
+          <div style={s.empty}>Running predictions for all students... this may take a few seconds.</div>
         )}
       </div>
     </AppLayout>

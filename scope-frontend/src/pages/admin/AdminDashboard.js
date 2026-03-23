@@ -68,7 +68,6 @@ const AdminDashboard = () => {
   if (error) return (
     <AppLayout>
       <div style={s.errorBox}>
-        <span style={s.errorBox}>
         <div>
           <p style={{ fontWeight: 700, margin: 0 }}>Dashboard Error</p>
           <p style={{ margin: '4px 0 12px', fontSize: '0.88rem' }}>{error}</p>
