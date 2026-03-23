@@ -66,7 +66,7 @@ const ParentChat = () => {
   if (!student || !teacher) return (
     <AppLayout>
       <div style={S.empty}>
-        <span style={{ fontSize: '3rem' }}>👨🏫</span>
+        <span style={{ fontSize: '3rem' }}>T</span>
         <h3 style={{ color: '#111827' }}>No teacher assigned yet</h3>
         <p style={{ color: '#9ca3af' }}>Your child's teacher hasn't been assigned. Please contact the school admin.</p>
       </div>
@@ -81,7 +81,7 @@ const ParentChat = () => {
           <div style={{ flex: 1 }}>
             <div style={S.headerName}>{teacher.name || 'Class Teacher'}</div>
             <div style={S.headerSub}>
-              👨🏫 Class Teacher · {student.name} · Class {student.class}-{student.section}
+              Class Teacher · {student.name} · Class {student.class}-{student.section}
             </div>
           </div>
           <div style={S.onlineDot} title="Connected" />
@@ -90,7 +90,7 @@ const ParentChat = () => {
         <div style={S.messages}>
           {messages.length === 0 && (
             <div style={S.noMsg}>
-              <span style={{ fontSize: '2.5rem' }}>💬</span>
+              <span style={{ fontSize: '2.5rem' }}>[chat]</span>
               <p style={{ fontWeight: 600 }}>No messages yet</p>
               <p style={{ fontSize: '0.82rem' }}>Start the conversation with {teacher.name || 'the teacher'}!</p>
             </div>
@@ -126,7 +126,7 @@ const ParentChat = () => {
             autoFocus
           />
           <button type="submit" style={{ ...S.sendBtn, opacity: text.trim() ? 1 : 0.5 }} disabled={!text.trim()}>
-            Send ➤
+            Send >
           </button>
         </form>
       </div>

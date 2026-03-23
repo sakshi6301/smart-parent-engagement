@@ -46,12 +46,12 @@ const ManageTeachers = () => {
     setMsg('');
     try {
       await api.post('/auth/admin/create-user', { ...form, role: 'teacher' });
-      setMsg('✅ Teacher account created and credentials emailed!');
+      setMsg('OK: Teacher account created and credentials emailed!');
       setShowAddModal(false);
       setForm({ name: '', email: '', password: 'Welcome@123', phone: '' });
       fetchAll();
     } catch (err) {
-      setMsg('❌ ' + (err.response?.data?.message || 'Error creating teacher'));
+      setMsg('ERR: ' + (err.response?.data?.message || 'Error creating teacher'));
     }
     setSaving(false);
   };
@@ -62,11 +62,11 @@ const ManageTeachers = () => {
     try {
       await api.put(`/auth/admin/users/${selectedTeacher._id}`, editForm);
       setTeachers(prev => prev.map(t => t._id === selectedTeacher._id ? { ...t, ...editForm } : t));
-      setMsg('✅ Teacher updated successfully!');
+      setMsg('OK: Teacher updated successfully!');
       setShowEditModal(false);
       setTimeout(() => setMsg(''), 3000);
     } catch (err) {
-      setMsg('❌ ' + (err.response?.data?.message || 'Update failed'));
+      setMsg('ERR: ' + (err.response?.data?.message || 'Update failed'));
     }
     setSaving(false);
   };
@@ -77,10 +77,10 @@ const ManageTeachers = () => {
     setBulkMsg('');
     try {
       const { data } = await api.post('/students/bulk-assign-teacher', bulkForm);
-      setBulkMsg('✅ ' + data.message);
+      setBulkMsg('OK: ' + data.message);
       fetchAll();
     } catch (err) {
-      setBulkMsg('❌ ' + (err.response?.data?.message || 'Failed'));
+      setBulkMsg('ERR: ' + (err.response?.data?.message || 'Failed'));
     }
     setBulkSaving(false);
   };
@@ -89,10 +89,10 @@ const ManageTeachers = () => {
     try {
       await api.put(`/auth/admin/toggle-active/${teacher._id}`);
       setTeachers(prev => prev.map(t => t._id === teacher._id ? { ...t, isActive: !t.isActive } : t));
-      setMsg(`✅ ${teacher.name} ${teacher.isActive ? 'deactivated' : 'activated'}.`);
+      setMsg(`OK: ${teacher.name} ${teacher.isActive ? 'deactivated' : 'activated'}.`);
       setTimeout(() => setMsg(''), 3000);
     } catch {
-      setMsg('❌ Failed to update status.');
+      setMsg('ERR: Failed to update status.');
     }
   };
 
@@ -100,9 +100,9 @@ const ManageTeachers = () => {
     setSending(prev => ({ ...prev, [teacher._id]: true }));
     try {
       const { data } = await api.post(`/auth/admin/send-credentials/${teacher._id}`);
-      setMsg('✅ ' + data.message);
+      setMsg('OK: ' + data.message);
     } catch (err) {
-      setMsg('❌ ' + (err.response?.data?.message || 'Failed to send email'));
+      setMsg('ERR: ' + (err.response?.data?.message || 'Failed to send email'));
     }
     setSending(prev => ({ ...prev, [teacher._id]: false }));
     setTimeout(() => setMsg(''), 4000);
@@ -192,7 +192,7 @@ const ManageTeachers = () => {
         const count = getAssignedStudents(r._id).length;
         return count > 0
           ? <button onClick={() => openStudentsModal(r)} style={s.viewBtn}>
-              🎓 {count} student{count !== 1 ? 's' : ''} →
+              {count} student{count !== 1 ? 's' : ''} →
             </button>
           : <span style={s.noAssign}>— None assigned</span>;
       }
@@ -203,7 +203,7 @@ const ManageTeachers = () => {
       key: 'actions', label: 'Actions',
       render: r => (
         <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
-          <button onClick={() => openEditModal(r)} style={s.editBtn}>✏️ Edit</button>
+          <button onClick={() => openEditModal(r)} style={s.editBtn}>Edit</button>
           <button
             onClick={() => handleToggleActive(r)}
             style={{ ...s.toggleBtn, background: r.isActive ? '#fef2f2' : '#f0fdf4', color: r.isActive ? '#b91c1c' : '#15803d', border: r.isActive ? '1px solid #fecaca' : '1px solid #bbf7d0' }}>
@@ -213,7 +213,7 @@ const ManageTeachers = () => {
             onClick={() => handleSendCredentials(r)}
             disabled={sending[r._id] || r.email?.endsWith('@scope.internal')}
             style={{ ...s.sendBtn, opacity: r.email?.endsWith('@scope.internal') ? 0.4 : 1 }}>
-            {sending[r._id] ? 'Sending...' : '📧 Send Login'}
+            {sending[r._id] ? 'Sending...' : 'Send Login'}
           </button>
         </div>
       )
@@ -234,7 +234,7 @@ const ManageTeachers = () => {
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
           <button style={s.bulkBtn} onClick={() => { setShowBulkModal(true); setBulkMsg(''); setBulkForm({ teacherId: '', class: '', section: '' }); }}>
-            📋 Bulk Assign
+            Bulk Assign
           </button>
           <button style={s.addBtn} onClick={() => { setShowAddModal(true); setMsg(''); }}>+ Add Teacher</button>
         </div>
@@ -255,13 +255,13 @@ const ManageTeachers = () => {
         ))}
       </div>
 
-      {msg && <div style={msg.startsWith('✅') ? s.successBanner : s.errorBanner}>{msg}</div>}
+      {msg && <div style={msg.startsWith('OK:') ? s.successBanner : s.errorBanner}>{msg}</div>}
 
       <div style={s.toolbar}>
-        <input style={s.search} placeholder="🔍  Search by name, email or phone..."
+        <input style={s.search} placeholder="Search by name, email or phone..."
           value={search} onChange={e => setSearch(e.target.value)} />
         <span style={s.count}>{filtered.length} results</span>
-        <button style={s.exportBtn} onClick={exportTeachersCSV}>📥 Export CSV</button>
+        <button style={s.exportBtn} onClick={exportTeachersCSV}>Export CSV</button>
       </div>
 
       {loading
@@ -308,7 +308,7 @@ const ManageTeachers = () => {
             : <>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
                   <span style={{ fontSize: '0.85rem', color: '#6b7280' }}>{assignedStudents.length} student{assignedStudents.length !== 1 ? 's' : ''}</span>
-                  <button style={s.exportBtn} onClick={exportStudentsCSV}>📥 Export CSV</button>
+                  <button style={s.exportBtn} onClick={exportStudentsCSV}>Export CSV</button>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                   {assignedStudents.map(st => (
@@ -319,7 +319,7 @@ const ManageTeachers = () => {
                         <div style={{ fontSize: '0.75rem', color: '#9ca3af' }}>Roll: {st.rollNumber} · Class {st.class}-{st.section}</div>
                       </div>
                       <div style={{ fontSize: '0.78rem', color: '#6b7280' }}>
-                        {st.parent ? `👨‍👩‍👧 ${st.parent.name}` : <span style={{ color: '#f59e0b' }}>No parent</span>}
+                        {st.parent ? st.parent.name : <span style={{ color: '#f59e0b' }}>No parent</span>}
                       </div>
                     </div>
                   ))}
@@ -336,7 +336,7 @@ const ManageTeachers = () => {
             <p style={{ fontSize: '0.85rem', color: '#6b7280', margin: 0 }}>
               Assign one teacher to all students in a specific class and section.
             </p>
-            {bulkMsg && <div style={bulkMsg.startsWith('✅') ? s.successBanner : s.errorBanner}>{bulkMsg}</div>}
+            {bulkMsg && <div style={bulkMsg.startsWith('OK:') ? s.successBanner : s.errorBanner}>{bulkMsg}</div>}
             <div style={s.field}>
               <label style={s.label}>Teacher *</label>
               <select style={s.input} value={bulkForm.teacherId} onChange={e => setBulkForm({ ...bulkForm, teacherId: e.target.value })} required>

@@ -127,7 +127,7 @@ const AIRiskMonitor = () => {
 
       {students.length === 0 && (
         <div style={styles.empty}>
-          <span style={{ fontSize: '3rem' }}>👥</span>
+          <span style={{ fontSize: '3rem' }}>[group]</span>
           <h3>No students assigned</h3>
           <p style={{ color: '#9ca3af' }}>Students will appear here once assigned to you.</p>
         </div>
@@ -180,7 +180,7 @@ const AIRiskMonitor = () => {
               {/* Suggestions */}
               {result?.suggestions?.length > 0 && (
                 <div style={styles.suggestions}>
-                  {result.suggestions.map((sg, i) => <div key={i} style={styles.suggestion}>💡 {sg}</div>)}
+                  {result.suggestions.map((sg, i) => <div key={i} style={styles.suggestion}>{sg}</div>)}
                 </div>
               )}
 

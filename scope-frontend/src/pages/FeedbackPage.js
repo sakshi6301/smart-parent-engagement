@@ -6,18 +6,18 @@ import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
 const emotions = [
-  { key: 'happy', icon: '😊', label: 'Happy' },
-  { key: 'neutral', icon: '😐', label: 'Neutral' },
-  { key: 'sad', icon: '😢', label: 'Sad' },
-  { key: 'stressed', icon: '😰', label: 'Stressed' },
-  { key: 'confused', icon: '😕', label: 'Confused' },
+  { key: 'happy', icon: ':)', label: 'Happy' },
+  { key: 'neutral', icon: ':|', label: 'Neutral' },
+  { key: 'sad', icon: ':(', label: 'Sad' },
+  { key: 'stressed', icon: '>_<', label: 'Stressed' },
+  { key: 'confused', icon: '?', label: 'Confused' },
 ];
 
 const categories = [
-  { key: 'academic_stress', label: 'Academic Stress', icon: '📚' },
-  { key: 'learning_difficulty', label: 'Learning Difficulty', icon: '🧠' },
-  { key: 'school_issue', label: 'School Issue', icon: '🏫' },
-  { key: 'general', label: 'General Feedback', icon: '💬' },
+  { key: 'academic_stress', label: 'Academic Stress', icon: 'A' },
+  { key: 'learning_difficulty', label: 'Learning Difficulty', icon: 'L' },
+  { key: 'school_issue', label: 'School Issue', icon: 'S' },
+  { key: 'general', label: 'General Feedback', icon: 'G' },
 ];
 
 const FeedbackPage = () => {
@@ -74,7 +74,7 @@ const FeedbackPage = () => {
       </div>
 
       <div style={styles.list}>
-        {filtered.length === 0 && <div style={styles.empty}><span style={{ fontSize: '2.5rem' }}>💬</span><p>No feedback found</p></div>}
+        {filtered.length === 0 && <div style={styles.empty}><span style={{ fontSize: '2.5rem' }}>G</span><p>No feedback found</p></div>}
         {filtered.map(f => {
           const cat = categories.find(c => c.key === f.category);
           const emo = emotions.find(e => e.key === f.emotion);
@@ -83,7 +83,7 @@ const FeedbackPage = () => {
             <div key={f._id} style={styles.card}>
               <div style={styles.cardHeader}>
                 <div style={styles.cardLeft}>
-                  <span style={styles.catIcon}>{cat?.icon || '💬'}</span>
+                  <span style={styles.catIcon}>{cat?.icon || 'G'}</span>
                   <div>
                     <div style={styles.catLabel}>{cat?.label || f.category}</div>
                     <div style={styles.submittedBy}>by {f.submittedBy?.name || 'User'} · {new Date(f.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
@@ -99,7 +99,7 @@ const FeedbackPage = () => {
 
               {f.response && (
                 <div style={styles.responseBox}>
-                  <span style={styles.responseLabel}>💬 Teacher Response:</span>
+                  <span style={styles.responseLabel}>G Teacher Response:</span>
                   <p style={styles.responseText}>{f.response}</p>
                 </div>
               )}

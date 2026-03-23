@@ -3,12 +3,12 @@ import AppLayout from '../../components/layout/AppLayout';
 import api from '../../services/api';
 
 const TYPE_CFG = {
-  absence:      { icon: '🚨', color: '#ef4444', bg: '#fef2f2', label: 'Absence Alert' },
-  performance:  { icon: '📊', color: '#f59e0b', bg: '#fffbeb', label: 'Performance' },
-  homework:     { icon: '📚', color: '#4f46e5', bg: '#f5f3ff', label: 'Homework' },
-  exam:         { icon: '📝', color: '#0891b2', bg: '#ecfeff', label: 'Exam' },
-  announcement: { icon: '📢', color: '#059669', bg: '#f0fdf4', label: 'Announcement' },
-  meeting:      { icon: '📅', color: '#7c3aed', bg: '#f5f3ff', label: 'Meeting' },
+  absence:      { icon: '[!]', color: '#ef4444', bg: '#fef2f2', label: 'Absence Alert' },
+  performance:  { icon: '[chart]', color: '#f59e0b', bg: '#fffbeb', label: 'Performance' },
+  homework:     { icon: '[book]', color: '#4f46e5', bg: '#f5f3ff', label: 'Homework' },
+  exam:         { icon: '[note]', color: '#0891b2', bg: '#ecfeff', label: 'Exam' },
+  announcement: { icon: '[ann]', color: '#059669', bg: '#f0fdf4', label: 'Announcement' },
+  meeting:      { icon: '[cal]', color: '#7c3aed', bg: '#f5f3ff', label: 'Meeting' },
 };
 
 const Notifications = () => {
@@ -94,7 +94,7 @@ const Notifications = () => {
 
         {!loading && filtered.length === 0 && (
           <div style={S.empty}>
-            <div style={{ fontSize: '2.5rem', marginBottom: 8 }}>🔔</div>
+            <div style={{ fontSize: '2.5rem', marginBottom: 8 }}>[bell]</div>
             <p style={{ fontWeight: 600, color: '#374151' }}>No notifications</p>
             <p style={{ fontSize: '0.82rem', color: '#9ca3af' }}>
               {showUnreadOnly ? 'No unread notifications.' : 'You\'re all caught up!'}
@@ -103,7 +103,7 @@ const Notifications = () => {
         )}
 
         {filtered.map(n => {
-          const cfg = TYPE_CFG[n.type] || { icon: '📌', color: '#6b7280', bg: '#f3f4f6', label: n.type };
+          const cfg = TYPE_CFG[n.type] || { icon: '[pin]', color: '#6b7280', bg: '#f3f4f6', label: n.type };
           return (
             <div key={n._id}
               onClick={() => !n.isRead && markRead(n._id)}

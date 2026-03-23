@@ -94,9 +94,9 @@ const ManageStudents = () => {
       const { data } = await api.put(`/students/${selectedStudent._id}/link-parent`, { parentId });
       setStudents(prev => prev.map(s => s._id === data._id ? data : s));
       setSelectedStudent(data);
-      setLinkMsg('✅ Parent linked successfully!');
+      setLinkMsg('OK: Parent linked successfully!');
     } catch (err) {
-      setLinkMsg('❌ ' + (err.response?.data?.message || 'Failed to link parent'));
+      setLinkMsg('ERR: ' + (err.response?.data?.message || 'Failed to link parent'));
     }
     setLinking(false);
   };
@@ -108,9 +108,9 @@ const ManageStudents = () => {
       const { data } = await api.put(`/students/${selectedStudent._id}/unlink-parent`);
       setStudents(prev => prev.map(s => s._id === data._id ? data : s));
       setSelectedStudent(data);
-      setLinkMsg('✅ Parent unlinked.');
+      setLinkMsg('OK: Parent unlinked.');
     } catch (err) {
-      setLinkMsg('❌ ' + (err.response?.data?.message || 'Failed'));
+      setLinkMsg('ERR: ' + (err.response?.data?.message || 'Failed'));
     }
     setLinking(false);
   };
@@ -121,9 +121,9 @@ const ManageStudents = () => {
       const { data } = await api.put(`/students/${selectedStudent._id}/assign-teacher`, { teacherId });
       setStudents(prev => prev.map(s => s._id === data._id ? data : s));
       setSelectedStudent(data);
-      setLinkMsg('✅ Teacher assigned successfully!');
+      setLinkMsg('OK: Teacher assigned successfully!');
     } catch (err) {
-      setLinkMsg('❌ ' + (err.response?.data?.message || 'Failed to assign teacher'));
+      setLinkMsg('ERR: ' + (err.response?.data?.message || 'Failed to assign teacher'));
     }
     setLinking(false);
   };
@@ -186,13 +186,13 @@ const ManageStudents = () => {
     {
       key: 'parent', label: 'Parent',
       render: r => r.parent
-        ? <span style={st.linkedChip}>✅ {r.parent.name}</span>
-        : <span style={st.unlinkedChip}>⚠️ Not linked</span>
+        ? <span style={st.linkedChip}>{r.parent.name}</span>
+        : <span style={st.unlinkedChip}>Not linked</span>
     },
     {
       key: 'teacher', label: 'Teacher',
       render: r => r.teacher
-        ? <span style={st.linkedChipBlue}>👨‍🏫 {r.teacher.name}</span>
+        ? <span style={st.linkedChipBlue}>{r.teacher.name}</span>
         : <span style={st.unlinkedChip}>— Not assigned</span>
     },
     { key: 'isActive', label: 'Status', render: r => <Badge label={r.isActive ? 'Active' : 'Inactive'} type={r.isActive ? 'success' : 'danger'} /> },
@@ -201,10 +201,10 @@ const ManageStudents = () => {
       render: r => (
         <div style={{ display: 'flex', gap: 6 }}>
           <button onClick={() => openLinkModal(r, 'parent')} style={st.actionBtn('#4f46e5')}>
-            👨‍👩‍👧 {r.parent ? 'Change' : 'Link'} Parent
+            {r.parent ? 'Change' : 'Link'} Parent
           </button>
           <button onClick={() => openLinkModal(r, 'teacher')} style={st.actionBtn('#0891b2')}>
-            👨‍🏫 {r.teacher ? 'Change' : 'Assign'} Teacher
+            {r.teacher ? 'Change' : 'Assign'} Teacher
           </button>
         </div>
       )
@@ -219,13 +219,13 @@ const ManageStudents = () => {
           <p style={st.sub}>{students.length} students enrolled · {students.filter(s => !s.parent).length} without parent link</p>
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
-          <button style={st.importBtn} onClick={() => { setShowImportModal(true); resetImport(); }}>📂 Import CSV</button>
+          <button style={st.importBtn} onClick={() => { setShowImportModal(true); resetImport(); }}>Import CSV</button>
           <button style={st.addBtn} onClick={() => setShowAddModal(true)}>+ Add Student</button>
         </div>
       </div>
 
       <div style={st.toolbar}>
-        <input style={st.search} placeholder="🔍  Search by name, roll number or class..."
+        <input style={st.search} placeholder="Search by name, roll number or class..."
           value={search} onChange={e => setSearch(e.target.value)} />
         <span style={st.count}>{filtered.length} results</span>
       </div>
@@ -238,7 +238,7 @@ const ManageStudents = () => {
           <div>
             {/* Tabs */}
             <div style={st.tabs}>
-              {[['parent', '👨‍👩‍👧 Link Parent'], ['teacher', '👨‍🏫 Assign Teacher']].map(([tab, label]) => (
+              {[['parent', 'Link Parent'], ['teacher', 'Assign Teacher']].map(([tab, label]) => (
                 <button key={tab} onClick={() => { setLinkTab(tab); setLinkSearch(''); setLinkMsg(''); }}
                   style={{ ...st.tab, ...(linkTab === tab ? st.tabActive : {}) }}>{label}</button>
               ))}
@@ -266,13 +266,13 @@ const ManageStudents = () => {
             </div>
 
             {linkMsg && (
-              <div style={{ ...st.msgBox, background: linkMsg.startsWith('✅') ? '#f0fdf4' : '#fef2f2', color: linkMsg.startsWith('✅') ? '#15803d' : '#b91c1c', borderColor: linkMsg.startsWith('✅') ? '#bbf7d0' : '#fecaca' }}>
+              <div style={{ ...st.msgBox, background: linkMsg.startsWith('OK:') ? '#f0fdf4' : '#fef2f2', color: linkMsg.startsWith('OK:') ? '#15803d' : '#b91c1c', borderColor: linkMsg.startsWith('OK:') ? '#bbf7d0' : '#fecaca' }}>
                 {linkMsg}
               </div>
             )}
 
             <input style={{ ...st.search, marginBottom: 10 }}
-              placeholder={`🔍 Search ${linkTab === 'parent' ? 'parents' : 'teachers'}...`}
+              placeholder={`Search ${linkTab === 'parent' ? 'parents' : 'teachers'}...`}
               value={linkSearch} onChange={e => setLinkSearch(e.target.value)} />
 
             <div style={st.listBox}>
@@ -411,7 +411,7 @@ const ManageStudents = () => {
         <Modal title="Import Students from CSV" onClose={() => setShowImportModal(false)} width={580}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <div style={st.infoBox}>
-              <p style={{ fontSize: '0.85rem', fontWeight: 600, color: '#4f46e5', marginBottom: 6 }}>📋 Required: name, rollNumber, class, section</p>
+              <p style={{ fontSize: '0.85rem', fontWeight: 600, color: '#4f46e5', marginBottom: 6 }}>Required: name, rollNumber, class, section</p>
               <p style={{ fontSize: '0.78rem', color: '#6b7280', margin: 0 }}>Optional: gender, dateOfBirth, address</p>
             </div>
             {!csvRaw.length && !importResult && (
@@ -422,7 +422,7 @@ const ManageStudents = () => {
                 onDrop={e => { e.preventDefault(); setDragOver(false); handleFile(e.dataTransfer.files[0]); }}
                 onClick={() => fileRef.current.click()}
               >
-                <span style={{ fontSize: '2.5rem' }}>📂</span>
+                <span style={{ fontSize: '2.5rem' }}>[ CSV ]</span>
                 <p style={{ fontWeight: 600, color: '#374151' }}>Drag & drop CSV here or click to browse</p>
                 <input ref={fileRef} type="file" accept=".csv" style={{ display: 'none' }} onChange={e => handleFile(e.target.files[0])} />
               </div>
@@ -430,8 +430,8 @@ const ManageStudents = () => {
             {csvRaw.length > 0 && !importResult && (
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
-                  <span style={{ fontSize: '0.88rem', fontWeight: 600, color: '#059669' }}>✅ {csvRaw.length} students ready</span>
-                  <button onClick={resetImport} style={{ background: 'none', border: 'none', color: '#9ca3af', cursor: 'pointer' }}>✕ Clear</button>
+                  <span style={{ fontSize: '0.88rem', fontWeight: 600, color: '#059669' }}>{csvRaw.length} students ready</span>
+                  <button onClick={resetImport} style={{ background: 'none', border: 'none', color: '#9ca3af', cursor: 'pointer' }}>Clear</button>
                 </div>
                 <div style={{ border: '1px solid #e5e7eb', borderRadius: 8, overflow: 'hidden', marginBottom: 14 }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
@@ -441,17 +441,17 @@ const ManageStudents = () => {
                   {csvRaw.length > 5 && <p style={{ textAlign: 'center', color: '#9ca3af', fontSize: '0.78rem', padding: 8 }}>...and {csvRaw.length - 5} more</p>}
                 </div>
                 <button onClick={handleImport} disabled={importing} style={{ width: '100%', background: '#4f46e5', color: '#fff', border: 'none', padding: 12, borderRadius: 8, fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer' }}>
-                  {importing ? '⏳ Importing...' : `📥 Import ${csvRaw.length} Students`}
+                  {importing ? 'Importing...' : `Import ${csvRaw.length} Students`}
                 </button>
               </div>
             )}
             {importResult && (
               <div style={{ background: importResult.error ? '#fef2f2' : '#f0fdf4', border: `1px solid ${importResult.error ? '#fecaca' : '#bbf7d0'}`, borderRadius: 10, padding: 20, color: importResult.error ? '#dc2626' : '#15803d' }}>
-                {importResult.error ? <p>❌ {importResult.error}</p> : (
+                {importResult.error ? <p>ERR: {importResult.error}</p> : (
                   <>
-                    <p style={{ fontWeight: 700 }}>🎉 Import Complete!</p>
-                    <p>✅ <strong>{importResult.inserted}</strong> students added</p>
-                    {importResult.skipped > 0 && <p>⚠️ <strong>{importResult.skipped}</strong> skipped (duplicates)</p>}
+                    <p style={{ fontWeight: 700 }}>Import Complete!</p>
+                    <p><strong>{importResult.inserted}</strong> students added</p>
+                    {importResult.skipped > 0 && <p><strong>{importResult.skipped}</strong> skipped (duplicates)</p>}
                   </>
                 )}
                 <button onClick={() => setShowImportModal(false)} style={{ background: '#059669', color: '#fff', border: 'none', padding: '9px 20px', borderRadius: 8, fontWeight: 600, cursor: 'pointer', marginTop: 8 }}>Done</button>

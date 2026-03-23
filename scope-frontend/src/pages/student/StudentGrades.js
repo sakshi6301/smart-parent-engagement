@@ -25,7 +25,7 @@ const StudentGrades = () => {
   if (!student) return (
     <AppLayout>
       <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 12, padding: '40px 24px', textAlign: 'center' }}>
-        <div style={{ fontSize: '2.5rem', marginBottom: 8 }}>🎓</div>
+        <div style={{ fontSize: '2.5rem', marginBottom: 8 }}>[grad]</div>
         <p style={{ fontWeight: 700, color: '#92400e', margin: '0 0 4px' }}>Student profile not linked</p>
         <p style={{ fontSize: '0.85rem', color: '#9ca3af', margin: 0 }}>Contact your school admin to link your account.</p>
       </div>

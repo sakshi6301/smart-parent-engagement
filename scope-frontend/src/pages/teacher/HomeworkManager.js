@@ -112,7 +112,7 @@ const HomeworkManager = () => {
 
       {!loading && students.length === 0 && (
         <div style={styles.empty}>
-          <span style={{ fontSize: '3rem' }}>👥</span>
+          <span style={{ fontSize: '3rem' }}>[group]</span>
           <h3>No students assigned</h3>
           <p style={{ color: '#9ca3af' }}>Ask your admin to assign students to your account.</p>
         </div>
@@ -120,7 +120,7 @@ const HomeworkManager = () => {
 
       {!loading && students.length > 0 && homework.length === 0 && (
         <div style={styles.empty}>
-          <span style={{ fontSize: '3rem' }}>📚</span>
+          <span style={{ fontSize: '3rem' }}>[book]</span>
           <h3>No homework assigned yet</h3>
           <p style={{ color: '#9ca3af' }}>Click "+ Assign Homework" to get started</p>
         </div>

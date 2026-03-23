@@ -40,9 +40,9 @@ const HomeworkTracker = () => {
   const getStatus = (hw) => isSubmitted(hw) ? 'submitted' : isOverdue(hw) ? 'overdue' : 'pending';
 
   const STATUS_CFG = {
-    submitted: { color: '#10b981', bg: '#f0fdf4', label: 'Submitted', icon: '✅' },
-    overdue:   { color: '#ef4444', bg: '#fef2f2', label: 'Overdue',   icon: '⚠️' },
-    pending:   { color: '#f59e0b', bg: '#fffbeb', label: 'Pending',   icon: '📌' },
+    submitted: { color: '#10b981', bg: '#f0fdf4', label: 'Submitted', icon: '[done]' },
+    overdue:   { color: '#ef4444', bg: '#fef2f2', label: 'Overdue',   icon: '[!]' },
+    pending:   { color: '#f59e0b', bg: '#fffbeb', label: 'Pending',   icon: '[pending]' },
   };
 
   const filtered = homework.filter(hw => filter === 'all' || getStatus(hw) === filter);
@@ -61,7 +61,7 @@ const HomeworkTracker = () => {
 
       {/* Summary */}
       <div style={S.summaryRow}>
-        {[['all','📚','#4f46e5'],['pending','📌','#f59e0b'],['overdue','⚠️','#ef4444'],['submitted','✅','#10b981']].map(([key, icon, color]) => (
+        {[['all','[all]','#4f46e5'],['pending','[pending]','#f59e0b'],['overdue','[!]','#ef4444'],['submitted','[done]','#10b981']].map(([key, icon, color]) => (
           <div key={key} onClick={() => setFilter(key)}
             style={{ ...S.summaryCard, borderTop: `3px solid ${filter === key ? color : '#e5e7eb'}`, cursor: 'pointer', opacity: filter === key ? 1 : 0.7 }}>
             <span style={{ fontSize: '1.4rem' }}>{icon}</span>
@@ -73,7 +73,7 @@ const HomeworkTracker = () => {
 
       {filtered.length === 0 && (
         <div style={S.empty}>
-          <span style={{ fontSize: '3rem' }}>🎉</span>
+          <span style={{ fontSize: '3rem' }}></span>
           <p style={{ fontWeight: 600, color: '#374151' }}>No homework in this category!</p>
         </div>
       )}
@@ -94,15 +94,15 @@ const HomeworkTracker = () => {
                 <Badge label={cfg.label} type={status === 'submitted' ? 'success' : status === 'overdue' ? 'danger' : 'warning'} />
               </div>
               <div style={S.cardFooter}>
-                <span style={S.metaItem}>📅 Due: <strong>{new Date(hw.dueDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</strong></span>
-                <span style={S.metaItem}>👨🏫 {hw.teacher?.name || 'Teacher'}</span>
+                <span style={S.metaItem}>Due: <strong>{new Date(hw.dueDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</strong></span>
+                <span style={S.metaItem}>{hw.teacher?.name || 'Teacher'}</span>
                 {status === 'pending' && (
                   <span style={{ ...S.metaItem, color: dl <= 1 ? '#ef4444' : '#f59e0b', fontWeight: 600 }}>
-                    {dl <= 0 ? '⚠️ Due today!' : `⏰ ${dl} day${dl > 1 ? 's' : ''} left`}
+                    {dl <= 0 ? '[!] Due today!' : `${dl} day${dl > 1 ? 's' : ''} left`}
                   </span>
                 )}
-                {status === 'overdue' && <span style={{ ...S.metaItem, color: '#ef4444', fontWeight: 600 }}>⚠️ Overdue by {Math.abs(dl)} day{Math.abs(dl) > 1 ? 's' : ''}</span>}
-                {status === 'submitted' && <span style={{ ...S.metaItem, color: '#10b981', fontWeight: 600 }}>✅ Submitted</span>}
+                {status === 'overdue' && <span style={{ ...S.metaItem, color: '#ef4444', fontWeight: 600 }}>[!] Overdue by {Math.abs(dl)} day{Math.abs(dl) > 1 ? 's' : ''}</span>}
+                {status === 'submitted' && <span style={{ ...S.metaItem, color: '#10b981', fontWeight: 600 }}>[done] Submitted</span>}
               </div>
             </div>
           );
