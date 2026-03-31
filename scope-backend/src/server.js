@@ -3,22 +3,25 @@ const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
 const morgan = require('morgan');
 const connectDB = require('./config/db');
 const errorHandler = require('./middleware/errorHandler');
 const { scheduleWeeklyDigest, runWeeklyDigest } = require('./utils/weeklyDigest');
-
 const path = require('path');
 
 connectDB();
 
+const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || 'http://localhost:3000';
+
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server, { cors: { origin: '*' } });
+const io = new Server(server, { cors: { origin: ALLOWED_ORIGIN, credentials: true } });
 
 app.set('io', io);
 
-app.use(cors());
+app.use(cors({ origin: ALLOWED_ORIGIN, credentials: true }));
+app.use(cookieParser());
 app.use(morgan('dev'));
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));

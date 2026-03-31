@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
 
@@ -18,8 +18,11 @@ const pageTitles = {
 const Topbar = ({ collapsed, setCollapsed }) => {
   const { user } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
   const [unread, setUnread] = useState(0);
   const title = pageTitles[location.pathname] || 'SCOPE';
+
+  const notifPath = `/${user?.role}/notifications`;
 
   useEffect(() => {
     api.get('/notifications').then(({ data }) => {
@@ -39,9 +42,9 @@ const Topbar = ({ collapsed, setCollapsed }) => {
         </div>
       </div>
       <div style={styles.right}>
-        <div style={styles.notifWrap}>
-          <span style={styles.notifIcon}>🔔</span>
-          {unread > 0 && <span style={styles.badge}>{unread}</span>}
+        <div style={styles.notifWrap} onClick={() => navigate(notifPath)} title="Notifications">
+          <span style={styles.notifIcon}>&#9679;</span>
+          {unread > 0 && <span style={styles.badge}>{unread > 99 ? '99+' : unread}</span>}
         </div>
         <div style={styles.userChip}>
           <div style={styles.avatar}>{user?.name?.[0]?.toUpperCase()}</div>

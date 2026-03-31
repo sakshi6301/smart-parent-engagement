@@ -9,7 +9,11 @@ const notificationSchema = new mongoose.Schema({
   channels:       [{ type: String, enum: ['push', 'email', 'sms'] }],
   isRead:         { type: Boolean, default: false },
   relatedStudent: { type: mongoose.Schema.Types.ObjectId, ref: 'Student' },
-  broadcastGroup: { type: String }, // 'all_parents' | 'all_teachers' | 'class_X_Y' | null
+  broadcastGroup: { type: String },
+  expiresAt:      { type: Date, default: () => new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) }, // 30 days default
 }, { timestamps: true });
+
+// MongoDB TTL index — auto deletes document when expiresAt is reached
+notificationSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
 module.exports = mongoose.model('Notification', notificationSchema);

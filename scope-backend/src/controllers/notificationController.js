@@ -21,17 +21,25 @@ const dispatch = async (recipient, title, body, channels = [], type = 'announcem
     await sendSMS(recipient.phone, `${title}: ${body}`);
 };
 
+// ── expiry helper ────────────────────────────────────────────────────────────
+// days: 1 | 7 | 15 | 30 | 60 | 90 | 0 (never = 10 years)
+const getExpiresAt = (days) => {
+  if (!days || days === 0) return new Date(Date.now() + 10 * 365 * 24 * 60 * 60 * 1000);
+  return new Date(Date.now() + days * 24 * 60 * 60 * 1000);
+};
+
 // ── single send ───────────────────────────────────────────────────────────────
 
 exports.sendNotification = async (req, res) => {
   try {
-    const { recipientId, title, body, type, channels = ['push'], relatedStudent } = req.body;
+    const { recipientId, title, body, type, channels = ['push'], relatedStudent, expiryDays = 30 } = req.body;
     const recipient = await User.findById(recipientId);
     if (!recipient) return res.status(404).json({ message: 'Recipient not found' });
 
     const notification = await Notification.create({
       recipient: recipientId, sentBy: req.user._id,
       title, body, type, channels,
+      expiresAt: getExpiresAt(expiryDays),
       ...(relatedStudent && { relatedStudent }),
     });
 
@@ -47,7 +55,7 @@ exports.sendNotification = async (req, res) => {
 
 exports.broadcast = async (req, res) => {
   try {
-    const { title, body, type, channels = ['push'], audience } = req.body;
+    const { title, body, type, channels = ['push'], audience, expiryDays = 30 } = req.body;
     if (!title || !body || !type || !audience)
       return res.status(400).json({ message: 'title, body, type, audience required' });
 
@@ -81,6 +89,7 @@ exports.broadcast = async (req, res) => {
     const docs = recipients.map(r => ({
       recipient: r._id, sentBy: req.user._id,
       title, body, type, channels, broadcastGroup: audience,
+      expiresAt: getExpiresAt(expiryDays),
     }));
     await Notification.insertMany(docs);
 
@@ -140,6 +149,58 @@ exports.deleteNotification = async (req, res) => {
   try {
     await Notification.findOneAndDelete({ _id: req.params.id, recipient: req.user._id });
     res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// ── delete all read ───────────────────────────────────────────────────────────
+
+exports.deleteAllRead = async (req, res) => {
+  try {
+    const result = await Notification.deleteMany({ recipient: req.user._id, isRead: true });
+    res.json({ deleted: result.deletedCount });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// ── admin: delete entire broadcast batch ─────────────────────────────────────
+
+exports.deleteBroadcast = async (req, res) => {
+  try {
+    const { broadcastGroup, title, createdAt } = req.body;
+    const start = new Date(createdAt);
+    start.setSeconds(start.getSeconds() - 5);
+    const end = new Date(createdAt);
+    end.setSeconds(end.getSeconds() + 5);
+
+    const result = await Notification.deleteMany({
+      broadcastGroup,
+      title,
+      createdAt: { $gte: start, $lte: end },
+    });
+    res.json({ deleted: result.deletedCount });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// ── admin: update expiry of a broadcast batch ─────────────────────────────────
+
+exports.updateBroadcastExpiry = async (req, res) => {
+  try {
+    const { broadcastGroup, title, createdAt, expiryDays } = req.body;
+    const start = new Date(createdAt);
+    start.setSeconds(start.getSeconds() - 5);
+    const end = new Date(createdAt);
+    end.setSeconds(end.getSeconds() + 5);
+
+    const result = await Notification.updateMany(
+      { broadcastGroup, title, createdAt: { $gte: start, $lte: end } },
+      { expiresAt: getExpiresAt(expiryDays) }
+    );
+    res.json({ updated: result.modifiedCount, expiresAt: getExpiresAt(expiryDays) });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

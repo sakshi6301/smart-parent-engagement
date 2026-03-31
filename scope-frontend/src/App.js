@@ -39,6 +39,7 @@ import ParentChat from './pages/parent/ParentChat';
 import ParentGrades from './pages/parent/ParentGrades';
 import ParentMeetings from './pages/parent/ParentMeetings';
 import Notifications from './pages/parent/Notifications';
+import EngagementScore from './pages/parent/EngagementScore';
 
 // Student
 import StudentDashboard from './pages/student/StudentDashboard';
@@ -88,6 +89,7 @@ const App = () => (
         <Route path="/parent/homework" element={<PR roles={['parent']}><HomeworkTracker /></PR>} />
         <Route path="/parent/chat" element={<PR roles={['parent']}><ParentChat /></PR>} />
         <Route path="/parent/meetings" element={<PR roles={['parent']}><ParentMeetings /></PR>} />
+        <Route path="/parent/engagement" element={<PR roles={['parent']}><EngagementScore /></PR>} />
         <Route path="/parent/notifications" element={<PR roles={['parent']}><Notifications /></PR>} />
 
         {/* Student */}

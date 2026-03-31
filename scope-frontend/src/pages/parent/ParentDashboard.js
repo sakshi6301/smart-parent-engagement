@@ -71,7 +71,9 @@ const ParentDashboard = () => {
       <div style={styles.statsRow}>
         <StatCard title={t('attendance')} value={attendance ? `${attendance.summary.percentage}%` : '—'} color={attendance?.summary.percentage < 75 ? 'red' : 'green'} subtitle={attendance ? `${attendance.summary.present} ${t('present')} / ${attendance.summary.absent} ${t('absent')}` : t('loading')} />
         <StatCard title={t('homework')} value={pendingHW.length} color="yellow" subtitle={t('pending')} />
-        <StatCard title={t('engagement')} value={engagement ? `${engagement.score}/100` : '—'} color="purple" subtitle={engagement ? `Level: ${engagement.level}` : t('loading')} />
+        <Link to="/parent/engagement" style={{ textDecoration: 'none', flex: 1, minWidth: 200 }}>
+          <StatCard title={t('engagement')} value={engagement ? `${engagement.score}/100` : '—'} color="purple" subtitle={engagement ? `Level: ${engagement.level}` : t('loading')} />
+        </Link>
         <StatCard title={t('notifications')} value={notifications.filter(n => !n.isRead).length} color="red" subtitle={t('noNotifications')} />
       </div>
 

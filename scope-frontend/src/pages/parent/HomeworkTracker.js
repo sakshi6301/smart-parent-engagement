@@ -102,7 +102,19 @@ const HomeworkTracker = () => {
                   </span>
                 )}
                 {status === 'overdue' && <span style={{ ...S.metaItem, color: '#ef4444', fontWeight: 600 }}>[!] Overdue by {Math.abs(dl)} day{Math.abs(dl) > 1 ? 's' : ''}</span>}
-                {status === 'submitted' && <span style={{ ...S.metaItem, color: '#10b981', fontWeight: 600 }}>[done] Submitted</span>}
+                {status === 'submitted' && (() => {
+                  const sub = hw.submissions?.find(s => s.student === student._id || s.student?._id === student._id);
+                  return (
+                    <>
+                      <span style={{ ...S.metaItem, color: '#10b981', fontWeight: 600 }}>[done] Submitted</span>
+                      {sub?.fileUrl && (
+                        <a href={`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}${sub.fileUrl}`} target="_blank" rel="noopener noreferrer" style={S.fileLink}>
+                          ↓ View File
+                        </a>
+                      )}
+                    </>
+                  );
+                })()}
               </div>
             </div>
           );
@@ -127,6 +139,7 @@ const S = {
   hwDesc:      { fontSize: '0.85rem', color: '#6b7280', margin: 0 },
   cardFooter:  { display: 'flex', gap: 16, flexWrap: 'wrap', paddingTop: 8, borderTop: '1px solid rgba(0,0,0,0.06)' },
   metaItem:    { fontSize: '0.82rem', color: '#9ca3af' },
+  fileLink:    { fontSize: '0.82rem', color: '#4f46e5', fontWeight: 600, textDecoration: 'none' },
 };
 
 export default HomeworkTracker;

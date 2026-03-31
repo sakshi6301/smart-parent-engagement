@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useTranslation } from 'react-i18next';
+import api from '../../services/api';
 
 const menus = {
   admin: [
@@ -33,6 +34,7 @@ const menus = {
     { path: '/parent/attendance',     key: 'attendance',     icon: '◎' },
     { path: '/parent/grades',         key: 'performance',    icon: '▦' },
     { path: '/parent/homework',       key: 'homework',       icon: '▤' },
+    { path: '/parent/engagement',     key: 'engagement',     icon: '◈' },
     { path: '/parent/chat',           key: 'chatWithTeacher',icon: '◫' },
     { path: '/parent/meetings',       key: 'meetings',       icon: '◷' },
     { path: '/parent/notifications',  key: 'notifications',  icon: '◫' },
@@ -63,8 +65,15 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
   const { user, logout } = useAuth();
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+  const [unread, setUnread] = useState(0);
   const items = menus[user?.role] || [];
   const color = roleColors[user?.role] || '#4f46e5';
+
+  useEffect(() => {
+    api.get('/notifications').then(({ data }) => {
+      setUnread(data.filter(n => !n.isRead).length);
+    }).catch(() => {});
+  }, []);
 
   const handleLogout = () => { logout(); navigate('/login'); };
 
@@ -95,6 +104,9 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
             })}>
             <span style={styles.navIcon}>{item.icon}</span>
             {!collapsed && <span style={styles.navLabel}>{t(item.key)}</span>}
+            {!collapsed && item.key === 'notifications' && unread > 0 && (
+              <span style={styles.unreadBadge}>{unread > 99 ? '99+' : unread}</span>
+            )}
           </NavLink>
         ))}
       </nav>
@@ -133,6 +145,7 @@ const styles = {
   navItem:    { display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', borderRadius: 8, transition: 'background 0.15s', fontSize: '0.85rem', fontWeight: 500, whiteSpace: 'nowrap', textDecoration: 'none' },
   navIcon:    { fontSize: '1rem', flexShrink: 0, width: 20, textAlign: 'center', opacity: 0.85 },
   navLabel:   {},
+  unreadBadge: { marginLeft: 'auto', background: '#ef4444', color: '#fff', fontSize: '0.62rem', fontWeight: 700, borderRadius: 10, padding: '1px 6px', minWidth: 18, textAlign: 'center' },
   bottom:     { padding: '12px 8px', borderTop: '1px solid rgba(255,255,255,0.1)', display: 'flex', flexDirection: 'column', gap: 8 },
   langSelect: { background: 'rgba(255,255,255,0.08)', color: '#c7d2fe', border: '1px solid rgba(255,255,255,0.15)', padding: '8px 10px', borderRadius: 8, fontSize: '0.82rem', width: '100%', outline: 'none' },
   logoutBtn:  { display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(239,68,68,0.12)', color: '#fca5a5', border: 'none', padding: '9px 12px', borderRadius: 8, fontSize: '0.85rem', fontWeight: 500, width: '100%', cursor: 'pointer' },

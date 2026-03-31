@@ -10,6 +10,9 @@ const userSchema = new mongoose.Schema({
   fcmToken: { type: String },
   language: { type: String, enum: ['en', 'hi', 'mr'], default: 'en' },
   isActive: { type: Boolean, default: true },
+  refreshToken: { type: String },
+  passwordResetToken: { type: String },
+  passwordResetExpires: { type: Date },
 }, { timestamps: true });
 
 userSchema.pre('save', async function (next) {

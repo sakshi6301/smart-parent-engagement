@@ -1,9 +1,13 @@
 const router = require('express').Router();
-const { register, login, getProfile, updateFCMToken, adminCreateUser, adminUpdateUser, resendCredentials, toggleActive, resetPassword, sendCredentials, provisionStudentUsers } = require('../controllers/authController');
+const { register, login, getProfile, updateFCMToken, adminCreateUser, adminUpdateUser, resendCredentials, toggleActive, resetPassword, sendCredentials, provisionStudentUsers, forgotPassword, refreshToken, logoutUser } = require('../controllers/authController');
 const { protect, authorize } = require('../middleware/auth');
 
 router.post('/register', register);
 router.post('/login', login);
+router.post('/logout', logoutUser);
+router.post('/refresh-token', refreshToken);
+router.post('/forgot-password', forgotPassword);
+router.post('/reset-password/:token', resetPassword);
 router.get('/profile', protect, getProfile);
 router.put('/fcm-token', protect, updateFCMToken);
 

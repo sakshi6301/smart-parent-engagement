@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import api from '../services/api';
 
 const AuthContext = createContext();
@@ -17,13 +17,25 @@ export const AuthProvider = ({ children }) => {
     return data;
   };
 
-  const logout = () => {
+  const logout = async () => {
+    try { await api.post('/auth/logout'); } catch { /* silent */ }
     localStorage.clear();
     setUser(null);
   };
 
+  const refreshAccessToken = async () => {
+    try {
+      const { data } = await api.post('/auth/refresh-token');
+      localStorage.setItem('token', data.token);
+      return data.token;
+    } catch {
+      logout();
+      return null;
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, logout, loading, refreshAccessToken }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
+import api from '../services/api';
 
 const roleRedirect = { admin: '/admin', teacher: '/teacher', parent: '/parent', student: '/student' };
 
@@ -21,10 +22,27 @@ const CARDS = [
 const Login = () => {
   const { login, loading } = useAuth();
   const navigate = useNavigate();
-  const [form, setForm]         = useState({ email: '', password: '' });
-  const [error, setError]       = useState('');
-  const [showPass, setShowPass] = useState(false);
-  const [focused, setFocused]   = useState('');
+  const [form, setForm]           = useState({ email: '', password: '' });
+  const [error, setError]         = useState('');
+  const [showPass, setShowPass]   = useState(false);
+  const [focused, setFocused]     = useState('');
+  const [showForgot, setShowForgot] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [forgotMsg, setForgotMsg]   = useState('');
+  const [forgotLoading, setForgotLoading] = useState(false);
+
+  const handleForgot = async (e) => {
+    e.preventDefault();
+    setForgotLoading(true);
+    setForgotMsg('');
+    try {
+      const { data } = await api.post('/auth/forgot-password', { email: forgotEmail });
+      setForgotMsg(data.message);
+    } catch {
+      setForgotMsg('Something went wrong. Please try again.');
+    }
+    setForgotLoading(false);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -154,7 +172,7 @@ const Login = () => {
               <div style={s.field}>
                 <div style={s.labelRow}>
                   <label style={s.label}>Password</label>
-                  <span style={s.forgotLink}>Forgot password?</span>
+                  <span style={s.forgotLink} onClick={() => { setShowForgot(true); setForgotMsg(''); setForgotEmail(form.email); }}>Forgot password?</span>
                 </div>
                 <div style={{ position: 'relative' }}>
                   <input
@@ -223,6 +241,37 @@ const Login = () => {
         </div>
 
       </div>
+
+      {/* Forgot Password Modal */}
+      {showForgot && (
+        <div style={s.overlay} onClick={() => setShowForgot(false)}>
+          <div style={s.forgotCard} onClick={e => e.stopPropagation()}>
+            <h3 style={{ margin: '0 0 6px', fontSize: '1.1rem', fontWeight: 700, color: '#111827' }}>Reset Password</h3>
+            <p style={{ margin: '0 0 20px', fontSize: '0.85rem', color: '#6b7280' }}>Enter your email and we'll send your reset credentials.</p>
+            {forgotMsg
+              ? <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', color: '#15803d', padding: '12px 14px', borderRadius: 8, fontSize: '0.85rem', marginBottom: 16 }}>{forgotMsg}</div>
+              : (
+                <form onSubmit={handleForgot} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                  <input
+                    className="s-input"
+                    style={s.input}
+                    type="email"
+                    placeholder="your@email.com"
+                    value={forgotEmail}
+                    onChange={e => setForgotEmail(e.target.value)}
+                    required
+                    autoFocus
+                  />
+                  <button className="s-btn" style={{ ...s.loginBtn, marginTop: 0 }} type="submit" disabled={forgotLoading}>
+                    {forgotLoading ? 'Sending...' : 'Send Reset Email'}
+                  </button>
+                </form>
+              )
+            }
+            <button onClick={() => setShowForgot(false)} style={{ marginTop: 14, background: 'none', border: 'none', color: '#9ca3af', fontSize: '0.82rem', cursor: 'pointer', width: '100%' }}>Cancel</button>
+          </div>
+        </div>
+      )}
     </>
   );
 };
@@ -286,6 +335,9 @@ const s = {
 
   note:     { textAlign: 'center', fontSize: '0.82rem', color: '#6b7280', margin: 0 },
   noteLink: { color: '#4f46e5', fontWeight: 600, textDecoration: 'none' },
+
+  overlay:    { position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 },
+  forgotCard: { background: '#fff', borderRadius: 14, padding: '32px 36px', width: '100%', maxWidth: 400, boxShadow: '0 8px 40px rgba(0,0,0,0.18)' },
 };
 
 export default Login;

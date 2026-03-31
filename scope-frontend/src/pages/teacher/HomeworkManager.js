@@ -8,6 +8,7 @@ const HomeworkManager = () => {
   const [homework, setHomework]   = useState([]);
   const [students, setStudents]   = useState([]);
   const [showModal, setShowModal] = useState(false);
+  const [showSubmissions, setShowSubmissions] = useState(null);
   const [saving, setSaving]       = useState(false);
   const [loading, setLoading]     = useState(true);
   const [error, setError]         = useState('');
@@ -143,7 +144,7 @@ const HomeworkManager = () => {
             </div>
             <div style={styles.hwRight}>
               <Badge label={isOverdue(hw) ? 'Overdue' : 'Active'} type={isOverdue(hw) ? 'danger' : 'success'} />
-              <div style={styles.submissionCount}>
+              <div style={styles.submissionCount} onClick={() => setShowSubmissions(hw)} title="View submissions">
                 <span style={styles.subNum}>{hw.submissions?.length || 0}</span>
                 <span style={styles.subLabel}>Submissions</span>
               </div>
@@ -202,6 +203,45 @@ const HomeworkManager = () => {
           </form>
         </Modal>
       )}
+
+      {showSubmissions && (
+        <Modal title={`Submissions: ${showSubmissions.title}`} onClose={() => setShowSubmissions(null)} width={600}>
+          <div style={styles.submissionsModal}>
+            <div style={styles.submissionHeader}>
+              <span style={styles.submissionMeta}>{showSubmissions.subject} · Class {showSubmissions.class}-{showSubmissions.section}</span>
+              <span style={styles.submissionMeta}>Due: {new Date(showSubmissions.dueDate).toLocaleDateString('en-IN')}</span>
+            </div>
+            {(!showSubmissions.submissions || showSubmissions.submissions.length === 0) ? (
+              <div style={styles.noSubmissions}>No submissions yet</div>
+            ) : (
+              <div style={styles.submissionsList}>
+                {showSubmissions.submissions.map((sub, i) => {
+                  const studentData = students.find(s => s._id === sub.student || s._id === sub.student?._id);
+                  return (
+                    <div key={i} style={styles.submissionItem}>
+                      <div style={styles.submissionLeft}>
+                        <div style={styles.studentName}>{studentData?.name || 'Student'}</div>
+                        <div style={styles.submissionTime}>
+                          Submitted: {new Date(sub.submittedAt).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                        </div>
+                        {sub.fileUrl && (
+                          <a href={`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}${sub.fileUrl}`} target="_blank" rel="noopener noreferrer" style={styles.fileLink}>
+                            ↓ Download File
+                          </a>
+                        )}
+                        {!sub.fileUrl && <span style={styles.noFile}>No file attached</span>}
+                      </div>
+                      <div style={styles.submissionRight}>
+                        <Badge label={sub.status === 'late' ? 'Late' : 'On Time'} type={sub.status === 'late' ? 'warning' : 'success'} />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </Modal>
+      )}
     </AppLayout>
   );
 };
@@ -225,7 +265,7 @@ const styles = {
   hwDesc:          { fontSize: '0.85rem', color: '#6b7280', marginBottom: 10 },
   hwMeta:          { display: 'flex', gap: 16, fontSize: '0.8rem', color: '#9ca3af', flexWrap: 'wrap' },
   hwRight:         { display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 12 },
-  submissionCount: { display: 'flex', flexDirection: 'column', alignItems: 'center', background: '#f8fafc', borderRadius: 8, padding: '10px 16px' },
+  submissionCount: { display: 'flex', flexDirection: 'column', alignItems: 'center', background: '#f8fafc', borderRadius: 8, padding: '10px 16px', cursor: 'pointer', transition: 'background 0.2s' },
   subNum:          { fontSize: '1.4rem', fontWeight: 800, color: '#4f46e5' },
   subLabel:        { fontSize: '0.72rem', color: '#9ca3af' },
   deleteBtn:       { background: '#fef2f2', color: '#ef4444', border: '1px solid #fecaca', padding: '5px 12px', borderRadius: 6, fontSize: '0.78rem', fontWeight: 600, cursor: 'pointer' },
@@ -237,6 +277,18 @@ const styles = {
   modalFooter:     { display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 4 },
   cancelBtn:       { padding: '9px 18px', border: '1.5px solid #e5e7eb', borderRadius: 8, background: '#fff', color: '#374151', fontWeight: 600, fontSize: '0.88rem', cursor: 'pointer' },
   saveBtn:         { padding: '9px 20px', background: '#f59e0b', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 600, fontSize: '0.88rem', cursor: 'pointer' },
+  submissionsModal: { display: 'flex', flexDirection: 'column', gap: 16 },
+  submissionHeader: { display: 'flex', justifyContent: 'space-between', paddingBottom: 12, borderBottom: '1px solid #e5e7eb' },
+  submissionMeta: { fontSize: '0.85rem', color: '#6b7280' },
+  noSubmissions: { textAlign: 'center', padding: '40px', color: '#9ca3af', fontSize: '0.9rem' },
+  submissionsList: { display: 'flex', flexDirection: 'column', gap: 10, maxHeight: 400, overflowY: 'auto' },
+  submissionItem: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', padding: '12px', background: '#f9fafb', borderRadius: 8, border: '1px solid #e5e7eb' },
+  submissionLeft: { flex: 1 },
+  submissionRight: { flexShrink: 0 },
+  studentName: { fontSize: '0.9rem', fontWeight: 600, color: '#111827', marginBottom: 4 },
+  submissionTime: { fontSize: '0.78rem', color: '#6b7280', marginBottom: 6 },
+  fileLink: { fontSize: '0.82rem', color: '#4f46e5', fontWeight: 600, textDecoration: 'none', display: 'inline-block', marginTop: 4 },
+  noFile: { fontSize: '0.78rem', color: '#9ca3af', fontStyle: 'italic' },
 };
 
 export default HomeworkManager;

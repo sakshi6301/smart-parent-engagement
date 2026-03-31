@@ -1,5 +1,6 @@
+const crypto = require('crypto');
 const User = require('../models/User');
-const generateToken = require('../utils/generateToken');
+const { generateToken, generateRefreshToken } = require('../utils/generateToken');
 const sendEmail = require('../utils/sendEmail');
 
 const credentialEmailHTML = (name, email, password, role) => `
@@ -90,7 +91,38 @@ exports.login = async (req, res) => {
   if (!user || !(await user.matchPassword(password)))
     return res.status(401).json({ message: 'Invalid credentials' });
 
+  const refreshToken = generateRefreshToken(user._id);
+  user.refreshToken = refreshToken;
+  await user.save();
+
+  res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict', maxAge: 30 * 24 * 60 * 60 * 1000 });
   res.json({ _id: user._id, name: user.name, email: user.email, role: user.role, token: generateToken(user._id) });
+};
+
+exports.refreshToken = async (req, res) => {
+  const token = req.cookies?.refreshToken;
+  if (!token) return res.status(401).json({ message: 'No refresh token' });
+
+  try {
+    const jwt = require('jsonwebtoken');
+    const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+    const user = await User.findById(decoded.id);
+    if (!user || user.refreshToken !== token)
+      return res.status(401).json({ message: 'Invalid refresh token' });
+
+    res.json({ token: generateToken(user._id) });
+  } catch {
+    res.status(401).json({ message: 'Refresh token expired, please login again' });
+  }
+};
+
+exports.logoutUser = async (req, res) => {
+  const token = req.cookies?.refreshToken;
+  if (token) {
+    await User.findOneAndUpdate({ refreshToken: token }, { refreshToken: null });
+  }
+  res.clearCookie('refreshToken');
+  res.json({ message: 'Logged out' });
 };
 
 exports.getProfile = async (req, res) => {
@@ -250,4 +282,61 @@ exports.resendCredentials = async (req, res) => {
   } catch (err) {
     res.status(500).json({ message: 'Failed to send email: ' + err.message });
   }
+};
+
+// Public forgot password — sends a unique time-limited reset token
+exports.forgotPassword = async (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ message: 'Email is required' });
+
+  const user = await User.findOne({ email: email.toLowerCase() });
+  // Always return success to avoid email enumeration
+  if (!user || user.email.endsWith('@scope.internal')) {
+    return res.json({ message: 'If that email exists, a reset link has been sent.' });
+  }
+
+  const resetToken = crypto.randomBytes(32).toString('hex');
+  user.passwordResetToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+  user.passwordResetExpires = Date.now() + 15 * 60 * 1000; // 15 minutes
+  await user.save();
+
+  const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/reset-password/${resetToken}`;
+
+  try {
+    await sendEmail({
+      to: user.email,
+      subject: 'SCOPE — Password Reset Request',
+      html: `
+        <p>Hi ${user.name},</p>
+        <p>You requested a password reset. Click the link below (valid for 15 minutes):</p>
+        <a href="${resetUrl}" style="background:#4f46e5;color:#fff;padding:10px 20px;border-radius:6px;text-decoration:none;">Reset Password</a>
+        <p>If you did not request this, ignore this email.</p>
+      `,
+    });
+  } catch (err) {
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
+    await user.save();
+    return res.status(500).json({ message: 'Email could not be sent' });
+  }
+
+  res.json({ message: 'If that email exists, a reset link has been sent.' });
+};
+
+// Reset password using the token from the email link
+exports.resetPassword = async (req, res) => {
+  const hashedToken = crypto.createHash('sha256').update(req.params.token).digest('hex');
+  const user = await User.findOne({
+    passwordResetToken: hashedToken,
+    passwordResetExpires: { $gt: Date.now() },
+  });
+
+  if (!user) return res.status(400).json({ message: 'Token is invalid or has expired' });
+
+  user.password = req.body.password;
+  user.passwordResetToken = undefined;
+  user.passwordResetExpires = undefined;
+  await user.save();
+
+  res.json({ message: 'Password reset successful. You can now log in.' });
 };
