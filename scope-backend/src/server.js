@@ -22,6 +22,10 @@ const io = new Server(server, { cors: { origin: ALLOWED_ORIGIN, credentials: tru
 
 app.set('io', io);
 
+// Trust one level of proxy (e.g. CRA/Vite dev proxy, Nginx) so that
+// express-rate-limit can read X-Forwarded-For correctly.
+app.set('trust proxy', 1);
+
 // 1. CORS configuration (must be first to enable CORS on rate-limit responses)
 app.use(cors({ origin: ALLOWED_ORIGIN, credentials: true }));
 

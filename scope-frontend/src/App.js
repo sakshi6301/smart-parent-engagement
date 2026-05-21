@@ -21,6 +21,7 @@ import BulkImport from './pages/admin/BulkImport';
 import LinkManagement from './pages/admin/LinkManagement';
 import AdminNotifications from './pages/admin/Notifications';
 import AnalyticsDashboard from './pages/admin/AnalyticsDashboard';
+import AIModelManager from './pages/admin/AIModelManager';
 
 // Teacher
 import TeacherDashboard from './pages/teacher/TeacherDashboard';
@@ -30,6 +31,7 @@ import HomeworkManager from './pages/teacher/HomeworkManager';
 import Chat from './pages/teacher/Chat';
 import Meetings from './pages/teacher/Meetings';
 import TeacherNotifications from './pages/teacher/Notifications';
+import RiskMonitor from './pages/teacher/RiskMonitor';
 
 // Parent
 import ParentDashboard from './pages/parent/ParentDashboard';
@@ -39,6 +41,7 @@ import ParentChat from './pages/parent/ParentChat';
 import ParentGrades from './pages/parent/ParentGrades';
 import ParentMeetings from './pages/parent/ParentMeetings';
 import Notifications from './pages/parent/Notifications';
+import EngagementScore from './pages/parent/EngagementScore';
 
 // Student
 import StudentDashboard from './pages/student/StudentDashboard';
@@ -71,6 +74,7 @@ const App = () => (
         <Route path="/admin/notifications" element={<PR roles={['admin']}><AdminNotifications /></PR>} />
         <Route path="/admin/bulk-import" element={<PR roles={['admin']}><BulkImport /></PR>} />
         <Route path="/admin/link-management" element={<PR roles={['admin']}><LinkManagement /></PR>} />
+        <Route path="/admin/ai-model" element={<PR roles={['admin']}><AIModelManager /></PR>} />
 
         {/* Teacher */}
         <Route path="/teacher" element={<PR roles={['teacher']}><TeacherDashboard /></PR>} />
@@ -80,6 +84,7 @@ const App = () => (
         <Route path="/teacher/chat" element={<PR roles={['teacher']}><Chat /></PR>} />
         <Route path="/teacher/meetings" element={<PR roles={['teacher']}><Meetings /></PR>} />
         <Route path="/teacher/notifications" element={<PR roles={['teacher']}><TeacherNotifications /></PR>} />
+        <Route path="/teacher/risk" element={<PR roles={['teacher']}><RiskMonitor /></PR>} />
 
         {/* Parent */}
         <Route path="/parent" element={<PR roles={['parent']}><ParentDashboard /></PR>} />
@@ -89,6 +94,7 @@ const App = () => (
         <Route path="/parent/chat" element={<PR roles={['parent']}><ParentChat /></PR>} />
         <Route path="/parent/meetings" element={<PR roles={['parent']}><ParentMeetings /></PR>} />
         <Route path="/parent/notifications" element={<PR roles={['parent']}><Notifications /></PR>} />
+        <Route path="/parent/engagement" element={<PR roles={['parent']}><EngagementScore /></PR>} />
 
         {/* Student */}
         <Route path="/student" element={<PR roles={['student']}><StudentDashboard /></PR>} />
