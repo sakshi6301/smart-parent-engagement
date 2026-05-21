@@ -9,6 +9,8 @@ const connectDB = require('./config/db');
 const errorHandler = require('./middleware/errorHandler');
 const { scheduleWeeklyDigest, runWeeklyDigest } = require('./utils/weeklyDigest');
 const path = require('path');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 
 connectDB();
 
@@ -20,7 +22,35 @@ const io = new Server(server, { cors: { origin: ALLOWED_ORIGIN, credentials: tru
 
 app.set('io', io);
 
+// 1. CORS configuration (must be first to enable CORS on rate-limit responses)
 app.use(cors({ origin: ALLOWED_ORIGIN, credentials: true }));
+
+// 2. Security Headers via Helmet
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" }
+}));
+
+// 3. Rate Limiting (Strict for auth, standard for general API)
+const generalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 500, // Limit each IP to 500 requests per window
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: 'Too many requests from this IP, please try again after 15 minutes' }
+});
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 20, // Limit each IP to 20 auth attempts per window
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: 'Too many authentication attempts from this IP, please try again after 15 minutes' }
+});
+
+app.use('/api/auth/', authLimiter);
+app.use('/api/', generalLimiter);
+
+// 4. Other Standard Middlewares
 app.use(cookieParser());
 app.use(morgan('dev'));
 app.use(express.json());
