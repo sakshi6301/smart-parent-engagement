@@ -123,12 +123,20 @@ router.get('/ai/risk/:studentId', protect, authorize('teacher', 'admin'), predic
 - bcrypt with salt rounds = 10 (in User model `pre('save')` hook)
 - Password only hashed when modified (`if (!this.isModified('password')) return next()`)
 - Default password for bulk-imported users: `Welcome@123` — users are prompted to change it
+- Password reset uses cryptographically random tokens (32 bytes) hashed with SHA-256
+- Reset tokens expire after 15 minutes
 
-### Security Considerations I'm Aware Of
-- JWT tokens don't expire (known limitation — should add `expiresIn: '7d'`)
-- No refresh token mechanism yet
-- CORS is set to `origin: '*'` — should be restricted to frontend domain in production
-- Forgot password resets to a fixed temp password instead of a unique token link
+### Token Security
+- Access tokens (JWT) expire after 7 days (configurable via `JWT_EXPIRES_IN`)
+- Refresh tokens expire after 30 days, stored as httpOnly cookies (XSS-safe)
+- Refresh tokens stored in database, can be revoked on logout
+- Automatic token refresh via Axios interceptor with request queuing
+
+### Production Security Improvements
+- CORS restricted to `ALLOWED_ORIGIN` environment variable (no more `origin: '*'`)
+- Refresh tokens sent as httpOnly cookies with `secure` flag in production
+- Password reset tokens hashed before storage (SHA-256)
+- No email enumeration in forgot password endpoint
 
 ---
 
@@ -618,6 +626,18 @@ A:
 - **Observer pattern** — Socket.io events for real-time updates
 - **Microservices** — separate AI service with well-defined HTTP API contract
 - **Fallback/Circuit breaker** — AI controller falls back to rule-based logic if Flask is down
+
+---
+
+**Q: What security improvements did you implement?**
+
+A: I made several production-ready security enhancements. First, I implemented JWT token expiration with a refresh token mechanism — access tokens expire after 7 days, and refresh tokens are stored as httpOnly cookies to prevent XSS attacks. The frontend automatically refreshes expired tokens using an Axios interceptor that queues concurrent requests during refresh. Second, I restricted CORS to only allow requests from the configured frontend domain instead of accepting all origins. Third, I built a secure password reset flow using cryptographically random tokens that are hashed with SHA-256 and expire after 15 minutes — much better than the original fixed password approach. I also added server-side logout that revokes refresh tokens from the database.
+
+---
+
+**Q: How does your token refresh mechanism work?**
+
+A: When an access token expires, the Axios response interceptor catches the 401 error and automatically calls `POST /auth/refresh-token` with the httpOnly refresh token cookie. The server validates the refresh token against the database, issues a new access token, and returns it. The interceptor then retries the original failed request with the new token. If multiple requests fail simultaneously during token expiration, they're queued and all retried once the refresh completes. If the refresh token itself is invalid or expired, the user is logged out and redirected to login. This provides a seamless experience — users can stay logged in for 30 days without interruption.
 
 ---
 

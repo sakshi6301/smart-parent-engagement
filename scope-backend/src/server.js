@@ -34,7 +34,6 @@ app.use('/api/grades', require('./routes/grades'));
 app.use('/api/homework', require('./routes/homework'));
 app.use('/api/notifications', require('./routes/notifications'));
 app.use('/api/chat', require('./routes/chat'));
-app.use('/api/ai', require('./routes/ai'));
 app.use('/api/feedback', require('./routes/feedback'));
 app.use('/api/analytics', require('./routes/analytics'));
 app.use('/api/bulk-import', require('./routes/bulkImport'));

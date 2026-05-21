@@ -20,7 +20,6 @@ Most schools still rely on physical diaries or WhatsApp groups to communicate wi
 - **Frontend** - React.js with Tailwind CSS and Chart.js for graphs
 - **Backend** - Node.js with Express
 - **Database** - MongoDB Atlas (free tier)
-- **AI/ML** - Python Flask service using scikit-learn
 - **Notifications** - Firebase Cloud Messaging for push, Nodemailer + Brevo SMTP for emails
 - **Auth** - JWT tokens with bcrypt password hashing
 
@@ -32,7 +31,6 @@ Most schools still rely on physical diaries or WhatsApp groups to communicate wi
 smart-parent-engagement/
   scope-frontend/      React app (port 3000)
   scope-backend/       Node/Express API (port 5000)
-  scope-ai-service/    Python Flask AI (port 8000)
 ```
 
 ---
@@ -68,13 +66,6 @@ npm install
 npm start
 ```
 
-**AI service**
-```
-cd scope-ai-service
-pip install -r requirements.txt
-python app.py
-```
-
 ---
 
 ## Environment variables
@@ -83,9 +74,11 @@ Each service has a `.env.example` file showing what variables are needed. Main o
 
 - `MONGO_URI` - MongoDB Atlas connection string
 - `JWT_SECRET` - any random secret string
+- `JWT_REFRESH_SECRET` - different random secret for refresh tokens
 - `EMAIL_HOST`, `EMAIL_USER`, `EMAIL_PASS` - SMTP credentials (I used Brevo)
-- `AI_SERVICE_URL` - URL of the Flask service, default http://localhost:8000
 - `FIREBASE_SERVER_KEY` - for push notifications
+- `ALLOWED_ORIGIN` - frontend URL for CORS
+- `FRONTEND_URL` - frontend URL for password reset emails
 
 ---
 
@@ -107,23 +100,6 @@ Base URL is `http://localhost:5000/api`
 | POST | /notifications/send | Send notification |
 | GET | /chat/:roomId | Get chat messages |
 | POST | /chat/send | Send message |
-| GET | /ai/risk/:studentId | Get AI risk prediction |
-| GET | /ai/grade-trend/:studentId | Get grade trend forecast |
-| GET | /ai/attendance-anomaly/:studentId | Check attendance anomaly |
-
----
-
-## AI features
-
-The AI service runs separately on port 8000. It has three main things:
-
-1. **Risk prediction** - uses a Random Forest model trained on attendance, grades and homework completion to predict if a student is at high/medium/low risk
-
-2. **Grade trend forecasting** - uses Linear Regression on past exam scores to predict the next score and show if a student is improving or declining per subject
-
-3. **Attendance anomaly detection** - uses Isolation Forest to detect unusual patterns like sudden drops or frequent Monday/Friday absences
-
-4. **Learning recommendations** - rule based system that suggests study resources for weak subjects
 
 ---
 
@@ -136,25 +112,24 @@ The AI service runs separately on port 8000. It has three main things:
 5. Push and email notifications
 6. Parent-teacher chat (real-time with Socket.io)
 7. Meeting request system
-8. AI risk monitor for teachers
-9. Parent engagement scoring
-10. Admin analytics dashboard
-11. Bulk student import via CSV
+8. Admin analytics dashboard
+9. Bulk student import via CSV
+10. Secure password reset with email tokens
+11. JWT token refresh mechanism
 
 ---
 
 ## Known issues / things to improve
 
-- The AI model is trained on synthetic data right now, ideally it should be retrained on real school data
 - No mobile app yet, the React frontend is responsive but a native app would be better
-- File upload for assignments is not done yet
+- File upload for teacher homework attachments is not done yet (students can upload)
 - Multilingual support is partially done (i18n setup exists but translations are incomplete)
 
 ---
 
 ## Deployment
 
-- Backend and AI service can be deployed on Railway or Render (free tier works fine for demo)
+- Backend can be deployed on Railway or Render (free tier works fine for demo)
 - Frontend goes on Vercel
 - Database is already on MongoDB Atlas cloud
 
