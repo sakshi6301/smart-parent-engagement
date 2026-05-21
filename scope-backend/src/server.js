@@ -67,6 +67,7 @@ app.use('/api/chat', require('./routes/chat'));
 app.use('/api/feedback', require('./routes/feedback'));
 app.use('/api/analytics', require('./routes/analytics'));
 app.use('/api/bulk-import', require('./routes/bulkImport'));
+app.use('/api/ai', require('./routes/ai'));
 if (process.env.NODE_ENV === 'development') {
   app.use('/api/dev', require('./routes/dev'));
 }
