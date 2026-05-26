@@ -6,10 +6,10 @@ import api from '../services/api';
 const roleRedirect = { admin: '/admin', teacher: '/teacher', parent: '/parent', student: '/student' };
 
 const ROLES = [
-  { role: 'Admin',   color: '#7c3aed', bg: '#f5f3ff', border: '#ddd6fe', email: 'admin@scope.com' },
-  { role: 'Teacher', color: '#0891b2', bg: '#ecfeff', border: '#a5f3fc', email: 'teacher@school.com' },
-  { role: 'Parent',  color: '#059669', bg: '#f0fdf4', border: '#bbf7d0', email: 'parent@email.com' },
-  { role: 'Student', color: '#d97706', bg: '#fffbeb', border: '#fde68a', email: 'roll@scope.internal' },
+  { role: 'Admin',   color: '#7c3aed', bg: '#f5f3ff', border: '#ddd6fe', email: 'admin@scope.com', password: 'Admin@123' },
+  { role: 'Teacher', color: '#0891b2', bg: '#ecfeff', border: '#a5f3fc', email: 'priya.teacher@scope.com', password: 'Test@1234' },
+  { role: 'Parent',  color: '#059669', bg: '#f0fdf4', border: '#bbf7d0', email: 'rajesh.parent@scope.com', password: 'Test@1234' },
+  { role: 'Student', color: '#d97706', bg: '#fffbeb', border: '#fde68a', email: 'aarav.student@scope.com', password: 'Test@1234' },
 ];
 
 const CARDS = [
@@ -223,8 +223,8 @@ const Login = () => {
                   key={r.role}
                   className="s-role"
                   style={{ ...s.roleBtn, background: r.bg, border: `1.5px solid ${r.border}`, color: r.color }}
-                  onClick={() => setForm(f => ({ ...f, email: r.email }))}
-                  title={`Fill ${r.role} demo email`}
+                  onClick={() => setForm({ email: r.email, password: r.password || '' })}
+                  title={`Fill ${r.role} demo credentials`}
                   type="button"
                 >
                   {r.role}
