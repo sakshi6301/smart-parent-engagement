@@ -7,10 +7,12 @@ const mongoose = require('mongoose');
 const User    = require('./models/User');
 const Student = require('./models/Student');
 
+const ADMIN    = { name: 'Admin User',    email: 'admin@scope.com',          password: 'Admin@123', role: 'admin'   };
 const TEACHER1 = { name: 'Priya Joshi',   email: 'priya.teacher@scope.com',  password: 'Test@1234', role: 'teacher' };
 const TEACHER2 = { name: 'Rahul Desai',   email: 'rahul.teacher@scope.com',  password: 'Test@1234', role: 'teacher' };
 const PARENT1  = { name: 'Rajesh Sharma', email: 'rajesh.parent@scope.com',  password: 'Test@1234', role: 'parent'  };
 const PARENT2  = { name: 'Sunita Patil',  email: 'sunita.parent@scope.com',  password: 'Test@1234', role: 'parent'  };
+const STUDENT1 = { name: 'Aarav Sharma',  email: 'aarav.student@scope.com',  password: 'Test@1234', role: 'student' };
 
 const STUDENTS = [
   {
@@ -37,10 +39,12 @@ async function seed() {
     return u;
   };
 
+  const a1 = await upsert(ADMIN);
   const t1 = await upsert(TEACHER1);
   const t2 = await upsert(TEACHER2);
   const p1 = await upsert(PARENT1);
   const p2 = await upsert(PARENT2);
+  const s1 = await upsert(STUDENT1);
 
   // Upsert students and link
   const links = [
