@@ -10,6 +10,8 @@ const BulkImport = () => {
   const [loading, setLoading]   = useState(false);
   const [result, setResult]     = useState(null);
   const [error, setError]       = useState('');
+  const [provisionLoading, setProvisionLoading] = useState(false);
+  const [provisionMsg, setProvisionMsg] = useState('');
   const inputRef                = useRef();
 
   const handleFile = (f) => {
@@ -62,6 +64,20 @@ const BulkImport = () => {
       URL.revokeObjectURL(url);
     } catch {
       setError('Could not download template.');
+    }
+  };
+
+  const handleProvision = async () => {
+    if (!window.confirm('This will create user accounts for all students without one. Continue?')) return;
+    setProvisionLoading(true);
+    setProvisionMsg('');
+    try {
+      const { data } = await api.post('/auth/admin/provision-students');
+      setProvisionMsg(data.message);
+    } catch (err) {
+      setProvisionMsg(err.response?.data?.message || 'Provisioning failed.');
+    } finally {
+      setProvisionLoading(false);
     }
   };
 
@@ -190,6 +206,26 @@ const BulkImport = () => {
                 </ul>
               </div>
             )}
+
+            {/* Action buttons */}
+            <div style={{ marginTop: 24, borderTop: '1px solid #e5e7eb', paddingTop: 20 }}>
+              <h4 style={{ margin: '0 0 10px', fontSize: '0.95rem', color: '#111827' }}>Next Steps</h4>
+              <p style={{ margin: '0 0 16px', fontSize: '0.85rem', color: '#6b7280' }}>
+                Imported students do not have login accounts by default. Click below to automatically provision user accounts for them.
+              </p>
+              <button 
+                onClick={handleProvision}
+                disabled={provisionLoading}
+                style={{ background: '#10b981', color: '#fff', border: 'none', padding: '10px 16px', borderRadius: 8, fontWeight: 600, cursor: 'pointer', opacity: provisionLoading ? 0.7 : 1 }}
+              >
+                {provisionLoading ? 'Provisioning...' : 'Provision Student Accounts'}
+              </button>
+              {provisionMsg && (
+                <div style={{ marginTop: 12, padding: '10px', background: provisionMsg.includes('failed') ? '#fef2f2' : '#f0fdf4', color: provisionMsg.includes('failed') ? '#b91c1c' : '#059669', borderRadius: 6, fontSize: '0.85rem' }}>
+                  {provisionMsg}
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>
