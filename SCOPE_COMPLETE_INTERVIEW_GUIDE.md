@@ -372,17 +372,8 @@ pages/student/  → StudentDashboard, StudentGrades, StudentHomework...
 
 ---
 
-## 13. DOCKER & DEPLOYMENT
+## 13. DEPLOYMENT PLAN
 
-### Docker Setup
-All three services have `Dockerfile`s. `docker-compose.yml` at root orchestrates them:
-```yaml
-# Three services: frontend, backend, ai-service
-# Backend depends on ai-service being healthy
-# Environment variables injected via .env files
-```
-
-### Deployment Plan
 | Service | Platform |
 |---------|----------|
 | Frontend | Vercel |
@@ -503,9 +494,6 @@ joblib is used to serialize (save) and deserialize (load) Python objects to disk
 ---
 
 ### INFRASTRUCTURE & TOOLS
-
-**Docker + Docker Compose**
-Docker packages an application and all its dependencies into a container — an isolated environment that runs the same way on any machine. Docker Compose lets you define and run multiple containers together. I have Dockerfiles for all three services and a `docker-compose.yml` at the root that starts the frontend, backend, and AI service together with one command: `docker-compose up`.
 
 **Vercel**
 Vercel is a cloud platform for deploying frontend applications. It integrates directly with GitHub — every push to main auto-deploys the React app. It handles CDN, HTTPS, and custom domains automatically. Free tier is sufficient for a demo project.
@@ -648,7 +636,7 @@ When answering, naturally use these terms to show depth:
 - **Backend:** Express middleware chain, JWT Bearer tokens, bcrypt salt rounds, Mongoose virtuals, compound indexes, upsert, populate (MongoDB joins), async/await, try/catch error boundaries
 - **Frontend:** React Context API, protected routes, Axios interceptors, Socket.io client, Chart.js, Tailwind utility classes, role-based rendering
 - **AI/ML:** Random Forest, cross-validation, joblib serialization, Linear Regression slope, Isolation Forest contamination parameter, feature engineering, synthetic training data
-- **Infrastructure:** Docker Compose, environment variables, CORS, health check endpoints, cron jobs, webhook-style event triggers
+- **Infrastructure:** Environment variables, CORS, health check endpoints, cron jobs, webhook-style event triggers
 
 ---
 
